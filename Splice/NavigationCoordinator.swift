@@ -28,8 +28,8 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
   func albumImportViewController(_ importVC: AlbumImportViewController, didPick assets: [AVAsset]) {
     print("albumImportViewController didPickClips")
+    composition.assets = assets
     let spliceViewController = SpliceViewController()
-    spliceViewController.assets = assets
     spliceViewController.dataSource = self
     spliceViewController.delegate = self
     navController.pushViewController(spliceViewController, animated: true)

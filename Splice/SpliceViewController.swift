@@ -38,7 +38,17 @@ class SpliceViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .systemGray
-    playerVC.assets = dataSource?.assets ?? []
+    addPlayerVC()
+  }
+  
+  func addPlayerVC() {
+    if let assets = dataSource?.assets {
+      playerVC.playerItems = assets.map{AVPlayerItem(asset: $0)}
+    }
+    view.addSubview(playerVC.view)
+    addChild(playerVC)
+    playerVC.didMove(toParent: self)
+    
   }
   
   

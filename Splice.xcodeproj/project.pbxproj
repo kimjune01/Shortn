@@ -25,6 +25,8 @@
 		0E2511E4272C60A100E425D6 /* Intervals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E3272C60A100E425D6 /* Intervals.swift */; };
 		0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */; };
 		0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */; };
+		0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E9272C99CA00E425D6 /* PlayerView.swift */; };
+		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,10 @@
 		0E2511E3272C60A100E425D6 /* Intervals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intervals.swift; sourceTree = "<group>"; };
 		0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumImportViewController.swift; sourceTree = "<group>"; };
 		0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpliceComposition.swift; sourceTree = "<group>"; };
+		0E2511E9272C99CA00E425D6 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
+		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,17 +61,28 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		02C7B4317AAEA228DB7D8062 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				495892CD97D8D3419CAC2239 /* Pods_Splice.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0E2511AF2726066800E425D6 = {
 			isa = PBXGroup;
 			children = (
 				0E2511BA2726066800E425D6 /* Splice */,
 				0E2511B92726066800E425D6 /* Products */,
+				5CF56B7B117DBDADECDAEF46 /* Pods */,
+				02C7B4317AAEA228DB7D8062 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -88,6 +105,7 @@
 				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
 				0E2511E3272C60A100E425D6 /* Intervals.swift */,
 				0E2511D327260AEC00E425D6 /* PlayerViewController.swift */,
+				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */,
 				0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */,
 				0E2511D527260C0900E425D6 /* VideoAsset.swift */,
@@ -103,6 +121,15 @@
 			path = Splice;
 			sourceTree = "<group>";
 		};
+		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */,
+				B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -110,9 +137,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Splice" */;
 			buildPhases = (
+				D1C6B0CEE14F510FC6F7B2EF /* [CP] Check Pods Manifest.lock */,
 				0E2511B42726066800E425D6 /* Sources */,
 				0E2511B52726066800E425D6 /* Frameworks */,
 				0E2511B62726066800E425D6 /* Resources */,
+				641C35AC94AEE2C91716CBE0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -168,6 +197,48 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		641C35AC94AEE2C91716CBE0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D1C6B0CEE14F510FC6F7B2EF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Splice-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0E2511B42726066800E425D6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -177,6 +248,7 @@
 				0E2511C02726066800E425D6 /* ViewController.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
 				0E2511E027260CED00E425D6 /* Date+.swift in Sources */,
+				0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */,
 				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
 				0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */,
@@ -324,6 +396,7 @@
 		};
 		0E2511CD2726066900E425D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -351,6 +424,7 @@
 		};
 		0E2511CE2726066900E425D6 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
