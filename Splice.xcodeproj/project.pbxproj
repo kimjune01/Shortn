@@ -10,9 +10,21 @@
 		0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BB2726066800E425D6 /* AppDelegate.swift */; };
 		0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BD2726066800E425D6 /* SceneDelegate.swift */; };
 		0E2511C02726066800E425D6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BF2726066800E425D6 /* ViewController.swift */; };
-		0E2511C32726066800E425D6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C12726066800E425D6 /* Main.storyboard */; };
 		0E2511C52726066900E425D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C42726066900E425D6 /* Assets.xcassets */; };
 		0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C62726066900E425D6 /* LaunchScreen.storyboard */; };
+		0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */; };
+		0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D127260A5800E425D6 /* SpliceViewController.swift */; };
+		0E2511D427260AEC00E425D6 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D327260AEC00E425D6 /* PlayerViewController.swift */; };
+		0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D527260C0900E425D6 /* VideoAsset.swift */; };
+		0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D727260C2700E425D6 /* MediaAsset.swift */; };
+		0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D927260C3E00E425D6 /* FileManager+.swift */; };
+		0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DB27260C5400E425D6 /* Duration+.swift */; };
+		0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DD27260CC900E425D6 /* AVAsset+.swift */; };
+		0E2511E027260CED00E425D6 /* Date+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DF27260CED00E425D6 /* Date+.swift */; };
+		0E2511E2272C5F5600E425D6 /* ScrubberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */; };
+		0E2511E4272C60A100E425D6 /* Intervals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E3272C60A100E425D6 /* Intervals.swift */; };
+		0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */; };
+		0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,10 +32,22 @@
 		0E2511BB2726066800E425D6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0E2511BD2726066800E425D6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		0E2511BF2726066800E425D6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		0E2511C22726066800E425D6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		0E2511C42726066900E425D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0E2511C72726066900E425D6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0E2511C92726066900E425D6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		0E2511D127260A5800E425D6 /* SpliceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpliceViewController.swift; sourceTree = "<group>"; };
+		0E2511D327260AEC00E425D6 /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		0E2511D527260C0900E425D6 /* VideoAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAsset.swift; sourceTree = "<group>"; };
+		0E2511D727260C2700E425D6 /* MediaAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAsset.swift; sourceTree = "<group>"; };
+		0E2511D927260C3E00E425D6 /* FileManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+.swift"; sourceTree = "<group>"; };
+		0E2511DB27260C5400E425D6 /* Duration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+.swift"; sourceTree = "<group>"; };
+		0E2511DD27260CC900E425D6 /* AVAsset+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAsset+.swift"; sourceTree = "<group>"; };
+		0E2511DF27260CED00E425D6 /* Date+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+.swift"; sourceTree = "<group>"; };
+		0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrubberViewController.swift; sourceTree = "<group>"; };
+		0E2511E3272C60A100E425D6 /* Intervals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intervals.swift; sourceTree = "<group>"; };
+		0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumImportViewController.swift; sourceTree = "<group>"; };
+		0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpliceComposition.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,8 +82,20 @@
 			children = (
 				0E2511BB2726066800E425D6 /* AppDelegate.swift */,
 				0E2511BD2726066800E425D6 /* SceneDelegate.swift */,
+				0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */,
 				0E2511BF2726066800E425D6 /* ViewController.swift */,
-				0E2511C12726066800E425D6 /* Main.storyboard */,
+				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
+				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
+				0E2511E3272C60A100E425D6 /* Intervals.swift */,
+				0E2511D327260AEC00E425D6 /* PlayerViewController.swift */,
+				0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */,
+				0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */,
+				0E2511D527260C0900E425D6 /* VideoAsset.swift */,
+				0E2511D727260C2700E425D6 /* MediaAsset.swift */,
+				0E2511D927260C3E00E425D6 /* FileManager+.swift */,
+				0E2511DB27260C5400E425D6 /* Duration+.swift */,
+				0E2511DD27260CC900E425D6 /* AVAsset+.swift */,
+				0E2511DF27260CED00E425D6 /* Date+.swift */,
 				0E2511C42726066900E425D6 /* Assets.xcassets */,
 				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
 				0E2511C92726066900E425D6 /* Info.plist */,
@@ -127,7 +163,6 @@
 			files = (
 				0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */,
 				0E2511C52726066900E425D6 /* Assets.xcassets in Resources */,
-				0E2511C32726066800E425D6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,23 +173,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */,
 				0E2511C02726066800E425D6 /* ViewController.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
+				0E2511E027260CED00E425D6 /* Date+.swift in Sources */,
+				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
+				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
+				0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */,
+				0E2511E4272C60A100E425D6 /* Intervals.swift in Sources */,
+				0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */,
+				0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */,
+				0E2511E2272C5F5600E425D6 /* ScrubberViewController.swift in Sources */,
+				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
+				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
+				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
+				0E2511D427260AEC00E425D6 /* PlayerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		0E2511C12726066800E425D6 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0E2511C22726066800E425D6 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		0E2511C62726066900E425D6 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -294,7 +334,6 @@
 				INFOPLIST_FILE = Splice/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -322,7 +361,6 @@
 				INFOPLIST_FILE = Splice/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
