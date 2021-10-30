@@ -51,6 +51,9 @@ class AlbumImportViewController: UIViewController {
     var config = UIButton.Configuration.plain()
     config.title = "Import Videos from Album"
     config.image = UIImage(systemName: "photo.on.rectangle")
+    config.imagePlacement = .top
+    config.imagePadding = 8
+    config.buttonSize = .large
     importButton.configuration = config
     view.addSubview(importButton)
     importButton.translatesAutoresizingMaskIntoConstraints = false
@@ -79,7 +82,12 @@ class AlbumImportViewController: UIViewController {
 extension AlbumImportViewController: PHPickerViewControllerDelegate {
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
     let identifiers = results.compactMap(\.assetIdentifier)
+    var identifiersToIndex = [String: Int]()
+    for i in 0..<identifiers.count {
+      identifiersToIndex[identifiers[i]] = i
+    }
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    
     let fetchCount = fetchResult.count
     spinner.startAnimating()
     assetRequestQueue.async {
@@ -88,8 +96,9 @@ extension AlbumImportViewController: PHPickerViewControllerDelegate {
         let eachVideoAsset = fetchResult.object(at: i)
         self.group.enter()
         PHImageManager.default().requestAVAsset(forVideo: eachVideoAsset, options: .none, resultHandler: { avAsset, audioMix, info in
-          if let asset = avAsset {
-            self.orderedAssets[i] = asset
+          if let asset = avAsset,
+              let index = identifiersToIndex[eachVideoAsset.localIdentifier] {
+            self.orderedAssets[index] = asset
           }
           self.group.leave()
         })

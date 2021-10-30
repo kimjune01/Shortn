@@ -21,14 +21,14 @@
 		0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DB27260C5400E425D6 /* Duration+.swift */; };
 		0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DD27260CC900E425D6 /* AVAsset+.swift */; };
 		0E2511E027260CED00E425D6 /* Date+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511DF27260CED00E425D6 /* Date+.swift */; };
-		0E2511E2272C5F5600E425D6 /* ScrubberViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */; };
-		0E2511E4272C60A100E425D6 /* Intervals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E3272C60A100E425D6 /* Intervals.swift */; };
+		0E2511E2272C5F5600E425D6 /* TimelineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */; };
 		0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */; };
 		0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */; };
 		0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511E9272C99CA00E425D6 /* PlayerView.swift */; };
 		0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511EB272CA87D00E425D6 /* UIView+.swift */; };
 		0E2511EE272CA87D00E425D6 /* UIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511EC272CA87D00E425D6 /* UIImage+.swift */; };
 		0E2511F0272CA8C400E425D6 /* UIButton+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511EF272CA8C400E425D6 /* UIButton+.swift */; };
+		0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
@@ -49,14 +49,14 @@
 		0E2511DB27260C5400E425D6 /* Duration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+.swift"; sourceTree = "<group>"; };
 		0E2511DD27260CC900E425D6 /* AVAsset+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAsset+.swift"; sourceTree = "<group>"; };
 		0E2511DF27260CED00E425D6 /* Date+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+.swift"; sourceTree = "<group>"; };
-		0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrubberViewController.swift; sourceTree = "<group>"; };
-		0E2511E3272C60A100E425D6 /* Intervals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intervals.swift; sourceTree = "<group>"; };
+		0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineViewController.swift; sourceTree = "<group>"; };
 		0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumImportViewController.swift; sourceTree = "<group>"; };
 		0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpliceComposition.swift; sourceTree = "<group>"; };
 		0E2511E9272C99CA00E425D6 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		0E2511EB272CA87D00E425D6 /* UIView+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+.swift"; sourceTree = "<group>"; };
 		0E2511EC272CA87D00E425D6 /* UIImage+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+.swift"; sourceTree = "<group>"; };
 		0E2511EF272CA8C400E425D6 /* UIButton+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIButton+.swift"; sourceTree = "<group>"; };
+		0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortGestureRecognizer.swift; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -109,10 +109,9 @@
 				0E2511BF2726066800E425D6 /* ViewController.swift */,
 				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
 				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
-				0E2511E3272C60A100E425D6 /* Intervals.swift */,
 				0E2511D327260AEC00E425D6 /* PlayerViewController.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
-				0E2511E1272C5F5600E425D6 /* ScrubberViewController.swift */,
+				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
 				0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */,
 				0E2511D527260C0900E425D6 /* VideoAsset.swift */,
 				0E2511D727260C2700E425D6 /* MediaAsset.swift */,
@@ -123,6 +122,7 @@
 				0E2511EC272CA87D00E425D6 /* UIImage+.swift */,
 				0E2511EB272CA87D00E425D6 /* UIView+.swift */,
 				0E2511EF272CA8C400E425D6 /* UIButton+.swift */,
+				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
 				0E2511C42726066900E425D6 /* Assets.xcassets */,
 				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
 				0E2511C92726066900E425D6 /* Info.plist */,
@@ -262,16 +262,16 @@
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
 				0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */,
-				0E2511E4272C60A100E425D6 /* Intervals.swift in Sources */,
 				0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */,
 				0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */,
-				0E2511E2272C5F5600E425D6 /* ScrubberViewController.swift in Sources */,
+				0E2511E2272C5F5600E425D6 /* TimelineViewController.swift in Sources */,
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
 				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
 				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
 				0E2511D427260AEC00E425D6 /* PlayerViewController.swift in Sources */,
 				0E2511EE272CA87D00E425D6 /* UIImage+.swift in Sources */,
+				0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */,
 				0E2511F0272CA8C400E425D6 /* UIButton+.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

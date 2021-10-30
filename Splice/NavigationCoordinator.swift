@@ -29,31 +29,15 @@ extension NavigationCoordinator: AlbumImportViewControllerDelegate {
   func albumImportViewController(_ importVC: AlbumImportViewController, didPick assets: [AVAsset]) {
     print("albumImportViewController didPickClips")
     composition.assets = assets
-    let spliceViewController = SpliceViewController()
-    spliceViewController.dataSource = self
+    let spliceViewController = SpliceViewController(composition: composition)
     spliceViewController.delegate = self
     navController.pushViewController(spliceViewController, animated: true)
   }
 }
 
-extension NavigationCoordinator: SpliceViewControllerDataSource, SpliceViewControllerDelegate {
+extension NavigationCoordinator: SpliceViewControllerDelegate {
   func spliceViewControllerDidFinish(_ spliceVC: SpliceViewController) {
     // do the preview!
   }
-  
-  
-  var assets: [AVAsset] {
-    return composition.assets
-  }
-  
-  var splices: [Splice] {
-    get {
-      return composition.splices
-    }
-    set {
-      composition.splices = newValue
-    }
-  }
-  
   
 }
