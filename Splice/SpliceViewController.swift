@@ -28,7 +28,7 @@ class SpliceViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: SpliceViewControllerDelegate?
   
-  let playerVC = PlayerViewController()
+  var playerVC: PlayerViewController!
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
 
@@ -68,10 +68,8 @@ class SpliceViewController: UIViewController {
   }
   
   func addPlayerVC() {
+    playerVC = PlayerViewController(composition: composition)
     playerVC.delegate = self
-    playerVC.playerItems = assets.map({ asset in
-      return AVPlayerItem(asset: asset)
-    })
     view.addSubview(playerVC.view)
     addChild(playerVC)
     playerVC.didMove(toParent: self)
@@ -99,7 +97,7 @@ class SpliceViewController: UIViewController {
   func addTimelineVC() {
     timelineVC.delegate = self
     view.addSubview(timelineVC.view)
-    timelineVC.view.set(height: 50)
+    timelineVC.view.set(height: TimelineViewController.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
     timelineVC.view.centerXInParent()
     timelineVC.view.pinBottom(toTopOf: spliceButton, margin: 8)
@@ -111,8 +109,10 @@ class SpliceViewController: UIViewController {
     switch spliceState {
     case .including:
       playerVC.view.isUserInteractionEnabled = false
+      timelineVC.appearIncluding()
     case .neutral:
       playerVC.view.isUserInteractionEnabled = true
+      timelineVC.appearNeutral()
     }
   }
   
@@ -161,6 +161,14 @@ extension SpliceViewController: TimelineViewControllerDelegate {
   func currentTimeForDisplay() -> TimeInterval {
     return playerVC.currentPlaybackTime()
   }
+
+  func displayLinkStepped() {
+    composition.timeSubject.send(playerVC.currentPlaybackTime())
+  }
+
+  func sliderValueDragged(to time: TimeInterval) {
+    playerVC.seek(to: time)
+  }
   
 }
 
@@ -168,4 +176,8 @@ extension SpliceViewController: PlayerViewControllerDelegate {
   func playerVC(_ playerVC: PlayerViewController, didBoundaryUpdate time: TimeInterval) {
     
   }
+  func assetsForPlayback() -> [AVAsset] {
+    return assets
+  }
+  
 }

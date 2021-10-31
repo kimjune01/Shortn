@@ -14,8 +14,9 @@ protocol PlayerViewControllerDelegate: AnyObject {
 
 class PlayerViewController: UIViewController {
   weak var delegate: PlayerViewControllerDelegate?
-  var playerItems: [AVPlayerItem] = []
-  private var queuePlayer: AVQueuePlayer?
+  unowned var composition: SpliceComposition
+  private var player: AVPlayer!
+  private var currentAsset: AVAsset!
   // Key-value observing context
   private var playerItemContext = 0
   let requiredAssetKeys = ["playable", "hasProtectedContent"]
@@ -23,11 +24,20 @@ class PlayerViewController: UIViewController {
   let playerView: PlayerView = PlayerView()
   let leftFastPanel = UIView()
   let rightFastPanel = UIView()
+  let centerPanel = UIView()
   let fastSeconds: TimeInterval = 15
   
   var playbackState: AVPlayer.TimeControlStatus {
-    guard let player = queuePlayer else { return .paused }
     return player.timeControlStatus
+  }
+  
+  init(composition: SpliceComposition) {
+    self.composition = composition
+    super.init(nibName: nil, bundle: nil)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
   
   override func viewDidLoad() {
@@ -37,20 +47,9 @@ class PlayerViewController: UIViewController {
   }
   
   func addPlayer() {
-    guard playerItems.count > 0 else {
-      print("no player items ")
-      return
-    }
-    for eachItem in playerItems {
-      eachItem.addObserver(self,
-                           forKeyPath:  #keyPath(AVPlayerItem.status),
-                           options: [.old, .new],
-                           context: &playerItemContext)
-    }
-    queuePlayer = AVQueuePlayer(items: playerItems)
     view.addSubview(playerView)
     playerView.frame = view.bounds
-    playerView.player = queuePlayer
+    makePlayer(item: makePlayerItem(at: 0))
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
     playerView.addGestureRecognizer(singleTapRecognizer)
@@ -60,11 +59,27 @@ class PlayerViewController: UIViewController {
     singleTapRecognizer.require(toFail: doubleTapRecognizer)
   }
   
+  func makePlayer(item: AVPlayerItem) {
+    player = AVPlayer(playerItem: item)
+    playerView.player = player
+  }
+  
+  func makePlayerItem(at index: Int) -> AVPlayerItem {
+    currentAsset = composition.assets[index]
+    let item = AVPlayerItem(asset: currentAsset)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(playerDidFinishPlaying),
+                                           name: .AVPlayerItemDidPlayToEndTime,
+                                           object: item)
+    
+    return item
+  }
+  
   func addFastPanels() {
-    let panelScreenPortion = view.width * 0.3
+    let panelScreenPortion = view.width * 0.27
     let panelHeight = view.height * 0.7
     let marginY = (view.height - panelHeight)/2
-  
+    
     leftFastPanel.frame = CGRect(x: -panelScreenPortion, y: marginY,
                                  width: panelScreenPortion * 2,
                                  height: panelHeight)
@@ -85,12 +100,20 @@ class PlayerViewController: UIViewController {
     rightFastPanel.layer.cornerCurve = .continuous
     rightFastPanel.alpha = 0
     playerView.addSubview(rightFastPanel)
-
+    
     let rightFastLabel = fastLabel()
     rightFastLabel.text = "15 sec ▶▶"
     rightFastLabel.textAlignment = .right
     rightFastLabel.center = CGPoint(x: rightFastPanel.width * 0.25, y: rightFastPanel.height / 2)
     rightFastPanel.addSubview(rightFastLabel)
+    
+    centerPanel.frame = CGRect(x: panelScreenPortion,
+                               y: marginY,
+                               width: playerView.width - 2 * panelScreenPortion,
+                               height: rightFastPanel.height)
+    playerView.addSubview(centerPanel)
+    let centerSingleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapCenterPanel))
+    centerPanel.addGestureRecognizer(centerSingleTapRecognizer)
   }
   
   func fastLabel() -> UILabel {
@@ -106,7 +129,6 @@ class PlayerViewController: UIViewController {
   }
   
   func togglePlayback() {
-    guard let player = queuePlayer else { return }
     if player.timeControlStatus == .playing {
       player.pause()
     } else if player.status == .readyToPlay {
@@ -129,7 +151,6 @@ class PlayerViewController: UIViewController {
   }
   
   func handleDoubleTapLeft() {
-    guard playerItems.count > 0 else { return }
     leftFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
       self.leftFastPanel.alpha = 0
@@ -137,21 +158,10 @@ class PlayerViewController: UIViewController {
     let current = currentPlaybackTime()
     // left boundary condition
     if current < fastSeconds {
-      play(at: 0, localTime: 0)
+      seek(at: 0, localTime: 0)
       return
     }
-    var remainder = current - fastSeconds
-    var lastRemainder = remainder
-    var rundex = 0
-    var lastIndex = rundex
-    while remainder > 0 {
-      let item = playerItems[rundex]
-      lastRemainder = remainder
-      remainder -= item.duration.seconds
-      lastIndex = rundex
-      rundex += 1
-    }
-    play(at: lastIndex, localTime: lastRemainder)
+    seek(to: current - fastSeconds)
   }
   
   func handleDoubleTapRight() {
@@ -159,51 +169,102 @@ class PlayerViewController: UIViewController {
     UIView.animate(withDuration: 0.5) {
       self.rightFastPanel.alpha = 0
     }
+    let current = currentPlaybackTime()
+    // right boundary condition
+    if current + fastSeconds >= composition.totalDuration {
+      seek(at: 0, localTime: 0)
+      return
+    }
+    seek(to: current - fastSeconds)
   }
   
-  func play(at index: Int, localTime: TimeInterval) {
-    guard let player = queuePlayer else { return }
-    print("play at \(index), localTime: \(localTime)")
-//    player.removeAllItems()
-//    player.seek(to: CMTime(seconds: currentPlaybackTime() - 15, preferredTimescale: 1))
+  func seek(to time: TimeInterval) {
+    var remainder = time
+    var lastRemainder = remainder
+    var rundex = 0
+    var lastIndex = rundex
+    while remainder > 0 {
+      let asset = composition.assets[rundex]
+      lastRemainder = remainder
+      remainder -= asset.duration.seconds
+      lastIndex = rundex
+      rundex += 1
+    }
+    seek(at: lastIndex,
+         localTime: lastRemainder,
+         play: player.timeControlStatus == .playing)
+    
   }
-//  - (void)playAtIndex:(NSInteger)index
-//  {
-//    [audioPlayer removeAllItems];
-//    AVPlayerItem* obj = [playerItemList objectAtIndex:index];
-//    [obj seekToTime:kCMTimeZero];
-//    [audioPlayer insertItem:obj afterItem:nil];
-//    [audioPlayer play];
-//  }
+  
+  private func seek(at index: Int, localTime: TimeInterval, play: Bool? = nil) {
+    let prevIndex = currentlyPlayingIndex()
+    if index == prevIndex {
+      // current item
+      player.seek(to: localTime.cmTime,
+                  toleranceBefore: (0.05).cmTime,
+                  toleranceAfter: (0.05).cmTime)
+      
+    } else {
+      // next or previous item.
+      makePlayer(item: makePlayerItem(at: index))
+      player.seek(to: localTime.cmTime,
+                  toleranceBefore: (0.05).cmTime,
+                  toleranceAfter: (0.05).cmTime)
+    }
+    if let doPlay = play {
+      if doPlay {
+        player.play()
+      } else {
+        player.pause()
+      }
+    }
+  }
   
   func play() {
-    guard let player = queuePlayer else { return }
     player.play()
   }
   
   func pause() {
-    guard let player = queuePlayer else { return }
     player.pause()
   }
   
   func currentPlaybackTime() -> TimeInterval {
-    guard let player = queuePlayer,
-          let currentItem = player.currentItem,
-          let currentItemIndex = playerItems.firstIndex(of: currentItem)
+    guard let currentItemIndex = composition.assets.firstIndex(of: currentAsset)
     else { return 0 }
     var runSum: TimeInterval = 0
     for i in 0..<currentItemIndex {
-      runSum += playerItems[i].duration.seconds
+      runSum += composition.assets[i].duration.seconds
     }
     return runSum + player.currentTime().seconds
+  }
+  
+  func currentlyPlayingIndex() -> Int {
+    if let currentItemIndex = composition.assets.firstIndex(of: currentAsset) {
+      return currentItemIndex
+    }
+    return 0
   }
   
   @objc func tappedPlayer() {
     print("tappedPlayer")
   }
   
-  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-    print("keyPath: ", keyPath)
+  @objc func playerDidFinishPlaying(note: NSNotification) {
+    guard let _ = note.object as? AVPlayerItem else {
+      print("BOO!!!")
+      return
+    }
+    if let currentIndex = composition.assets.firstIndex(of: currentAsset),
+       currentIndex + 1 < composition.assets.count {
+      makePlayer(item: makePlayerItem(at: currentIndex + 1))
+      player.play()
+    } else {
+      
+    }
+  }
+  
+  @objc func didTapCenterPanel() {
+    togglePlayback()
   }
   
 }
