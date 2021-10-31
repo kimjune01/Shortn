@@ -12,7 +12,7 @@ class NavigationCoordinator: NSObject {
   let navController: UINavigationController
   let composition = SpliceComposition()
   override init() {
-    let albumImportVC = AlbumImportViewController()
+    let albumImportVC = AlbumImportViewController(composition: composition)
     navController = UINavigationController(rootViewController: albumImportVC)
     super.init()
     albumImportVC.delegate = self
@@ -31,9 +31,7 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 }
 
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
-  func albumImportViewController(_ importVC: AlbumImportViewController, didPick assets: [AVAsset]) {
-    print("albumImportViewController didPickClips")
-    composition.assets = assets
+  func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController) {
     let spliceViewController = SpliceViewController(composition: composition)
     spliceViewController.delegate = self
     spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(didTapNextButtonOnSpliceVC))

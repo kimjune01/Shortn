@@ -37,6 +37,7 @@ class SegmentsViewController: UIViewController {
     segmentOriginY = (TimelineViewController.defaultHeight - segmentHeight) / 2
     
     expandingSegment.backgroundColor = .systemRed
+    expandingSegment.roundCorner(radius: 3, cornerCurve: .continuous)
     expandingSegment.frame = CGRect(x: 0,
                                     y: segmentOriginY,
                                     width: 0,

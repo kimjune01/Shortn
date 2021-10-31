@@ -17,9 +17,8 @@ enum CompositionExporterError: Error {
 
 typealias CompositionExportCompletion = (URL?, Error?) -> ()
 
-class CompositionExporter {
+class CompositionExporter: NSObject {
   unowned var composition: SpliceComposition
-    
   init(composition: SpliceComposition) {
     self.composition = composition
   }
@@ -36,6 +35,9 @@ class CompositionExporter {
   func export(_ completion: @escaping CompositionExportCompletion) {
     assert(composition.assets.count > 0, "empty clips cannot be exported")
     let videoAssets: [AVAsset] = composition.assets
+    for case let urlAsset as AVURLAsset in videoAssets {
+      urlAsset.resourceLoader.setDelegate(self, queue: .main)
+    }
 
     let mixComposition = AVMutableComposition()
     guard let videoTrack = mixComposition.addMutableTrack(
@@ -102,9 +104,11 @@ class CompositionExporter {
     for i in 0..<videoAssets.count {
       let eachVideoAsset = videoAssets[i]
       do {
-        try clipsAudioTrack.insertTimeRange(CMTimeRangeMake(start: CMTime.zero,duration: eachVideoAsset.duration),
-                                            of: eachVideoAsset.tracks(withMediaType: .audio)[0], // assume one channel
-                                            at: currentClipAudioDuration)
+        if eachVideoAsset.tracks(withMediaType: .audio).count > 0 {
+          try clipsAudioTrack.insertTimeRange(CMTimeRangeMake(start: CMTime.zero,duration: eachVideoAsset.duration),
+                                              of: eachVideoAsset.tracks(withMediaType: .audio)[0], // assume one channel
+                                              at: currentClipAudioDuration)
+        }
         currentClipAudioDuration = CMTimeAdd(currentClipAudioDuration, eachVideoAsset.duration)
       } catch {
         completion(nil, CompositionExporterError.badVideoAudio)
@@ -147,4 +151,8 @@ class CompositionExporter {
       }
     }
   }
+}
+
+extension CompositionExporter: AVAssetResourceLoaderDelegate {
+  
 }

@@ -14,10 +14,12 @@ protocol PreviewViewControllerDelegate: AnyObject {
 class PreviewViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: PreviewViewControllerDelegate?
+  var exporter: CompositionExporter!
   
   init(composition: SpliceComposition) {
     self.composition = composition
-    super.init(nibName: nil, bundle: nil)    
+    super.init(nibName: nil, bundle: nil)
+    exporter = CompositionExporter(composition: composition)
   }
   
   required init?(coder: NSCoder) {
@@ -27,6 +29,13 @@ class PreviewViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
-    
+    exporter.export { url, err in
+      // hooray?
+      if let url = url {
+        print("hooray")
+      }
+    }
   }
+  
+  
 }

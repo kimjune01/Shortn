@@ -12,15 +12,22 @@ import PhotosUI
 // responsible for getting an array of videos from album
 
 protocol AlbumImportViewControllerDelegate: AnyObject {
-  func albumImportViewController(_ importVC: AlbumImportViewController, didPick assets: [AVAsset])
+  func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController)
 }
 
 class AlbumImportViewController: UIViewController {
+  unowned var composition: SpliceComposition
   weak var delegate: AlbumImportViewControllerDelegate?
-  var assetRequestQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .background)
-  let group = DispatchGroup()
-  var orderedAssets: [AVAsset?] = []
   let spinner = UIActivityIndicatorView(style: .large)
+  
+  init(composition: SpliceComposition) {
+    self.composition = composition
+    super.init(nibName: nil, bundle: nil)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -80,35 +87,17 @@ class AlbumImportViewController: UIViewController {
 }
 
 extension AlbumImportViewController: PHPickerViewControllerDelegate {
+  
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
     let identifiers = results.compactMap(\.assetIdentifier)
-    var identifiersToIndex = [String: Int]()
-    for i in 0..<identifiers.count {
-      identifiersToIndex[identifiers[i]] = i
-    }
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-    
-    let fetchCount = fetchResult.count
-    spinner.startAnimating()
-    assetRequestQueue.async {
-      self.orderedAssets = [AVAsset?](repeating: nil, count: fetchCount)
-      for i in 0..<fetchCount {
-        let eachVideoAsset = fetchResult.object(at: i)
-        self.group.enter()
-        PHImageManager.default().requestAVAsset(forVideo: eachVideoAsset, options: .none, resultHandler: { avAsset, audioMix, info in
-          if let asset = avAsset,
-              let index = identifiersToIndex[eachVideoAsset.localIdentifier] {
-            self.orderedAssets[index] = asset
-          }
-          self.group.leave()
-        })
-      }
-      self.group.notify(queue: .main) {
-        self.spinner.stopAnimating()
-        self.delegate?.albumImportViewController(self, didPick: self.orderedAssets.compactMap{$0})
-      }
-    }
+    composition.assetIdentifiers = identifiers
     picker.dismiss(animated: true)
+    spinner.startAnimating()
+    composition.requestAVAssets(from: fetchResult) {
+      self.spinner.stopAnimating()
+      self.delegate?.albumImportViewControllerDidPick(self)
+    }
   }
   
   
