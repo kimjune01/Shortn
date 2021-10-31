@@ -264,4 +264,28 @@ extension UIView {
     isUserInteractionEnabled = true
     alpha = 1
   }
+  
+  func startGlowing() {
+    stopGlowing()
+    layer.masksToBounds = false
+    layer.shadowColor = UIColor.white.withAlphaComponent(0.9).cgColor
+    layer.shadowRadius = 0
+    layer.shadowOpacity = 1
+    layer.shadowOffset = .zero
+    
+    let glowAnimation = CABasicAnimation(keyPath: "shadowRadius")
+    glowAnimation.fromValue = 1
+    glowAnimation.toValue = 2.8
+    glowAnimation.beginTime = CACurrentMediaTime()
+    glowAnimation.duration = CFTimeInterval(0.8)
+    glowAnimation.fillMode = .removed
+    glowAnimation.autoreverses = true
+    glowAnimation.repeatCount = .infinity
+    layer.add(glowAnimation, forKey: "shadowGlowingAnimation")
+  }
+  
+  func stopGlowing() {
+    layer.removeAllAnimations()
+    layer.shadowOpacity = 0
+  }
 }

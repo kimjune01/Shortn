@@ -28,13 +28,14 @@ class TimelineViewController: UIViewController {
   
   var displayLink: CADisplayLink!
   
-  let segmentsContainer = UIView()
-  let expandingSegment = UIView()
-  private let segmentsTag = 1337
-  private let segmentHeight: CGFloat = CustomSlider.defaultHeight
-  private var expandingSegmentMinX: CGFloat = 0
-  var segmentOriginY: CGFloat = 0
-  var isCurrentlyExpanding = false
+  var segmentsVC: SegmentsViewController!
+  var isCurrentlyExpanding = false {
+    didSet {
+      if isCurrentlyExpanding {
+        segmentsVC.stopGlowing()
+      }
+    }
+  }
   
   let scrubber = CustomSlider()
   var subscriptions = Set<AnyCancellable>()
@@ -51,7 +52,7 @@ class TimelineViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     subscribeToDisplayLink()
-    addExpandingSegment()
+    addSegmentsVC()
     addScrubber()
     observeTimer()
   }
@@ -67,18 +68,13 @@ class TimelineViewController: UIViewController {
     displayLink.add(to: .main, forMode: .common)
   }
   
-  func addExpandingSegment() {
-    view.addSubview(segmentsContainer)
-    segmentsContainer.fillParent()
-    
-    segmentOriginY = (TimelineViewController.defaultHeight - segmentHeight) / 2
-
-    expandingSegment.backgroundColor = .systemRed
-    expandingSegment.frame = CGRect(x: 0,
-                                    y: segmentOriginY,
-                                    width: 0,
-                                    height: segmentHeight)
-    segmentsContainer.addSubview(expandingSegment)
+  func addSegmentsVC() {
+    segmentsVC = SegmentsViewController(composition: composition)
+    segmentsVC.delegate = self
+    addChild(segmentsVC)
+    view.addSubview(segmentsVC.view)
+    segmentsVC.view.fillParent()
+    segmentsVC.didMove(toParent: self)
   }
   
   func addScrubber() {
@@ -104,37 +100,24 @@ class TimelineViewController: UIViewController {
   func startExpandingSegment() {
     isCurrentlyExpanding = true
     if let delegate = delegate {
-      expandingSegmentMinX = delegate.currentTimeForDisplay() * view.width / composition.totalDuration
+      segmentsVC.startExpandingSegment(time: delegate.currentTimeForDisplay())
     }
   }
   
   func stopExpandingSegment() {
     isCurrentlyExpanding = false
-    expandingSegment.frame = CGRect(x: expandingSegmentMinX, y: segmentOriginY, width: 0, height: segmentHeight)
+    segmentsVC.stopExpandingSegment()
   }
   
   func updateSegmentsForSplices() {
-    for eachSubview in segmentsContainer.subviews {
-      if eachSubview.tag == segmentsTag {
-        eachSubview.removeFromSuperview()
-      }
-    }
-    let totalDuration = composition.totalDuration
-    composition.splices.forEach { splice in
-      let minX = splice.lowerBound * view.width / totalDuration
-      let maxX = splice.upperBound * view.width / totalDuration
-      let segmentView = UIView(frame: CGRect(x: minX.rounded(.down),
-                                             y: segmentOriginY,
-                                             width: (maxX - minX).rounded(.up),
-                                             height: segmentHeight))
-      segmentView.tag = segmentsTag
-      segmentView.backgroundColor = .systemBlue
-      segmentsContainer.addSubview(segmentView)
-    }
+    segmentsVC.updateSegmentsForSplices()
   }
   
   func setScrubberPosition(to time: TimeInterval) {
-    scrubber.value = Float(time)
+    if scrubber.value != Float(time) {
+      segmentsVC.stopGlowing()
+      scrubber.value = Float(time)
+    }
   }
   
   func appearIncluding() {
@@ -151,10 +134,7 @@ class TimelineViewController: UIViewController {
     if isCurrentlyExpanding {
       let actualFramesPerSecond = 1 / (displaylink.targetTimestamp - displaylink.timestamp)
       currentFps = actualFramesPerSecond.rounded()
-      expandingSegment.frame = CGRect(x: expandingSegmentMinX,
-                                      y: segmentOriginY,
-                                      width: expandingSegment.width + advanceRate,
-                                      height: segmentHeight)
+      segmentsVC.expand(rate: advanceRate)
     }
     delegate?.displayLinkStepped()
   }
@@ -165,9 +145,24 @@ class TimelineViewController: UIViewController {
   
   @objc func didTouchDownScrubber(_ slider: UISlider) {
     delegate?.timelineVCDidTouchDownScrubber()
+    segmentsVC.stopGlowing()
   }
   
   @objc func didTouchDoneScrubber(_ slider: UISlider) {
     delegate?.timelineVCDidTouchDoneScrubber()
+  }
+}
+
+extension TimelineViewController: SegmentsViewControllerDelegate {
+  func segmentsVCDidSelectSegment(at index: Int) {
+    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again.", preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
+      self.composition.removeSplice(at: index)
+      self.segmentsVC.updateSegmentsForSplices()
+    }))
+    alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+      self.segmentsVC.stopGlowing()
+    }))
+    present(alertController, animated: true, completion: nil)
   }
 }

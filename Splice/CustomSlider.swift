@@ -55,4 +55,12 @@ class CustomSlider: UISlider {
                   height: trackHeight)
   }
   
+  override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    let hitView = super.hitTest(point, with: event)
+    // HAX
+    if let sliderImage = subviews.last?.subviews.last, sliderImage.frame.contains(point) {
+      return hitView
+    }
+    return nil
+  }
 }

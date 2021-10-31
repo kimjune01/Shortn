@@ -31,6 +31,7 @@
 		0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */; };
 		0E2511F4272DEA8800E425D6 /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F3272DEA8800E425D6 /* CustomSlider.swift */; };
 		0E2511F6272E0DB600E425D6 /* TimeInterval+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F5272E0DB600E425D6 /* TimeInterval+.swift */; };
+		0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +62,7 @@
 		0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortGestureRecognizer.swift; sourceTree = "<group>"; };
 		0E2511F3272DEA8800E425D6 /* CustomSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		0E2511F5272E0DB600E425D6 /* TimeInterval+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+.swift"; sourceTree = "<group>"; };
+		0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentsViewController.swift; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				0E2511D327260AEC00E425D6 /* PlayerViewController.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
+				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
 				0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */,
 				0E2511D527260C0900E425D6 /* VideoAsset.swift */,
 				0E2511D727260C2700E425D6 /* MediaAsset.swift */,
@@ -268,6 +271,7 @@
 				0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */,
 				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
+				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
 				0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */,
 				0E2511E6272C60EF00E425D6 /* AlbumImportViewController.swift in Sources */,

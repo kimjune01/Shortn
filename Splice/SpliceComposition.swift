@@ -34,12 +34,10 @@ class SpliceComposition {
         joinableSplice = lower...upper
         splices.append(joinableSplice)
         splices.remove(at: i)
-        print("joining")
         joined = true
       }
     }
     if !joined {
-      print("appending")
       splices.append(splice)
     }
   }
@@ -48,6 +46,10 @@ class SpliceComposition {
     return left.overlaps(right) ||
     abs(left.upperBound - right.lowerBound) < 0.05 ||
     abs(right.upperBound - left.lowerBound) < 0.05
+  }
+  
+  func removeSplice(at index: Int) {
+    splices.remove(at: index)
   }
 }
 
