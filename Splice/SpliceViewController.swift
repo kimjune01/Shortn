@@ -38,6 +38,7 @@ class SpliceViewController: UIViewController {
       updateAppearance()
     }
   }
+  var wasPlaying: Bool = false
   
   var assets: [AVAsset] {
     return composition.assets
@@ -120,16 +121,16 @@ class SpliceViewController: UIViewController {
     setSpliceMode()
     let playbackTime = playerVC.currentPlaybackTime()
     spliceState = .including(playbackTime)
-    if playerVC.playbackState != .playing {
+    if !playerVC.isPlaying {
       playerVC.play()
     }
     timelineVC.startExpandingSegment()
   }
   
   func setSpliceMode() {
-    if playerVC.playbackState == .paused {
+    if !playerVC.isPlaying {
       spliceMode = .pauseSplice
-    } else if playerVC.playbackState == .playing {
+    } else if playerVC.isPlaying {
       spliceMode = .playSplice
     }
   }
@@ -170,6 +171,16 @@ extension SpliceViewController: TimelineViewControllerDelegate {
     playerVC.seek(to: time)
   }
   
+  func timelineVCDidTouchDownScrubber() {
+    wasPlaying = playerVC.isPlaying
+    playerVC.pause()
+  }
+
+  func timelineVCDidTouchDoneScrubber() {
+    if wasPlaying {
+      playerVC.play()
+    }
+  }
 }
 
 extension SpliceViewController: PlayerViewControllerDelegate {

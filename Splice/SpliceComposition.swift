@@ -24,18 +24,24 @@ class SpliceComposition {
   }
   
   func append(_ splice: Splice) {
+    var joinableSplice = splice
+    var joined = false
     for i in 0..<splices.count {
       let eachOldSplice = splices[i]
-      if almostOverlaps(eachOldSplice, splice) {
-        let lower = min(eachOldSplice.lowerBound, splice.lowerBound)
-        let upper = max(eachOldSplice.upperBound, splice.upperBound)
-        splices.append(lower...upper)
+      if almostOverlaps(eachOldSplice, joinableSplice) {
+        let lower = min(eachOldSplice.lowerBound, joinableSplice.lowerBound)
+        let upper = max(eachOldSplice.upperBound, joinableSplice.upperBound)
+        joinableSplice = lower...upper
+        splices.append(joinableSplice)
         splices.remove(at: i)
         print("joining")
-        return
+        joined = true
       }
     }
-    splices.append(splice)
+    if !joined {
+      print("appending")
+      splices.append(splice)
+    }
   }
   
   func almostOverlaps(_ left: Splice, _ right: Splice) -> Bool {

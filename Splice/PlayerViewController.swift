@@ -27,8 +27,11 @@ class PlayerViewController: UIViewController {
   let centerPanel = UIView()
   let fastSeconds: TimeInterval = 15
   
-  var playbackState: AVPlayer.TimeControlStatus {
+  private var playbackState: AVPlayer.TimeControlStatus {
     return player.timeControlStatus
+  }
+  var isPlaying: Bool {
+    return playbackState == .playing
   }
   
   init(composition: SpliceComposition) {
@@ -191,12 +194,11 @@ class PlayerViewController: UIViewController {
       rundex += 1
     }
     seek(at: lastIndex,
-         localTime: lastRemainder,
-         play: player.timeControlStatus == .playing)
+         localTime: lastRemainder)
     
   }
   
-  private func seek(at index: Int, localTime: TimeInterval, play: Bool? = nil) {
+  private func seek(at index: Int, localTime: TimeInterval) {
     let prevIndex = currentlyPlayingIndex()
     if index == prevIndex {
       // current item
@@ -210,13 +212,6 @@ class PlayerViewController: UIViewController {
       player.seek(to: localTime.cmTime,
                   toleranceBefore: (0.05).cmTime,
                   toleranceAfter: (0.05).cmTime)
-    }
-    if let doPlay = play {
-      if doPlay {
-        player.play()
-      } else {
-        player.pause()
-      }
     }
   }
   

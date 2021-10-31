@@ -13,6 +13,8 @@ protocol TimelineViewControllerDelegate: AnyObject {
   func currentTimeForDisplay() -> TimeInterval
   func displayLinkStepped()
   func sliderValueDragged(to time: TimeInterval)
+  func timelineVCDidTouchDownScrubber()
+  func timelineVCDidTouchDoneScrubber()
 }
 
 class TimelineViewController: UIViewController {
@@ -84,6 +86,9 @@ class TimelineViewController: UIViewController {
     scrubber.centerYInParent()
     scrubber.fillWidthOfParent()
     scrubber.addTarget(self, action: #selector(didSlideScrubber), for: .valueChanged)
+    scrubber.addTarget(self, action: #selector(didTouchDownScrubber), for: .touchDown)
+    scrubber.addTarget(self, action: #selector(didTouchDoneScrubber), for: .touchUpInside)
+    scrubber.addTarget(self, action: #selector(didTouchDoneScrubber), for: .touchDragExit)
     scrubber.minimumValue = 0
     scrubber.maximumValue = Float(composition.totalDuration)
   }
@@ -156,5 +161,13 @@ class TimelineViewController: UIViewController {
   
   @objc func didSlideScrubber(_ slider: UISlider) {
     delegate?.sliderValueDragged(to: Double(slider.value))
+  }
+  
+  @objc func didTouchDownScrubber(_ slider: UISlider) {
+    delegate?.timelineVCDidTouchDownScrubber()
+  }
+  
+  @objc func didTouchDoneScrubber(_ slider: UISlider) {
+    delegate?.timelineVCDidTouchDoneScrubber()
   }
 }
