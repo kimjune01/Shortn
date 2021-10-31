@@ -154,8 +154,13 @@ class TimelineViewController: UIViewController {
 }
 
 extension TimelineViewController: SegmentsViewControllerDelegate {
+  func segmentsVCDidSwipeUpSegment(at index: Int) {
+    composition.removeSplice(at: index)
+    segmentsVC.updateSegmentsForSplices()
+  }
+  
   func segmentsVCDidSelectSegment(at index: Int) {
-    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again.", preferredStyle: .alert)
+    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
     alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
       self.composition.removeSplice(at: index)
       self.segmentsVC.updateSegmentsForSplices()

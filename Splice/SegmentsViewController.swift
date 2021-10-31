@@ -9,6 +9,8 @@ import UIKit
 
 protocol SegmentsViewControllerDelegate: AnyObject {
   func segmentsVCDidSelectSegment(at index: Int)
+  func segmentsVCDidSwipeUpSegment(at index: Int)
+  
 }
 
 class SegmentsViewController: UIViewController {
@@ -67,6 +69,9 @@ class SegmentsViewController: UIViewController {
       segmentView.backgroundColor = .systemBlue
       segmentView.roundCorner(radius: 3, cornerCurve: .continuous)
       segmentView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedSegment)))
+      let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipedUpSegment))
+      swipeUpRecognizer.direction = .up
+      segmentView.addGestureRecognizer(swipeUpRecognizer)
       view.addSubview(segmentView)
       segments.append(segmentView)
     }
@@ -88,6 +93,13 @@ class SegmentsViewController: UIViewController {
     }
   }
   
+  @objc func swipedUpSegment(_ recognizer: UISwipeGestureRecognizer) {
+    guard let segment = recognizer.view else { return }
+    let maybeIndex = segments.map{$0.minX}.sorted().firstIndex(of: segment.minX)
+    guard let index = maybeIndex else { return }
+    delegate?.segmentsVCDidSwipeUpSegment(at: index)
+
+  }
   func expand(rate: CGFloat) {
     expandingSegment.frame = CGRect(x: expandingSegmentMinX,
                                     y: segmentOriginY,
