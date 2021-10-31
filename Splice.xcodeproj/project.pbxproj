@@ -14,7 +14,7 @@
 		0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C62726066900E425D6 /* LaunchScreen.storyboard */; };
 		0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */; };
 		0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D127260A5800E425D6 /* SpliceViewController.swift */; };
-		0E2511D427260AEC00E425D6 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D327260AEC00E425D6 /* PlayerViewController.swift */; };
+		0E2511D427260AEC00E425D6 /* LongPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D327260AEC00E425D6 /* LongPlayerViewController.swift */; };
 		0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D527260C0900E425D6 /* VideoAsset.swift */; };
 		0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D727260C2700E425D6 /* MediaAsset.swift */; };
 		0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511D927260C3E00E425D6 /* FileManager+.swift */; };
@@ -48,7 +48,7 @@
 		0E2511C92726066900E425D6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		0E2511D127260A5800E425D6 /* SpliceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpliceViewController.swift; sourceTree = "<group>"; };
-		0E2511D327260AEC00E425D6 /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		0E2511D327260AEC00E425D6 /* LongPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongPlayerViewController.swift; sourceTree = "<group>"; };
 		0E2511D527260C0900E425D6 /* VideoAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAsset.swift; sourceTree = "<group>"; };
 		0E2511D727260C2700E425D6 /* MediaAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaAsset.swift; sourceTree = "<group>"; };
 		0E2511D927260C3E00E425D6 /* FileManager+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+.swift"; sourceTree = "<group>"; };
@@ -121,7 +121,7 @@
 				0E2511BF2726066800E425D6 /* ViewController.swift */,
 				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
 				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
-				0E2511D327260AEC00E425D6 /* PlayerViewController.swift */,
+				0E2511D327260AEC00E425D6 /* LongPlayerViewController.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
 				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
@@ -292,7 +292,7 @@
 				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
 				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
 				0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */,
-				0E2511D427260AEC00E425D6 /* PlayerViewController.swift in Sources */,
+				0E2511D427260AEC00E425D6 /* LongPlayerViewController.swift in Sources */,
 				0E2511EE272CA87D00E425D6 /* UIImage+.swift in Sources */,
 				0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */,
 				0E2511F0272CA8C400E425D6 /* UIButton+.swift in Sources */,

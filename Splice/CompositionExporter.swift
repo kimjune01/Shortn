@@ -17,10 +17,113 @@ enum CompositionExporterError: Error {
 
 typealias CompositionExportCompletion = (URL?, Error?) -> ()
 
-class CompositionExporter: NSObject {
+class CompositionExporter {
   unowned var composition: SpliceComposition
   init(composition: SpliceComposition) {
     self.composition = composition
+  }
+
+  
+  func export(_ completion: @escaping CompositionExportCompletion) {
+    combine() { url, error in
+      guard let url = url, error == nil else {
+        completion(nil, error)
+        return
+      }
+      self.splice(url, completion)
+    }
+  }
+  
+  func splice(_ url: URL, _ completion: @escaping CompositionExportCompletion) {
+    let videoAsset = AVURLAsset(url: url)
+    let mixComposition = AVMutableComposition()
+    guard let videoTrack = mixComposition.addMutableTrack(
+      withMediaType: .video,
+      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+    else {
+      completion(nil, CompositionExporterError.avFoundation)
+      return
+    }
+    guard let firstClipVideoTrack = videoAsset.tracks(withMediaType: .video).first else {
+      completion(nil, CompositionExporterError.badVideoInput)
+      return
+    }
+    mixComposition.naturalSize = firstClipVideoTrack.naturalSize
+    
+    guard let clipsAudioTrack = mixComposition.addMutableTrack(
+      withMediaType: .audio,
+      preferredTrackID: kCMPersistentTrackID_Invalid) else {
+        completion(nil, CompositionExporterError.avFoundation)
+        return
+      }
+    
+    var currentDuration = CMTime.zero
+    do {
+      for eachSplice in composition.splices {
+        let eachRange = CMTimeRangeMake(start: eachSplice.lowerBound.cmTime,
+                                        duration: (eachSplice.upperBound - eachSplice.lowerBound).cmTime)
+        try videoTrack.insertTimeRange(eachRange,
+                                       of: videoAsset.tracks(withMediaType: .video)[0],
+                                       at: currentDuration)
+        if videoAsset.tracks(withMediaType: .audio).count > 0 {
+          try clipsAudioTrack.insertTimeRange(eachRange,
+                                              of: videoAsset.tracks(withMediaType: .audio)[0], // assume one channel
+                                              at: currentDuration)
+        }
+        currentDuration = currentDuration + eachRange.duration
+      }
+    } catch {
+      completion(nil, CompositionExporterError.badVideoAudio)
+      return
+    }
+    
+    let layerInstructions = [VideoHelper.videoCompositionInstruction(videoTrack, asset: videoAsset)]
+    let mainInstruction = AVMutableVideoCompositionInstruction()
+    mainInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: currentDuration)
+    mainInstruction.layerInstructions = layerInstructions
+    
+    let firstVideoTrack = videoAsset.tracks(withMediaType: .video)[0]
+    let mainComposition = AVMutableVideoComposition()
+    mainComposition.instructions = [mainInstruction]
+    //    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
+    mainComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstVideoTrack.nominalFrameRate.rounded()))
+    mainComposition.renderSize = firstVideoTrack.naturalSize
+
+    let tempDirectory = FileManager.default.temporaryDirectory
+    let url = tempDirectory.appendingPathComponent("spliced\(UUID()).mov")
+    
+    guard let exporter = AVAssetExportSession(
+      asset: mixComposition,
+      presetName: AVAssetExportPresetPassthrough)
+    else { return }
+    
+    exporter.outputURL = url
+    exporter.outputFileType = AVFileType.mov
+    exporter.shouldOptimizeForNetworkUse = true
+    exporter.videoComposition = mainComposition
+    
+    exporter.exportAsynchronously {
+      DispatchQueue.main.async {
+        switch exporter.status {
+        case .completed:
+          print("export success")
+          completion(url, nil)
+        case .failed:
+          print("export failed \(exporter.error?.localizedDescription ?? "error nil")")
+          completion(nil, exporter.error)
+        case .cancelled:
+          print("export cancelled \(exporter.error?.localizedDescription ?? "error nil")")
+          completion(nil, exporter.error)
+        default:
+          print("export complete with error")
+          completion(nil, exporter.error)
+        }
+      }
+    }
+
+    
+    
+
   }
 
   /*
@@ -31,14 +134,10 @@ class CompositionExporter: NSObject {
    | mainComposition          AVMutableVideoComposition
    | | mainInstruction        AVMutableVideoCompositionInstruction
    */
-  
-  func export(_ completion: @escaping CompositionExportCompletion) {
+  func combine(_ completion: @escaping CompositionExportCompletion) {
     assert(composition.assets.count > 0, "empty clips cannot be exported")
     let videoAssets: [AVAsset] = composition.assets
-    for case let urlAsset as AVURLAsset in videoAssets {
-      urlAsset.resourceLoader.setDelegate(self, queue: .main)
-    }
-
+    
     let mixComposition = AVMutableComposition()
     guard let videoTrack = mixComposition.addMutableTrack(
       withMediaType: .video,
@@ -47,6 +146,7 @@ class CompositionExporter: NSObject {
       completion(nil, CompositionExporterError.avFoundation)
       return
     }
+    
     guard let firstClipVideoTrack = videoAssets.first!.tracks(withMediaType: .video).first else {
       completion(nil, CompositionExporterError.badVideoInput)
       return
@@ -90,7 +190,7 @@ class CompositionExporter: NSObject {
     let firstVideoTrack = videoAssets.first!.tracks(withMediaType: .video)[0]
     let mainComposition = AVMutableVideoComposition()
     mainComposition.instructions = [mainInstruction]
-//    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
+    //    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
     mainComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstVideoTrack.nominalFrameRate.rounded()))
     mainComposition.renderSize = portraitSize
     
@@ -124,7 +224,7 @@ class CompositionExporter: NSObject {
     
     guard let exporter = AVAssetExportSession(
       asset: mixComposition,
-      presetName: AVAssetExportPresetHighestQuality)
+      presetName: AVAssetExportPresetPassthrough)
     else { return }
     
     exporter.outputURL = url
@@ -150,9 +250,6 @@ class CompositionExporter: NSObject {
         }
       }
     }
-  }
-}
 
-extension CompositionExporter: AVAssetResourceLoaderDelegate {
-  
+  }
 }

@@ -35,7 +35,7 @@ extension NavigationCoordinator: AlbumImportViewControllerDelegate {
     let spliceViewController = SpliceViewController(composition: composition)
     spliceViewController.delegate = self
     spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(didTapNextButtonOnSpliceVC))
-
+    spliceViewController.navigationItem.rightBarButtonItem?.isEnabled = false
     navController.pushViewController(spliceViewController, animated: true)
   }
 }

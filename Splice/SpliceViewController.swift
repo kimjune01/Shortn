@@ -28,7 +28,7 @@ class SpliceViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: SpliceViewControllerDelegate?
   
-  var playerVC: PlayerViewController!
+  var playerVC: LongPlayerViewController!
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
 
@@ -68,13 +68,16 @@ class SpliceViewController: UIViewController {
     addTimelineVC()
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    
+  }
+  
   func addPlayerVC() {
-    playerVC = PlayerViewController(composition: composition)
-    playerVC.delegate = self
+    playerVC = LongPlayerViewController(composition: composition)
     view.addSubview(playerVC.view)
     addChild(playerVC)
     playerVC.didMove(toParent: self)
-    
   }
   
   func addSpliceButton() {
@@ -115,6 +118,7 @@ class SpliceViewController: UIViewController {
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearNeutral()
     }
+    navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
   }
   
   @objc func touchedDownSliceButton() {
@@ -181,14 +185,8 @@ extension SpliceViewController: TimelineViewControllerDelegate {
       playerVC.play()
     }
   }
-}
-
-extension SpliceViewController: PlayerViewControllerDelegate {
-  func playerVC(_ playerVC: PlayerViewController, didBoundaryUpdate time: TimeInterval) {
-    
-  }
-  func assetsForPlayback() -> [AVAsset] {
-    return assets
-  }
   
+  func timelineVCDidDeleteSegment() {
+    updateAppearance()
+  }
 }

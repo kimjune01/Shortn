@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 protocol PreviewViewControllerDelegate: AnyObject {
   func previewVCDidApprove(_ previewVC: PreviewViewController)
@@ -14,12 +15,20 @@ protocol PreviewViewControllerDelegate: AnyObject {
 class PreviewViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: PreviewViewControllerDelegate?
-  var exporter: CompositionExporter!
+  
+  private var player: AVPlayer!
+  let playerView = PlayerView()
+  
+  private var playbackState: AVPlayer.TimeControlStatus {
+    return player.timeControlStatus
+  }
+  var isPlaying: Bool {
+    return playbackState == .playing
+  }
   
   init(composition: SpliceComposition) {
     self.composition = composition
     super.init(nibName: nil, bundle: nil)
-    exporter = CompositionExporter(composition: composition)
   }
   
   required init?(coder: NSCoder) {
@@ -29,13 +38,64 @@ class PreviewViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
-    exporter.export { url, err in
-      // hooray?
-      if let url = url {
-        print("hooray")
+    addPlayer()
+    composition.exportForPreview {
+      guard let asset = self.composition.previewAsset else {
+        return
       }
+      self.makePlayer(item: self.makePlayerItem(from: asset))
     }
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    if self.player != nil {
+      self.player.play()
+    }
+  }
+    
+  func addPlayer() {
+    view.addSubview(playerView)
+    playerView.frame = view.bounds
+    let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
+    singleTapRecognizer.numberOfTapsRequired = 1
+    playerView.addGestureRecognizer(singleTapRecognizer)
+  }
+  
+  func makePlayer(item: AVPlayerItem) {
+    player = AVPlayer(playerItem: item)
+    playerView.player = player
+  }
+  
+  func makePlayerItem(from asset: AVAsset) -> AVPlayerItem {
+    let item = AVPlayerItem(asset: asset)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(playerDidFinishPlaying),
+                                           name: .AVPlayerItemDidPlayToEndTime,
+                                           object: item)
+    return item
+  }
+  
+  @objc func didTapPlayerView() {
+    togglePlayback()
+  }
+  
+  func togglePlayback() {
+    if player.timeControlStatus == .playing {
+      player.pause()
+    } else if player.status == .readyToPlay {
+      player.play()
+    } else {
+      assert(false, "OOPS")
+    }
+  }
+  
+  @objc func playerDidFinishPlaying(note: NSNotification) {
+    guard let _ = note.object as? AVPlayerItem else {
+      return
+    }
+    player.seek(to: .zero)
+    player.play()
+  }
   
 }

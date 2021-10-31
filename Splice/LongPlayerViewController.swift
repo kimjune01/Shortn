@@ -1,5 +1,5 @@
 //
-//  PlayerViewController.swift
+//  LongPlayerViewController.swift
 //  Splice
 //
 //  Created by June Kim on 10/24/21.
@@ -8,12 +8,7 @@
 import UIKit
 import AVFoundation
 
-protocol PlayerViewControllerDelegate: AnyObject {
-  func playerVC(_ playerVC: PlayerViewController, didBoundaryUpdate time: TimeInterval)
-}
-
-class PlayerViewController: UIViewController {
-  weak var delegate: PlayerViewControllerDelegate?
+class LongPlayerViewController: UIViewController {
   unowned var composition: SpliceComposition
   private var player: AVPlayer!
   private var currentAsset: AVAsset!

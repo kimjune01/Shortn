@@ -15,6 +15,7 @@ protocol TimelineViewControllerDelegate: AnyObject {
   func sliderValueDragged(to time: TimeInterval)
   func timelineVCDidTouchDownScrubber()
   func timelineVCDidTouchDoneScrubber()
+  func timelineVCDidDeleteSegment()
 }
 
 class TimelineViewController: UIViewController {
@@ -130,6 +131,12 @@ class TimelineViewController: UIViewController {
     scrubber.alpha = 1
   }
   
+  func deleteSegment(at index: Int) {
+    composition.removeSplice(at: index)
+    segmentsVC.updateSegmentsForSplices()
+    delegate?.timelineVCDidDeleteSegment()
+  }
+  
   @objc func displayStep(_ displaylink: CADisplayLink) {
     if isCurrentlyExpanding {
       let actualFramesPerSecond = 1 / (displaylink.targetTimestamp - displaylink.timestamp)
@@ -155,15 +162,13 @@ class TimelineViewController: UIViewController {
 
 extension TimelineViewController: SegmentsViewControllerDelegate {
   func segmentsVCDidSwipeUpSegment(at index: Int) {
-    composition.removeSplice(at: index)
-    segmentsVC.updateSegmentsForSplices()
+    deleteSegment(at: index)
   }
   
   func segmentsVCDidSelectSegment(at index: Int) {
     let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
     alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
-      self.composition.removeSplice(at: index)
-      self.segmentsVC.updateSegmentsForSplices()
+      self.deleteSegment(at: index)
     }))
     alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
       self.segmentsVC.stopGlowing()

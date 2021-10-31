@@ -22,6 +22,8 @@ class SpliceComposition {
   let group = DispatchGroup()
 
   let timeSubject = CurrentValueSubject<TimeInterval, Never>(0)
+  var exporter: CompositionExporter?
+  var previewAsset: AVURLAsset?
   
   var totalDuration: TimeInterval {
     return assets.reduce(0.0) { partialResult, asset in
@@ -58,7 +60,17 @@ class SpliceComposition {
       self.group.notify(queue: .main) {
         self.assets = orderedAssets.compactMap{$0}
         completion()
-        self.saveAssetsToTempDirectory()
+//        self.saveAssetsToTempDirectory()
+      }
+    }
+  }
+  
+  func exportForPreview(_ completion: @escaping Completion) {
+    exporter = CompositionExporter(composition: self)
+    exporter!.export { url, err in
+      if let url = url {
+        self.previewAsset = AVURLAsset(url: url)
+        completion()
       }
     }
   }
