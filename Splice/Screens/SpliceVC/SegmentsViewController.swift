@@ -18,9 +18,9 @@ class SegmentsViewController: UIViewController {
   weak var delegate: SegmentsViewControllerDelegate?
   var segments: [UIView] = []
   let expandingSegment = UIView()
-  private let segmentHeight: CGFloat = CustomSlider.defaultHeight
+  static let segmentHeight: CGFloat = CustomSlider.defaultHeight
+  private var segmentHeight: CGFloat { return SegmentsViewController.segmentHeight}
   private var expandingSegmentMinX: CGFloat = 0
-  var segmentOriginY: CGFloat = 0
   var isSelectedTag = 1337
 
   init(composition: SpliceComposition) {
@@ -34,12 +34,10 @@ class SegmentsViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    segmentOriginY = (TimelineViewController.defaultHeight - segmentHeight) / 2
-    
     expandingSegment.backgroundColor = .systemRed
     expandingSegment.roundCorner(radius: 3, cornerCurve: .continuous)
     expandingSegment.frame = CGRect(x: 0,
-                                    y: segmentOriginY,
+                                    y: 0,
                                     width: 0,
                                     height: segmentHeight)
     view.addSubview(expandingSegment)
@@ -51,7 +49,7 @@ class SegmentsViewController: UIViewController {
   }
   
   func stopExpandingSegment() {
-    expandingSegment.frame = CGRect(x: expandingSegmentMinX, y: segmentOriginY, width: 0, height: segmentHeight)
+    expandingSegment.frame = CGRect(x: expandingSegmentMinX, y: 0, width: 0, height: segmentHeight)
   }
   
   func updateSegmentsForSplices() {
@@ -64,7 +62,7 @@ class SegmentsViewController: UIViewController {
       let minX = splice.lowerBound * view.width / totalDuration
       let maxX = splice.upperBound * view.width / totalDuration
       let segmentView = UIView(frame: CGRect(x: minX.rounded(.down),
-                                             y: segmentOriginY,
+                                             y: 0,
                                              width: (maxX - minX).rounded(.up),
                                              height: segmentHeight))
       segmentView.backgroundColor = .systemBlue
@@ -103,7 +101,7 @@ class SegmentsViewController: UIViewController {
   }
   func expand(rate: CGFloat) {
     expandingSegment.frame = CGRect(x: expandingSegmentMinX,
-                                    y: segmentOriginY,
+                                    y: 0,
                                     width: expandingSegment.width + rate,
                                     height: segmentHeight)
   }

@@ -73,6 +73,22 @@ class AlbumImportViewController: UIViewController {
   }
   
   func showPicker() {
+    guard PHPhotoLibrary.authorizationStatus() == .authorized else {
+      askForAlbumPermission() { granted in
+        if granted {
+          self.showPicker()
+        } else {
+          let alert = UIAlertController(title: "Album Access", message: "Allow album access in settings to shorten videos.", preferredStyle: .alert)
+          alert.addAction(UIAlertAction(title: "k", style: .cancel, handler: { action in
+            let url = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!)!
+            UIApplication.shared.open(url)
+          }))
+          self.present(alert, animated: true)
+        }
+      }
+      return
+    }
+    
     var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
     pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
     pickerConfig.selection = .ordered
@@ -83,6 +99,15 @@ class AlbumImportViewController: UIViewController {
     present(picker, animated: true) {
       //
     }
+  }
+  
+  func askForAlbumPermission(_ completion: @escaping BoolCompletion) {
+    PHPhotoLibrary.requestAuthorization(for: .readWrite, handler: { status in
+      DispatchQueue.main.async {
+        completion(status == .authorized)
+      }
+    })
+    
   }
 }
 

@@ -98,7 +98,6 @@ class SpliceViewController: UIViewController {
     view.addSubview(timelineVC.view)
     timelineVC.view.set(height: TimelineViewController.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
-    timelineVC.view.centerXInParent()
     timelineVC.view.pinBottom(toTopOf: spliceButton, margin: 8)
     addChild(timelineVC)
     timelineVC.didMove(toParent: self)

@@ -74,7 +74,9 @@ class TimelineViewController: UIViewController {
     segmentsVC.delegate = self
     addChild(segmentsVC)
     view.addSubview(segmentsVC.view)
-    segmentsVC.view.fillParent()
+    segmentsVC.view.centerYInParent()
+    segmentsVC.view.set(height: SegmentsViewController.segmentHeight)
+    segmentsVC.view.fillWidthOfParent()
     segmentsVC.didMove(toParent: self)
   }
   

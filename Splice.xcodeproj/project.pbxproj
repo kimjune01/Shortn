@@ -117,20 +117,57 @@
 			children = (
 				0E2511BB2726066800E425D6 /* AppDelegate.swift */,
 				0E2511BD2726066800E425D6 /* SceneDelegate.swift */,
-				0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */,
 				0E2511BF2726066800E425D6 /* ViewController.swift */,
+				0E2EC9C6272F348900AE84A1 /* Composition */,
+				0E2EC9C4272F340000AE84A1 /* Screens */,
+				0E2EC9C7272F34AA00AE84A1 /* Extensions */,
+				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
+				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
+				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
+				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
+				0E2511C42726066900E425D6 /* Assets.xcassets */,
+				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
+				0E2511C92726066900E425D6 /* Info.plist */,
+			);
+			path = Splice;
+			sourceTree = "<group>";
+		};
+		0E2EC9C4272F340000AE84A1 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */,
 				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
+				0E2EC9C5272F345800AE84A1 /* SpliceVC */,
+				0E2511F9272E582A00E425D6 /* PreviewViewController.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		0E2EC9C5272F345800AE84A1 /* SpliceVC */ = {
+			isa = PBXGroup;
+			children = (
 				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
 				0E2511D327260AEC00E425D6 /* LongPlayerViewController.swift */,
-				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
 				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
+			);
+			path = SpliceVC;
+			sourceTree = "<group>";
+		};
+		0E2EC9C6272F348900AE84A1 /* Composition */ = {
+			isa = PBXGroup;
+			children = (
 				0E2511E7272C8CB000E425D6 /* SpliceComposition.swift */,
-				0E2511F9272E582A00E425D6 /* PreviewViewController.swift */,
 				0E2511FB272E592A00E425D6 /* CompositionExporter.swift */,
-				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
 				0E2511D527260C0900E425D6 /* VideoAsset.swift */,
 				0E2511D727260C2700E425D6 /* MediaAsset.swift */,
+			);
+			path = Composition;
+			sourceTree = "<group>";
+		};
+		0E2EC9C7272F34AA00AE84A1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
 				0E2511D927260C3E00E425D6 /* FileManager+.swift */,
 				0E2511DB27260C5400E425D6 /* Duration+.swift */,
 				0E2511DD27260CC900E425D6 /* AVAsset+.swift */,
@@ -139,13 +176,8 @@
 				0E2511EB272CA87D00E425D6 /* UIView+.swift */,
 				0E2511EF272CA8C400E425D6 /* UIButton+.swift */,
 				0E2511F5272E0DB600E425D6 /* TimeInterval+.swift */,
-				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
-				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
-				0E2511C42726066900E425D6 /* Assets.xcassets */,
-				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
-				0E2511C92726066900E425D6 /* Info.plist */,
 			);
-			path = Splice;
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
@@ -441,6 +473,8 @@
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Shorten;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -450,7 +484,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kim.june.Splice;
+				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shorten;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -469,6 +503,8 @@
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Shorten;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -478,7 +514,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kim.june.Splice;
+				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shorten;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
