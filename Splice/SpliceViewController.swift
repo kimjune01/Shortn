@@ -9,10 +9,6 @@ import UIKit
 import Combine
 import AVFoundation
 
-protocol SpliceViewControllerDelegate: AnyObject {
-  func spliceViewControllerDidFinish(_ spliceVC: SpliceViewController)
-}
-
 enum SpliceMode {
   case playSplice
   case pauseSplice
@@ -26,7 +22,6 @@ enum SpliceState {
 // A full-screen VC that contains the progress bar, the player, and control buttons.
 class SpliceViewController: UIViewController {
   unowned var composition: SpliceComposition
-  weak var delegate: SpliceViewControllerDelegate?
   
   var playerVC: LongPlayerViewController!
   let spliceButton = UIButton(type: .system)

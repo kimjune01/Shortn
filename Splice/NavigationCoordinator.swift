@@ -22,8 +22,24 @@ class NavigationCoordinator: NSObject {
   @objc func didTapNextButtonOnSpliceVC() {
     let previewVC = PreviewViewController(composition: composition)
     previewVC.delegate = self
+    previewVC.navigationItem.rightBarButtonItem = UIBarButtonItem(
+      image: UIImage(systemName: "square.and.arrow.up"),
+      style: .done,
+      target: self,
+      action: #selector(previewVCTappedShare))
+    
     navController.pushViewController(previewVC, animated: true)
   }
+  
+  @objc func previewVCTappedShare() {
+    guard let assetToShare = composition.previewAsset else { return }
+    let activityViewController = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
+    // so that iPads won't crash
+    activityViewController.popoverPresentationController?.sourceView = navController.topViewController!.view
+    navController.present(activityViewController, animated: true, completion: nil)
+    
+  }
+  
 }
 
 extension NavigationCoordinator: UINavigationControllerDelegate {
@@ -33,18 +49,14 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
   func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController) {
     let spliceViewController = SpliceViewController(composition: composition)
-    spliceViewController.delegate = self
-    spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: .done, target: self, action: #selector(didTapNextButtonOnSpliceVC))
+    spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+      title: "Next",
+      style: .plain,
+      target: self,
+      action: #selector(didTapNextButtonOnSpliceVC))
     spliceViewController.navigationItem.rightBarButtonItem?.isEnabled = false
     navController.pushViewController(spliceViewController, animated: true)
   }
-}
-
-extension NavigationCoordinator: SpliceViewControllerDelegate {
-  func spliceViewControllerDidFinish(_ spliceVC: SpliceViewController) {
-    // do the preview!
-  }
-  
 }
 
 extension NavigationCoordinator: PreviewViewControllerDelegate {
