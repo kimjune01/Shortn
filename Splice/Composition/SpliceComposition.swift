@@ -31,6 +31,46 @@ class SpliceComposition {
     }
   }
   
+  var splicesDuration: TimeInterval {
+    return splices.reduce(0) { partialResult, range in
+      return partialResult + range.upperBound - range.lowerBound
+    }
+  }
+  
+  func cumulativeDuration(currentRange newSplice: ClosedRange<TimeInterval>) -> TimeInterval {
+    var cumulativeSplices: [Splice] = Array(splices) + [newSplice]
+    merge(intervals: &cumulativeSplices)
+    return cumulativeSplices.reduce(0.0) { partialResult, splice in
+      return partialResult + splice.upperBound - splice.lowerBound
+    }
+  }
+  
+  func merge(intervals: inout [ClosedRange<TimeInterval>]) {
+    intervals.sort { left, right in
+      return left.lowerBound < right.lowerBound
+    }
+    var i = 0
+    // check for overlaps
+    if intervals.count > 2 {
+      var runningSplice = intervals.first!
+      while i + 1 < intervals.count {
+        runningSplice = intervals[i]
+        let nextSplice = intervals[i+1]
+        if almostOverlaps(runningSplice, nextSplice) {
+          let lower = min(runningSplice.lowerBound, nextSplice.lowerBound)
+          let upper = max(runningSplice.upperBound, nextSplice.upperBound)
+          let bigSplice = lower...upper
+          // remove the i'th splice
+          intervals.remove(at: i)
+          // replace with the big splice
+          intervals[i] = bigSplice
+        } else {
+          i += 1
+        }
+      }
+    }
+  }
+  
   func requestAVAssets(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping Completion) {
     self.fetchResult = fetchResult
     var identifiersToIndex = [String: Int]()
@@ -127,22 +167,8 @@ class SpliceComposition {
   }
   
   func append(_ splice: Splice) {
-    var joinableSplice = splice
-    var joined = false
-    for i in 0..<splices.count {
-      let eachOldSplice = splices[i]
-      if almostOverlaps(eachOldSplice, joinableSplice) {
-        let lower = min(eachOldSplice.lowerBound, joinableSplice.lowerBound)
-        let upper = max(eachOldSplice.upperBound, joinableSplice.upperBound)
-        joinableSplice = lower...upper
-        splices.append(joinableSplice)
-        splices.remove(at: i)
-        joined = true
-      }
-    }
-    if !joined {
-      splices.append(splice)
-    }
+    splices.append(splice)
+    merge(intervals: &splices)
   }
   
   func almostOverlaps(_ left: Splice, _ right: Splice) -> Bool {

@@ -26,15 +26,18 @@ class SpliceViewController: UIViewController {
   var playerVC: LongPlayerViewController!
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
+  let timerLabel = UILabel()
 
   var spliceMode: SpliceMode = .pauseSplice
+  var spliceStartTime: TimeInterval = 0
   var spliceState: SpliceState = .neutral {
     didSet {
       updateAppearance()
     }
   }
   var wasPlaying: Bool = false
-  
+  var subscriptions = Set<AnyCancellable>()
+
   var assets: [AVAsset] {
     return composition.assets
   }
@@ -44,7 +47,7 @@ class SpliceViewController: UIViewController {
   var totalDuration: TimeInterval {
     return composition.totalDuration
   }
-  
+
   init(composition: SpliceComposition) {
     self.composition = composition
     timelineVC = TimelineViewController(composition: composition)
@@ -61,6 +64,8 @@ class SpliceViewController: UIViewController {
     addPlayerVC()
     addSpliceButton()
     addTimelineVC()
+    addTimerLabel()
+    observeTimeSubject()
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -103,6 +108,31 @@ class SpliceViewController: UIViewController {
     timelineVC.didMove(toParent: self)
   }
   
+  func addTimerLabel() {
+    view.addSubview(timerLabel)
+    timerLabel.set(height: 20)
+    timerLabel.pinTop(toBottomOf: timelineVC.view, margin: 2)
+    timerLabel.pinLeadingToParent(margin: 8)
+    timerLabel.textAlignment = .center
+    timerLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
+    timerLabel.text = "0:00"
+    timerLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+    timerLabel.textColor = .white
+    timerLabel.backgroundColor = .black.withAlphaComponent(0.2)
+    
+  }
+  
+  func observeTimeSubject() {
+    composition.timeSubject.receive(on: DispatchQueue.main).sink { timeInterval in
+      switch self.spliceState {
+      case .including:
+        let cumulative = self.composition.cumulativeDuration(currentRange: self.spliceStartTime...timeInterval)
+        self.updateTimerLabel(cumulative)
+      default: break
+      }
+    }.store(in: &self.subscriptions)
+  }
+  
   func updateAppearance() {
     switch spliceState {
     case .including:
@@ -112,7 +142,15 @@ class SpliceViewController: UIViewController {
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearNeutral()
     }
+    self.updateTimerLabel(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
+  }
+  
+  func updateTimerLabel(_ seconds: TimeInterval) {
+    let intSeconds = Int(seconds.rounded())
+    let minutes = (intSeconds % 3600) / 60
+    let seconds = intSeconds % 60
+    timerLabel.text = String(format: "%01d:%02d", minutes, seconds)
   }
   
   @objc func touchedDownSliceButton() {
@@ -131,6 +169,7 @@ class SpliceViewController: UIViewController {
     } else if playerVC.isPlaying {
       spliceMode = .playSplice
     }
+    spliceStartTime = playerVC.currentPlaybackTime()
   }
   
   @objc func touchDoneSliceButton() {
