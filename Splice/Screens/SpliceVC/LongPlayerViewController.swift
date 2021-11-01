@@ -181,7 +181,8 @@ class LongPlayerViewController: UIViewController {
     var lastRemainder = remainder
     var rundex = 0
     var lastIndex = rundex
-    while remainder > 0 {
+    // TODO: fix index out of bounds
+    while remainder > 0, rundex < composition.assets.count {
       let asset = composition.assets[rundex]
       lastRemainder = remainder
       remainder -= asset.duration.seconds

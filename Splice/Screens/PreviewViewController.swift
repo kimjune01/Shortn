@@ -44,6 +44,7 @@ class PreviewViewController: UIViewController {
         return
       }
       self.makePlayer(item: self.makePlayerItem(from: asset))
+      self.player.play()
     }
   }
   

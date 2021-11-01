@@ -48,7 +48,10 @@ class CompositionExporter {
       completion(nil, CompositionExporterError.badVideoInput)
       return
     }
-    mixComposition.naturalSize = firstClipVideoTrack.naturalSize
+    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
+    let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    mixComposition.naturalSize = portraitSize
+    videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
     
     guard let clipsAudioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
@@ -157,7 +160,8 @@ class CompositionExporter {
      NSLog(@"video is portrait ");
      videoSize = CGSizeMake(videoSize.height, videoSize.width);
      */
-    let portraitSize = CGSize(width: firstClipVideoTrack.naturalSize.height, height: firstClipVideoTrack.naturalSize.width)
+    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
+    let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
     mixComposition.naturalSize = portraitSize
     videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
     

@@ -32,7 +32,7 @@ class AlbumImportViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .white
+    view.backgroundColor = .systemBackground
     addSpinner()
     addIntroLabel()
     addImportButton()
@@ -67,11 +67,11 @@ class AlbumImportViewController: UIViewController {
   }
   
   func addImportButton() {
-    importButton = UIButton(type: .system, primaryAction: UIAction() { _ in
+    importButton = UIButton(type: .roundedRect, primaryAction: UIAction() { _ in
       self.importButton.isEnabled = false
       self.showPicker()
     })
-    var config = UIButton.Configuration.plain()
+    var config = UIButton.Configuration.gray()
     config.title = "Import Videos from Album"
     config.image = UIImage(systemName: "photo.on.rectangle")
     config.imagePlacement = .top

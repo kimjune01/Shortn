@@ -127,7 +127,9 @@ class SpliceViewController: UIViewController {
     composition.timeSubject.receive(on: DispatchQueue.main).sink { timeInterval in
       switch self.spliceState {
       case .including:
-        let cumulative = self.composition.cumulativeDuration(currentRange: self.spliceStartTime...timeInterval)
+        let lower = max(0, min(self.spliceStartTime, timeInterval))
+        let upper = max(0, max(self.spliceStartTime, timeInterval))
+        let cumulative = self.composition.cumulativeDuration(currentRange: lower...upper)
         self.updateTimerLabel(cumulative)
       default: break
       }

@@ -167,7 +167,10 @@ class SpliceComposition {
   }
   
   func append(_ splice: Splice) {
-    splices.append(splice)
+    let lower = max(0, min(splice.lowerBound, splice.upperBound))
+    let upper = max(0, max(splice.lowerBound, splice.upperBound))
+
+    splices.append(lower...upper)
     merge(intervals: &splices)
   }
   

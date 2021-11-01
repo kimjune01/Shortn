@@ -17,6 +17,7 @@ class NavigationCoordinator: NSObject {
     super.init()
     albumImportVC.delegate = self
     navController.delegate = self
+    navController.interactivePopGestureRecognizer?.isEnabled = false
   }
   
   @objc func didTapNextButtonOnSpliceVC() {
