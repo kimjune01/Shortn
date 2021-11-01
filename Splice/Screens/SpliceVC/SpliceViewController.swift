@@ -119,7 +119,8 @@ class SpliceViewController: UIViewController {
     timerLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
     timerLabel.textColor = .white
     timerLabel.backgroundColor = .black.withAlphaComponent(0.2)
-    
+    timerLabel.isUserInteractionEnabled = true
+    timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
   }
   
   func observeTimeSubject() {
@@ -193,6 +194,9 @@ class SpliceViewController: UIViewController {
     timelineVC.updateSegmentsForSplices()
   }
   
+  @objc func tappedTimerLabel() {
+    
+  }
 }
 
 extension SpliceViewController: TimelineViewControllerDelegate {

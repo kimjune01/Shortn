@@ -18,6 +18,7 @@ protocol AlbumImportViewControllerDelegate: AnyObject {
 class AlbumImportViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: AlbumImportViewControllerDelegate?
+  var importButton: UIButton!
   let spinner = UIActivityIndicatorView(style: .large)
   
   init(composition: SpliceComposition) {
@@ -33,7 +34,7 @@ class AlbumImportViewController: UIViewController {
     super.viewDidLoad()
     view.backgroundColor = .white
     addSpinner()
-//    addPermissionButton()
+    addIntroLabel()
     addImportButton()
   }
   
@@ -41,6 +42,20 @@ class AlbumImportViewController: UIViewController {
     spinner.center = CGPoint(x: view.bounds.width / 2, y: view.bounds.height / 2)
     spinner.hidesWhenStopped = true
     view.addSubview(spinner)
+  }
+  
+  func addIntroLabel() {
+    let introLabel = UILabel()
+    view.addSubview(introLabel)
+    introLabel.text = "This app shortens your videos.\n\nSimply tap & hold the ✂ button to include that portion of video. \n\nPlease send feature requests to june@june.kim ♡"
+    introLabel.numberOfLines = 0
+    introLabel.textAlignment = .center
+    introLabel.font = UIFont.systemFont(ofSize: 18, weight: .light)
+    
+    introLabel.set(width: view.width * 0.8)
+    introLabel.centerXInParent()
+    introLabel.centerYInParent()
+    
   }
   
   func addPermissionButton() {
@@ -52,7 +67,8 @@ class AlbumImportViewController: UIViewController {
   }
   
   func addImportButton() {
-    let importButton = UIButton(type: .system, primaryAction: UIAction() { _ in
+    importButton = UIButton(type: .system, primaryAction: UIAction() { _ in
+      self.importButton.isEnabled = false
       self.showPicker()
     })
     var config = UIButton.Configuration.plain()
@@ -63,9 +79,8 @@ class AlbumImportViewController: UIViewController {
     config.buttonSize = .large
     importButton.configuration = config
     view.addSubview(importButton)
-    importButton.translatesAutoresizingMaskIntoConstraints = false
-    importButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-    importButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+    importButton.centerXInParent()
+    importButton.pinBottomToParent(margin: 48, insideSafeArea: true)
   }
 
   override func viewDidAppear(_ animated: Bool) {
@@ -78,13 +93,9 @@ class AlbumImportViewController: UIViewController {
         if granted {
           self.showPicker()
         } else {
-          let alert = UIAlertController(title: "Album Access", message: "Allow album access in settings to shorten videos.", preferredStyle: .alert)
-          alert.addAction(UIAlertAction(title: "k", style: .cancel, handler: { action in
-            let url = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!)!
-            UIApplication.shared.open(url)
-          }))
-          self.present(alert, animated: true)
+          self.showAlbumAccessAlert()
         }
+        self.importButton.isEnabled = true
       }
       return
     }
@@ -97,8 +108,17 @@ class AlbumImportViewController: UIViewController {
     let picker = PHPickerViewController(configuration: pickerConfig)
     picker.delegate = self
     present(picker, animated: true) {
-      //
+      self.importButton.isEnabled = true
     }
+  }
+  
+  func showAlbumAccessAlert() {
+    let alert = UIAlertController(title: "Album Access", message: "Allow album access in settings to shorten videos.", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "k", style: .cancel, handler: { action in
+      let url = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!)!
+      UIApplication.shared.open(url)
+    }))
+    self.present(alert, animated: true)
   }
   
   func askForAlbumPermission(_ completion: @escaping BoolCompletion) {
