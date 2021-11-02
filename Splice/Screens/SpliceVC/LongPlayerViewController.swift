@@ -46,7 +46,7 @@ class LongPlayerViewController: UIViewController {
   
   func addPlayerView() {
     view.addSubview(playerView)
-    playerView.frame = view.bounds
+    playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)
     makePlayer(item: makePlayerItem(at: 0))
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
@@ -61,7 +61,7 @@ class LongPlayerViewController: UIViewController {
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if currentAsset.isPortrait {
-      playerView.videoGravity = .resizeAspectFill
+      playerView.videoGravity = .resizeAspect
     }
   }
   

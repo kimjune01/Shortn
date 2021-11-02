@@ -47,15 +47,15 @@ class AlbumImportViewController: UIViewController {
   func addIntroLabel() {
     let introLabel = UILabel()
     view.addSubview(introLabel)
-    introLabel.text = "This app shortens your videos.\n\nSimply tap & hold the ✂ button to include that portion of video. \n\nPlease send feature requests to june@june.kim ♡"
+    introLabel.text = "This app shortens your live photos & videos.\n\nSimply tap & hold the ✂ button to include that portion of video. \n\nPlease send feature requests to june@june.kim ♡"
     introLabel.numberOfLines = 0
     introLabel.textAlignment = .center
     introLabel.font = UIFont.systemFont(ofSize: 18, weight: .light)
     
-    introLabel.set(width: view.width * 0.8)
     introLabel.centerXInParent()
-    introLabel.centerYInParent()
-    
+    introLabel.centerYInParent(offset: -24)
+    introLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
+
   }
   
   func addPermissionButton() {
@@ -80,7 +80,7 @@ class AlbumImportViewController: UIViewController {
     importButton.configuration = config
     view.addSubview(importButton)
     importButton.centerXInParent()
-    importButton.pinBottomToParent(margin: 48, insideSafeArea: true)
+    importButton.pinBottomToParent(margin: 36, insideSafeArea: true)
   }
 
   override func viewDidAppear(_ animated: Bool) {

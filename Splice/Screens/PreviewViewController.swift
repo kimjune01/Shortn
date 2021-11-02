@@ -57,7 +57,7 @@ class PreviewViewController: UIViewController {
     
   func addPlayer() {
     view.addSubview(playerView)
-    playerView.frame = view.bounds
+    playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
     playerView.addGestureRecognizer(singleTapRecognizer)
@@ -67,7 +67,7 @@ class PreviewViewController: UIViewController {
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if item.asset.isPortrait {
-      playerView.videoGravity = .resizeAspectFill
+      playerView.videoGravity = .resizeAspect
     }
   }
   
@@ -102,4 +102,8 @@ class PreviewViewController: UIViewController {
     player.play()
   }
   
+  override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+    return .portrait
+  }
+
 }

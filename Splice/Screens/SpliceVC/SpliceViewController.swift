@@ -199,6 +199,10 @@ class SpliceViewController: UIViewController {
   @objc func tappedTimerLabel() {
     
   }
+  
+  override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+    return .portrait
+  }
 }
 
 extension SpliceViewController: TimelineViewControllerDelegate {
