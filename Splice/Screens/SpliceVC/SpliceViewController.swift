@@ -27,6 +27,7 @@ class SpliceViewController: UIViewController {
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
   let timerLabel = UILabel()
+  let bpmBadgeVC = BpmBadgeViewController()
 
   var spliceMode: SpliceMode = .pauseSplice
   var spliceStartTime: TimeInterval = 0
@@ -65,6 +66,7 @@ class SpliceViewController: UIViewController {
     addSpliceButton()
     addTimelineVC()
     addTimerLabel()
+    addBpmVC()
     observeTimeSubject()
   }
   
@@ -83,6 +85,7 @@ class SpliceViewController: UIViewController {
   func addSpliceButton() {
     var config = UIButton.Configuration.plain()
     config.image = UIImage(systemName: "scissors.circle.fill")
+    
     spliceButton.configuration = config
     view.addSubview(spliceButton)
     spliceButton.pinBottomToParent(margin: 25, insideSafeArea: true)
@@ -119,8 +122,20 @@ class SpliceViewController: UIViewController {
     timerLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
     timerLabel.textColor = .white
     timerLabel.backgroundColor = .black.withAlphaComponent(0.2)
+    timerLabel.roundCorner(radius: 3, cornerCurve: .continuous)
     timerLabel.isUserInteractionEnabled = true
     timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
+  }
+  
+  func addBpmVC() {
+    view.addSubview(bpmBadgeVC.view)
+    addChild(bpmBadgeVC)
+    bpmBadgeVC.didMove(toParent: self)
+    
+    bpmBadgeVC.view.set(height: BpmBadgeViewController.height)
+    bpmBadgeVC.view.set(width: BpmBadgeViewController.width)
+    bpmBadgeVC.view.pinTop(toBottomOf: timelineVC.view, margin: 2)
+    bpmBadgeVC.view.pinTrailingToParent(margin: 8)
   }
   
   func observeTimeSubject() {

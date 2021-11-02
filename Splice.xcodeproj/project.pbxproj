@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BB2726066800E425D6 /* AppDelegate.swift */; };
 		0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BD2726066800E425D6 /* SceneDelegate.swift */; };
-		0E2511C02726066800E425D6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511BF2726066800E425D6 /* ViewController.swift */; };
 		0E2511C52726066900E425D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C42726066900E425D6 /* Assets.xcassets */; };
 		0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0E2511C62726066900E425D6 /* LaunchScreen.storyboard */; };
 		0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */; };
@@ -35,14 +34,17 @@
 		0E2511FA272E582A00E425D6 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F9272E582A00E425D6 /* PreviewViewController.swift */; };
 		0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FB272E592A00E425D6 /* CompositionExporter.swift */; };
 		0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FD272E59A800E425D6 /* VideoHelper.swift */; };
+		0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */; };
+		0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24302731731B00A57A40 /* BPMTimer.swift */; };
+		0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */; };
+		0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A2436273178E300A57A40 /* BpmConfig.swift */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0E2511B82726066800E425D6 /* Splice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Splice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E2511B82726066800E425D6 /* Shorten.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shorten.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E2511BB2726066800E425D6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0E2511BD2726066800E425D6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		0E2511BF2726066800E425D6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		0E2511C42726066900E425D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0E2511C72726066900E425D6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0E2511C92726066900E425D6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -69,6 +71,10 @@
 		0E2511F9272E582A00E425D6 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
 		0E2511FB272E592A00E425D6 /* CompositionExporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositionExporter.swift; sourceTree = "<group>"; };
 		0E2511FD272E59A800E425D6 /* VideoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoHelper.swift; sourceTree = "<group>"; };
+		0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmBadgeViewController.swift; sourceTree = "<group>"; };
+		0E7A24302731731B00A57A40 /* BPMTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMTimer.swift; sourceTree = "<group>"; };
+		0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfigViewController.swift; sourceTree = "<group>"; };
+		0E7A2436273178E300A57A40 /* BpmConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfig.swift; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -107,7 +113,7 @@
 		0E2511B92726066800E425D6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0E2511B82726066800E425D6 /* Splice.app */,
+				0E2511B82726066800E425D6 /* Shorten.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,11 +123,11 @@
 			children = (
 				0E2511BB2726066800E425D6 /* AppDelegate.swift */,
 				0E2511BD2726066800E425D6 /* SceneDelegate.swift */,
-				0E2511BF2726066800E425D6 /* ViewController.swift */,
 				0E2EC9C6272F348900AE84A1 /* Composition */,
 				0E2EC9C4272F340000AE84A1 /* Screens */,
 				0E2EC9C7272F34AA00AE84A1 /* Extensions */,
 				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
+				0E7A24302731731B00A57A40 /* BPMTimer.swift */,
 				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
@@ -148,8 +154,8 @@
 			children = (
 				0E2511D127260A5800E425D6 /* SpliceViewController.swift */,
 				0E2511D327260AEC00E425D6 /* LongPlayerViewController.swift */,
-				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
-				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
+				0E7A24352731789C00A57A40 /* Timeline */,
+				0E7A24342731789300A57A40 /* Bpm */,
 			);
 			path = SpliceVC;
 			sourceTree = "<group>";
@@ -180,6 +186,25 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		0E7A24342731789300A57A40 /* Bpm */ = {
+			isa = PBXGroup;
+			children = (
+				0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */,
+				0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */,
+				0E7A2436273178E300A57A40 /* BpmConfig.swift */,
+			);
+			path = Bpm;
+			sourceTree = "<group>";
+		};
+		0E7A24352731789C00A57A40 /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
+				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
+			);
+			path = Timeline;
+			sourceTree = "<group>";
+		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -192,9 +217,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0E2511B72726066800E425D6 /* Splice */ = {
+		0E2511B72726066800E425D6 /* Shorten */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Splice" */;
+			buildConfigurationList = 0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shorten" */;
 			buildPhases = (
 				D1C6B0CEE14F510FC6F7B2EF /* [CP] Check Pods Manifest.lock */,
 				0E2511B42726066800E425D6 /* Sources */,
@@ -206,9 +231,9 @@
 			);
 			dependencies = (
 			);
-			name = Splice;
+			name = Shorten;
 			productName = Splice;
-			productReference = 0E2511B82726066800E425D6 /* Splice.app */;
+			productReference = 0E2511B82726066800E425D6 /* Shorten.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -239,7 +264,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0E2511B72726066800E425D6 /* Splice */,
+				0E2511B72726066800E425D6 /* Shorten */,
 			);
 		};
 /* End PBXProject section */
@@ -305,13 +330,14 @@
 			files = (
 				0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */,
 				0E2511F4272DEA8800E425D6 /* CustomSlider.swift in Sources */,
-				0E2511C02726066800E425D6 /* ViewController.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
 				0E2511E027260CED00E425D6 /* Date+.swift in Sources */,
 				0E2511F6272E0DB600E425D6 /* TimeInterval+.swift in Sources */,
 				0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */,
 				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
+				0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */,
+				0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */,
 				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
 				0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */,
@@ -321,7 +347,9 @@
 				0E2511E2272C5F5600E425D6 /* TimelineViewController.swift in Sources */,
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
+				0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */,
 				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
+				0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */,
 				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
 				0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */,
 				0E2511D427260AEC00E425D6 /* LongPlayerViewController.swift in Sources */,
@@ -538,7 +566,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Splice" */ = {
+		0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shorten" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0E2511CD2726066900E425D6 /* Debug */,

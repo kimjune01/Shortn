@@ -14,6 +14,7 @@ class NavigationCoordinator: NSObject {
   override init() {
     let albumImportVC = AlbumImportViewController(composition: composition)
     navController = UINavigationController(rootViewController: albumImportVC)
+//    navController = UINavigationController(rootViewController: BpmConfigViewController())
     super.init()
     albumImportVC.delegate = self
     navController.delegate = self
@@ -33,8 +34,7 @@ class NavigationCoordinator: NSObject {
   }
   
   @objc func previewVCTappedShare(_ barButton: UIBarButtonItem) {
-    guard let assetToShare = composition.previewAsset,
-    let topVC = navController.topViewController else { return }
+    guard let assetToShare = composition.previewAsset else { return }
     let activityVC = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
     activityVC.title = "Save to album"
     activityVC.excludedActivityTypes = []
