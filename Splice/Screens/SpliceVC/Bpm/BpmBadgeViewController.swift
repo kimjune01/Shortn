@@ -73,7 +73,8 @@ class BpmBadgeViewController: UIViewController {
   
   func addStoppedLabel() {
     view.addSubview(stoppedLabel)
-    stoppedLabel.fillParent()
+    stoppedLabel.centerXInParent()
+    stoppedLabel.centerYInParent()
     stoppedLabel.font = .monospacedDigitSystemFont(ofSize: 10, weight: .medium)
     stoppedLabel.textColor = .white
     stoppedLabel.text = "BPM"

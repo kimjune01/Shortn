@@ -172,6 +172,7 @@ class SpliceViewController: UIViewController {
   }
   
   @objc func touchedDownSliceButton() {
+    print("touchedDownSliceButton")
     setSpliceMode()
     let playbackTime = playerVC.currentPlaybackTime()
     spliceState = .including(playbackTime)
@@ -200,7 +201,7 @@ class SpliceViewController: UIViewController {
     case .including(let beginTime):
       let endTime = playerVC.currentPlaybackTime()
       if beginTime >= endTime {
-        return
+        break
       }
       composition.append(beginTime...endTime)
       spliceState = .neutral

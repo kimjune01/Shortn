@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import Combine
+import AVFoundation
 
 protocol TimelineViewControllerDelegate: AnyObject {
   func currentTimeForDisplay() -> TimeInterval
@@ -39,6 +40,7 @@ class TimelineViewController: UIViewController {
   }
   
   let scrubber = CustomSlider()
+  var waveformImageView: WaveformImageView!
   var subscriptions = Set<AnyCancellable>()
   
   init(composition: SpliceComposition) {
@@ -54,6 +56,7 @@ class TimelineViewController: UIViewController {
     super.viewDidLoad()
     subscribeToDisplayLink()
     addSegmentsVC()
+    addWaveform()
     addScrubber()
     observeTimer()
   }
@@ -90,6 +93,15 @@ class TimelineViewController: UIViewController {
     scrubber.addTarget(self, action: #selector(didTouchDoneScrubber), for: .touchDragExit)
     scrubber.minimumValue = 0
     scrubber.maximumValue = Float(composition.totalDuration)
+  }
+  
+  func addWaveform() {
+    // CGRect-slinging!
+    let waveVC = AudioWaveViewController(composition: composition)
+    waveVC.view.frame = CGRect(x: 0, y: -40,
+                               width: UIScreen.main.bounds.width - UIView.defaultEdgeMargin * 2,
+                               height: 40)
+    view.addSubview(waveVC.view)
   }
   
   func observeTimer() {

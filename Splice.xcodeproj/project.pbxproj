@@ -38,7 +38,14 @@
 		0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24302731731B00A57A40 /* BPMTimer.swift */; };
 		0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */; };
 		0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A2436273178E300A57A40 /* BpmConfig.swift */; };
-		0E7A24392731EB3F00A57A40 /* DSWaveformImage in Resources */ = {isa = PBXBuildFile; fileRef = 0E7A24382731EB3E00A57A40 /* DSWaveformImage */; };
+		0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A243B2731EC8400A57A40 /* WaveformImageTypes.swift */; };
+		0E7A24422731EC8400A57A40 /* WaveformLiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A243C2731EC8400A57A40 /* WaveformLiveView.swift */; };
+		0E7A24432731EC8400A57A40 /* WaveformImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A243D2731EC8400A57A40 /* WaveformImageView.swift */; };
+		0E7A24442731EC8400A57A40 /* WaveformImageDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A243E2731EC8400A57A40 /* WaveformImageDrawer.swift */; };
+		0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A243F2731EC8400A57A40 /* WaveformAnalyzer.swift */; };
+		0E7A24462731EC8400A57A40 /* TempiFFT.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24402731EC8400A57A40 /* TempiFFT.swift */; };
+		0E7A24482731ECC700A57A40 /* bloop.wav in Resources */ = {isa = PBXBuildFile; fileRef = 0E7A24472731ECC700A57A40 /* bloop.wav */; };
+		0E7A244A2731EF4A00A57A40 /* AudioWaveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24492731EF4A00A57A40 /* AudioWaveViewController.swift */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
@@ -76,7 +83,14 @@
 		0E7A24302731731B00A57A40 /* BPMTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMTimer.swift; sourceTree = "<group>"; };
 		0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfigViewController.swift; sourceTree = "<group>"; };
 		0E7A2436273178E300A57A40 /* BpmConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfig.swift; sourceTree = "<group>"; };
-		0E7A24382731EB3E00A57A40 /* DSWaveformImage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DSWaveformImage; sourceTree = "<group>"; };
+		0E7A243B2731EC8400A57A40 /* WaveformImageTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveformImageTypes.swift; sourceTree = "<group>"; };
+		0E7A243C2731EC8400A57A40 /* WaveformLiveView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveformLiveView.swift; sourceTree = "<group>"; };
+		0E7A243D2731EC8400A57A40 /* WaveformImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveformImageView.swift; sourceTree = "<group>"; };
+		0E7A243E2731EC8400A57A40 /* WaveformImageDrawer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveformImageDrawer.swift; sourceTree = "<group>"; };
+		0E7A243F2731EC8400A57A40 /* WaveformAnalyzer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveformAnalyzer.swift; sourceTree = "<group>"; };
+		0E7A24402731EC8400A57A40 /* TempiFFT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TempiFFT.swift; sourceTree = "<group>"; };
+		0E7A24472731ECC700A57A40 /* bloop.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bloop.wav; sourceTree = "<group>"; };
+		0E7A24492731EF4A00A57A40 /* AudioWaveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioWaveViewController.swift; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -133,7 +147,8 @@
 				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
-				0E7A24382731EB3E00A57A40 /* DSWaveformImage */,
+				0E7A24472731ECC700A57A40 /* bloop.wav */,
+				0E7A243A2731EC7900A57A40 /* Waveform */,
 				0E2511C42726066900E425D6 /* Assets.xcassets */,
 				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
 				0E2511C92726066900E425D6 /* Info.plist */,
@@ -203,9 +218,23 @@
 			isa = PBXGroup;
 			children = (
 				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
+				0E7A24492731EF4A00A57A40 /* AudioWaveViewController.swift */,
 				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
 			);
 			path = Timeline;
+			sourceTree = "<group>";
+		};
+		0E7A243A2731EC7900A57A40 /* Waveform */ = {
+			isa = PBXGroup;
+			children = (
+				0E7A24402731EC8400A57A40 /* TempiFFT.swift */,
+				0E7A243F2731EC8400A57A40 /* WaveformAnalyzer.swift */,
+				0E7A243E2731EC8400A57A40 /* WaveformImageDrawer.swift */,
+				0E7A243B2731EC8400A57A40 /* WaveformImageTypes.swift */,
+				0E7A243D2731EC8400A57A40 /* WaveformImageView.swift */,
+				0E7A243C2731EC8400A57A40 /* WaveformLiveView.swift */,
+			);
+			path = Waveform;
 			sourceTree = "<group>";
 		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
@@ -278,8 +307,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */,
-				0E7A24392731EB3F00A57A40 /* DSWaveformImage in Resources */,
 				0E2511C52726066900E425D6 /* Assets.xcassets in Resources */,
+				0E7A24482731ECC700A57A40 /* bloop.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,14 +363,18 @@
 			files = (
 				0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */,
 				0E2511F4272DEA8800E425D6 /* CustomSlider.swift in Sources */,
+				0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
+				0E7A24422731EC8400A57A40 /* WaveformLiveView.swift in Sources */,
 				0E2511E027260CED00E425D6 /* Date+.swift in Sources */,
 				0E2511F6272E0DB600E425D6 /* TimeInterval+.swift in Sources */,
 				0E2511EA272C99CA00E425D6 /* PlayerView.swift in Sources */,
+				0E7A244A2731EF4A00A57A40 /* AudioWaveViewController.swift in Sources */,
 				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
 				0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */,
 				0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */,
+				0E7A24462731EC8400A57A40 /* TempiFFT.swift in Sources */,
 				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
 				0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */,
@@ -350,9 +383,12 @@
 				0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */,
 				0E2511E2272C5F5600E425D6 /* TimelineViewController.swift in Sources */,
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
+				0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */,
+				0E7A24442731EC8400A57A40 /* WaveformImageDrawer.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
 				0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */,
 				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
+				0E7A24432731EC8400A57A40 /* WaveformImageView.swift in Sources */,
 				0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */,
 				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
 				0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */,
