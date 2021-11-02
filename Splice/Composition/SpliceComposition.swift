@@ -18,7 +18,7 @@ class SpliceComposition {
   var assets: [AVAsset] = []
   var splices: [Splice] = []
   
-  var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .background)
+  var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)
   let group = DispatchGroup()
 
   let timeSubject = CurrentValueSubject<TimeInterval, Never>(0)
@@ -79,28 +79,81 @@ class SpliceComposition {
     }
     let fetchCount = assetIdentifiers.count
     var orderedAssets: [AVAsset?] = []
-    let options = PHVideoRequestOptions()
-    options.isNetworkAccessAllowed = true
+    let videoOptions = PHVideoRequestOptions()
+    videoOptions.isNetworkAccessAllowed = true
+    let livePhotoOptions = PHLivePhotoRequestOptions()
+    livePhotoOptions.deliveryMode = .highQualityFormat
+    livePhotoOptions.isNetworkAccessAllowed = true
+    
     assetTransformQueue.async {
       orderedAssets = [AVAsset?](repeating: nil, count: fetchCount)
       for i in 0..<fetchCount {
-        let eachVideoAsset = fetchResult.object(at: i)
+        let eachPHAsset = fetchResult.object(at: i)
         self.group.enter()
-        PHImageManager.default().requestAVAsset(forVideo: eachVideoAsset,
-                                                options: options,
-                                                resultHandler: { avAsset, audioMix, info in
-          if let urlAsset = avAsset as? AVURLAsset,
-             let index = identifiersToIndex[eachVideoAsset.localIdentifier] {
-            orderedAssets[index] = urlAsset
-            FileManager.default.fileExists(atPath: urlAsset.url.path)
+        switch eachPHAsset.mediaType {
+        case .video:
+          PHImageManager.default().requestAVAsset(
+            forVideo: eachPHAsset,
+            options: videoOptions,
+            resultHandler: { avAsset, audioMix, info in
+              if let urlAsset = avAsset as? AVURLAsset,
+                 let index = identifiersToIndex[eachPHAsset.localIdentifier] {
+                orderedAssets[index] = urlAsset
+              }
+              self.group.leave()
+            })
+        case .image:
+          PHImageManager.default().requestLivePhoto(for: eachPHAsset,
+                                                       targetSize: PHImageManagerMaximumSize,
+                                                       contentMode: .default,
+                                                       options: livePhotoOptions) { livePhoto, info in
+            guard let livePhoto = livePhoto else {
+              print("no live photo")
+              self.group.leave()
+              return
+            }
+            var videoResource: PHAssetResource? = nil
+            for eachResource in PHAssetResource.assetResources(for: livePhoto) {
+              if eachResource.type == .pairedVideo {
+                videoResource = eachResource
+                break
+              }
+            }
+            guard let video = videoResource else {
+              print("no video for live photo")
+              self.group.leave()
+              return
+            }
+            let url = FileManager
+              .default
+              .temporaryDirectory
+              .appendingPathComponent("\(UUID()).mov")
+              .standardizedFileURL
+            PHAssetResourceManager.default().writeData(for: video, toFile: url, options: nil) { error in
+              guard error == nil else {
+                print("error for video for live photo")
+                self.group.leave()
+                return
+              }
+              let videoAVAsset = AVURLAsset(url: url)
+              guard let index = identifiersToIndex[eachPHAsset.localIdentifier] else {
+                print("no index for video for live photo")
+                self.group.leave()
+                return
+              }
+              orderedAssets[index] = videoAVAsset
+              self.group.leave()
+            }
           }
+        default:
+          assert(false, "OOPS")
           self.group.leave()
-        })
+        }
       }
       self.group.notify(queue: .main) {
         self.assets = orderedAssets.compactMap{$0}
         completion()
-//        self.saveAssetsToTempDirectory()
+        //        self.saveAssetsToTempDirectory()
       }
     }
   }

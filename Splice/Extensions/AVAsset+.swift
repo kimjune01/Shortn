@@ -18,4 +18,12 @@ extension AVAsset {
     cache[url] = newAsset
     return newAsset
   }
+  var isPortrait: Bool {
+    guard let videoTrack = self.tracks(withMediaType: .video).first else {
+      return false
+    }
+    let transformedVideoSize = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
+    return abs(transformedVideoSize.width) < abs(transformedVideoSize.height)
+    
+  }
 }

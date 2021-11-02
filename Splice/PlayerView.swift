@@ -22,4 +22,12 @@ class PlayerView: UIView {
   
   private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
   
+  var videoGravity: AVLayerVideoGravity {
+    get {
+      return playerLayer.videoGravity
+    }
+    set {
+      playerLayer.videoGravity = newValue
+    }
+  }
 }

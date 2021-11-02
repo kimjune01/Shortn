@@ -66,6 +66,9 @@ class PreviewViewController: UIViewController {
   func makePlayer(item: AVPlayerItem) {
     player = AVPlayer(playerItem: item)
     playerView.player = player
+    if item.asset.isPortrait {
+      playerView.videoGravity = .resizeAspectFill
+    }
   }
   
   func makePlayerItem(from asset: AVAsset) -> AVPlayerItem {

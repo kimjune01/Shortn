@@ -40,11 +40,11 @@ class LongPlayerViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    addPlayer()
+    addPlayerView()
     addFastPanels()
   }
   
-  func addPlayer() {
+  func addPlayerView() {
     view.addSubview(playerView)
     playerView.frame = view.bounds
     makePlayer(item: makePlayerItem(at: 0))
@@ -60,6 +60,9 @@ class LongPlayerViewController: UIViewController {
   func makePlayer(item: AVPlayerItem) {
     player = AVPlayer(playerItem: item)
     playerView.player = player
+    if currentAsset.isPortrait {
+      playerView.videoGravity = .resizeAspectFill
+    }
   }
   
   func makePlayerItem(at index: Int) -> AVPlayerItem {

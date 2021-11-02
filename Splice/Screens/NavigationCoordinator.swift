@@ -32,12 +32,19 @@ class NavigationCoordinator: NSObject {
     navController.pushViewController(previewVC, animated: true)
   }
   
-  @objc func previewVCTappedShare() {
-    guard let assetToShare = composition.previewAsset else { return }
-    let activityViewController = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
-    // so that iPads won't crash
-    activityViewController.popoverPresentationController?.sourceView = navController.topViewController!.view
-    navController.present(activityViewController, animated: true, completion: nil)
+  @objc func previewVCTappedShare(_ barButton: UIBarButtonItem) {
+    guard let assetToShare = composition.previewAsset,
+    let topVC = navController.topViewController else { return }
+    let activityVC = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
+    activityVC.title = "Save to album"
+    activityVC.excludedActivityTypes = []
+    // for ipads
+    if let popover = activityVC.popoverPresentationController {
+      popover.barButtonItem = barButton
+      popover.permittedArrowDirections = .up
+    }
+
+    navController.present(activityVC, animated: true, completion: nil)
     
   }
   
