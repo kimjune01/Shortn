@@ -38,6 +38,7 @@
 		0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24302731731B00A57A40 /* BPMTimer.swift */; };
 		0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */; };
 		0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A2436273178E300A57A40 /* BpmConfig.swift */; };
+		0E7A24392731EB3F00A57A40 /* DSWaveformImage in Resources */ = {isa = PBXBuildFile; fileRef = 0E7A24382731EB3E00A57A40 /* DSWaveformImage */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +76,7 @@
 		0E7A24302731731B00A57A40 /* BPMTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMTimer.swift; sourceTree = "<group>"; };
 		0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfigViewController.swift; sourceTree = "<group>"; };
 		0E7A2436273178E300A57A40 /* BpmConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfig.swift; sourceTree = "<group>"; };
+		0E7A24382731EB3E00A57A40 /* DSWaveformImage */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DSWaveformImage; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -131,6 +133,7 @@
 				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
+				0E7A24382731EB3E00A57A40 /* DSWaveformImage */,
 				0E2511C42726066900E425D6 /* Assets.xcassets */,
 				0E2511C62726066900E425D6 /* LaunchScreen.storyboard */,
 				0E2511C92726066900E425D6 /* Info.plist */,
@@ -275,6 +278,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0E2511C82726066900E425D6 /* LaunchScreen.storyboard in Resources */,
+				0E7A24392731EB3F00A57A40 /* DSWaveformImage in Resources */,
 				0E2511C52726066900E425D6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -497,11 +501,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shorten;
+				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -529,11 +533,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shorten;
+				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
