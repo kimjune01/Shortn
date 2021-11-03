@@ -136,13 +136,12 @@ class TimelineViewController: UIViewController {
   }
   
   func appearIncluding() {
-    print("appearIncluding")
     scrubber.isEnabled = false
     scrubber.alpha = 0.6
   }
   
   func appearNeutral() {
-    print("appearNeutral")
+    // buggy, sometimes it dont do what it say it do
     scrubber.isEnabled = true
     scrubber.alpha = 1
   }

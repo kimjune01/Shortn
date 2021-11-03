@@ -225,6 +225,9 @@ class SpliceViewController: UIViewController {
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
     return .portrait
   }
+  override var shouldAutorotate: Bool {
+    return false
+  }
 }
 
 extension SpliceViewController: LongPlayerViewControllerDelegate {
@@ -235,6 +238,7 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
 
 extension SpliceViewController: TimelineViewControllerDelegate {
   func currentTimeForDisplay() -> TimeInterval {
+    // currentPlaybackTime is not exact when looping over
     if playerVC.atEnd() {
       return 0
     }
