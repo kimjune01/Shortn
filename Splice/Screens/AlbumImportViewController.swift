@@ -47,7 +47,7 @@ class AlbumImportViewController: UIViewController {
   func addIntroLabel() {
     let introLabel = UILabel()
     view.addSubview(introLabel)
-    introLabel.text = "This app shortens your live photos & videos.\n\nSimply tap & hold the ✂ button to include that portion of video. \n\nPlease send feature requests to june@june.kim ♡"
+    introLabel.text = "This app shortens your live photos & videos\n\nTap & hold the ✂ button to include that portion of video \n\nPlease send feature requests to june@june.kim ♡"
     introLabel.numberOfLines = 0
     introLabel.textAlignment = .center
     introLabel.font = UIFont.systemFont(ofSize: 18, weight: .light)
@@ -129,6 +129,8 @@ class AlbumImportViewController: UIViewController {
     })
     
   }
+  
+  override var prefersStatusBarHidden: Bool { return true }
 }
 
 extension AlbumImportViewController: PHPickerViewControllerDelegate {

@@ -93,7 +93,7 @@ class CompositionExporter {
     mainComposition.renderSize = firstVideoTrack.naturalSize
 
     let tempDirectory = FileManager.default.temporaryDirectory
-    let url = tempDirectory.appendingPathComponent("spliced\(UUID()).mov")
+    let url = tempDirectory.appendingPathComponent("shortn-\(UUID().shortened()).mov")
     
     guard let exporter = AVAssetExportSession(
       asset: mixComposition,

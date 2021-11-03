@@ -57,6 +57,7 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
   func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController) {
     composition.splices = []
+    guard composition.assets.count > 0 else { return }
     let spliceViewController = SpliceViewController(composition: composition)
     spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(
       title: "Next",

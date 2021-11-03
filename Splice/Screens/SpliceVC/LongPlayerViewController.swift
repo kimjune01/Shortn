@@ -164,6 +164,10 @@ class LongPlayerViewController: UIViewController {
     doubleTapRightLabel.center = CGPoint(x: centerPanel.width + panelScreenPortion - 50, y: centerPanel.height / 2)
     centerPanel.addSubview(doubleTapRightLabel)
 
+    maybeHideDoubleTapLabels()
+  }
+  
+  func maybeHideDoubleTapLabels() {
     if UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
       doubleTapLeftLabel.isHidden = true
       doubleTapRightLabel.isHidden = true
@@ -207,6 +211,7 @@ class LongPlayerViewController: UIViewController {
   
   func handleDoubleTapLeft() {
     UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
+    maybeHideDoubleTapLabels()
     leftFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
       self.leftFastPanel.alpha = 0
@@ -222,6 +227,7 @@ class LongPlayerViewController: UIViewController {
   
   func handleDoubleTapRight() {
     UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
+    maybeHideDoubleTapLabels()
     rightFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
       self.rightFastPanel.alpha = 0

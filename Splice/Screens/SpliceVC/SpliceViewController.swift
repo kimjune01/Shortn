@@ -205,7 +205,8 @@ class SpliceViewController: UIViewController {
     switch spliceState {
     case .including(let beginTime):
       let endTime = playerVC.currentPlaybackTime()
-      if beginTime >= endTime {
+      if endTime - beginTime <= 0.05 {
+        showTooltipOnSpliceButton()
         break
       }
       composition.append(beginTime...endTime)
@@ -218,6 +219,12 @@ class SpliceViewController: UIViewController {
     timelineVC.updateSegmentsForSplices()
   }
   
+  func showTooltipOnSpliceButton() {
+    spliceButton.displayTooltip("Tap & Hold") {
+      //
+    }
+  }
+  
   @objc func tappedTimerLabel() {
     
   }
@@ -225,9 +232,8 @@ class SpliceViewController: UIViewController {
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
     return .portrait
   }
-  override var shouldAutorotate: Bool {
-    return false
-  }
+  override var shouldAutorotate: Bool { return false }
+  override var prefersStatusBarHidden: Bool { return true }
 }
 
 extension SpliceViewController: LongPlayerViewControllerDelegate {
