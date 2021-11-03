@@ -57,6 +57,10 @@ class LongPlayerViewController: UIViewController {
     addDoubleTapTutorial()
   }
   
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    pause()
+  }
   func addPlayerView() {
     view.addSubview(playerView)
     playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)
@@ -283,6 +287,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func pause() {
+    guard player != nil else { return }
     player.pause()
     pausedOverlay.isHidden = false
     
