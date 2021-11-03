@@ -8,8 +8,13 @@
 import UIKit
 import AVFoundation
 
+protocol LongPlayerViewControllerDelegate: AnyObject {
+  func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController)
+}
+
 class LongPlayerViewController: UIViewController {
   unowned var composition: SpliceComposition
+  weak var delegate: LongPlayerViewControllerDelegate?
   private var player: AVPlayer!
   private var currentAsset: AVAsset!
   // Key-value observing context
@@ -156,8 +161,8 @@ class LongPlayerViewController: UIViewController {
     centerPanel.addSubview(doubleTapRightLabel)
 
     if UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
-//      doubleTapLeftLabel.isHidden = true
-//      doubleTapRightLabel.isHidden = true
+      doubleTapLeftLabel.isHidden = true
+      doubleTapRightLabel.isHidden = true
     }
   }
   
@@ -261,8 +266,17 @@ class LongPlayerViewController: UIViewController {
     }
   }
   
+  func atEnd() -> Bool {
+    return  currentAsset == composition.assets.last &&
+    currentPlaybackTime() == currentAsset.duration.seconds
+  }
+  
   func play() {
+    if atEnd() {
+      seek(to: 0)
+    }
     player.play()
+
     pausedOverlay.isHidden = true
     doubleTapLeftLabel.isHidden = true
     doubleTapRightLabel.isHidden = true
@@ -309,12 +323,25 @@ class LongPlayerViewController: UIViewController {
       makePlayer(item: makePlayerItem(at: currentIndex + 1))
       play()
     } else {
-      
+      pause()
+      delegate?.longPlayerVCDidFinishPlaying(self)
     }
   }
   
   @objc func didTapCenterPanel() {
     togglePlayback()
+  }
+  
+  func appearScrubbing() {
+    if !pausedOverlay.isHidden {
+      pausedOverlay.alpha = 0.2
+    }
+  }
+  
+  func appearNotScrubbing() {
+    if !pausedOverlay.isHidden {
+      pausedOverlay.alpha = 1
+    }
   }
   
 }

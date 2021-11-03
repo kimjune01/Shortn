@@ -77,6 +77,7 @@ class SpliceViewController: UIViewController {
   
   func addPlayerVC() {
     playerVC = LongPlayerViewController(composition: composition)
+    playerVC.delegate = self
     view.addSubview(playerVC.view)
     addChild(playerVC)
     playerVC.didMove(toParent: self)
@@ -172,13 +173,15 @@ class SpliceViewController: UIViewController {
   }
   
   @objc func touchedDownSliceButton() {
-    print("touchedDownSliceButton")
     setSpliceMode()
-    let playbackTime = playerVC.currentPlaybackTime()
-    spliceState = .including(playbackTime)
     if !playerVC.isPlaying {
       playerVC.play()
     }
+    var playbackTime = playerVC.currentPlaybackTime()
+    if playerVC.atEnd() {
+      playbackTime = 0
+    }
+    spliceState = .including(playbackTime)
     timelineVC.startExpandingSegment()
   }
   
@@ -194,9 +197,11 @@ class SpliceViewController: UIViewController {
   @objc func touchDoneSliceButton() {
     if spliceMode == .pauseSplice {
       playerVC.pause()
-    } else if spliceMode == .playSplice {
-      playerVC.play()
     }
+    finishSplicing()
+  }
+  
+  func finishSplicing() {
     switch spliceState {
     case .including(let beginTime):
       let endTime = playerVC.currentPlaybackTime()
@@ -206,7 +211,8 @@ class SpliceViewController: UIViewController {
       composition.append(beginTime...endTime)
       spliceState = .neutral
     case .neutral:
-      assert(false)
+      updateAppearance()
+      return
     }
     timelineVC.stopExpandingSegment()
     timelineVC.updateSegmentsForSplices()
@@ -221,8 +227,17 @@ class SpliceViewController: UIViewController {
   }
 }
 
+extension SpliceViewController: LongPlayerViewControllerDelegate {
+  func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController) {
+    finishSplicing()
+  }
+}
+
 extension SpliceViewController: TimelineViewControllerDelegate {
   func currentTimeForDisplay() -> TimeInterval {
+    if playerVC.atEnd() {
+      return 0
+    }
     return playerVC.currentPlaybackTime()
   }
 
@@ -237,12 +252,14 @@ extension SpliceViewController: TimelineViewControllerDelegate {
   func timelineVCDidTouchDownScrubber() {
     wasPlaying = playerVC.isPlaying
     playerVC.pause()
+    playerVC.appearScrubbing()
   }
 
   func timelineVCDidTouchDoneScrubber() {
     if wasPlaying {
       playerVC.play()
     }
+    playerVC.appearNotScrubbing()
   }
   
   func timelineVCDidDeleteSegment() {

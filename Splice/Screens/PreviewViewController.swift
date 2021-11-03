@@ -18,6 +18,7 @@ class PreviewViewController: UIViewController {
   
   private var player: AVPlayer!
   let playerView = PlayerView()
+  let spinner = UIActivityIndicatorView(style: .large)
   
   private var playbackState: AVPlayer.TimeControlStatus {
     return player.timeControlStatus
@@ -38,11 +39,13 @@ class PreviewViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
+    addSpinner()
     addPlayer()
     composition.exportForPreview {
       guard let asset = self.composition.previewAsset else {
         return
       }
+      self.spinner.stopAnimating()
       self.makePlayer(item: self.makePlayerItem(from: asset))
       self.player.play()
     }
@@ -55,6 +58,12 @@ class PreviewViewController: UIViewController {
     }
   }
     
+  func addSpinner() {
+    view.addSubview(spinner)
+    spinner.center = view.center
+    spinner.startAnimating()
+    spinner.hidesWhenStopped = true
+  }
   func addPlayer() {
     view.addSubview(playerView)
     playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)

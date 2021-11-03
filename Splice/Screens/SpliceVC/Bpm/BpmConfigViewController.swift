@@ -33,6 +33,7 @@ class BpmConfigViewController: UIViewController {
     addToggle()
     addBpm()
     addMeasure()
+    addSwipeToDismissLabel()
   }
   
   override func viewWillDisappear(_ animated: Bool) {
@@ -87,6 +88,19 @@ class BpmConfigViewController: UIViewController {
     
     measurePicker.set(width: 100)
     measurePicker.selectRow(rowFor(measure: config.measure), inComponent: 0, animated: false)
+  }
+  
+  func addSwipeToDismissLabel() {
+    let blankView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 50))
+    stackView.addArrangedSubview(blankView)
+    
+    let label = UILabel(frame: CGRect(x: 0, y: 0, width: view.width * 0.7, height: 100))
+    label.alpha = 0.9
+    label.text = "Swipe down to dismiss\n↓"
+    label.numberOfLines = 0
+    label.textAlignment = .center
+    stackView.addArrangedSubview(label)
+
   }
   
   func makeHorizontalStack() -> UIStackView {
