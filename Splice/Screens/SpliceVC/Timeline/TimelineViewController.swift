@@ -22,7 +22,7 @@ protocol TimelineViewControllerDelegate: AnyObject {
 class TimelineViewController: UIViewController {
   weak var delegate: TimelineViewControllerDelegate?
   unowned var composition: SpliceComposition
-  static let defaultHeight: CGFloat = 40
+  static let defaultHeight: CGFloat = 80
   var currentFps: CGFloat = 60
   var advanceRate: CGFloat {
     return view.width / composition.totalDuration / CGFloat(UIScreen.main.maximumFramesPerSecond)
@@ -98,7 +98,7 @@ class TimelineViewController: UIViewController {
   func addWaveform() {
     // CGRect-slinging!
     let waveVC = AudioWaveViewController(composition: composition)
-    waveVC.view.frame = CGRect(x: 0, y: -40,
+    waveVC.view.frame = CGRect(x: 0, y: -20,
                                width: UIScreen.main.bounds.width - UIView.defaultEdgeMargin * 2,
                                height: 40)
     view.addSubview(waveVC.view)

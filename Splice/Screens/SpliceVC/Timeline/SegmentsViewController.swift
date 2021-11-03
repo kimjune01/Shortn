@@ -16,12 +16,12 @@ protocol SegmentsViewControllerDelegate: AnyObject {
 class SegmentsViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: SegmentsViewControllerDelegate?
-  var segments: [UIView] = []
+  var segments: [SegmentView] = []
   let expandingSegment = UIView()
   static let segmentHeight: CGFloat = CustomSlider.defaultHeight
+  private var segmentTouchTargetHeight: CGFloat { return SegmentsViewController.segmentHeight * 3}
   private var segmentHeight: CGFloat { return SegmentsViewController.segmentHeight}
   private var expandingSegmentMinX: CGFloat = 0
-  var isSelectedTag = 1337
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -61,12 +61,11 @@ class SegmentsViewController: UIViewController {
     composition.splices.forEach { splice in
       let minX = splice.lowerBound * view.width / totalDuration
       let maxX = splice.upperBound * view.width / totalDuration
-      let segmentView = UIView(frame: CGRect(x: minX.rounded(.down),
-                                             y: 0,
+      let segmentView = SegmentView(frame: CGRect(x: minX.rounded(.down),
+                                             y: -segmentHeight,
                                              width: (maxX - minX).rounded(.up),
-                                             height: segmentHeight))
-      segmentView.backgroundColor = .systemBlue
-      segmentView.roundCorner(radius: 3, cornerCurve: .continuous)
+                                             height: segmentTouchTargetHeight))
+      segmentView.addColor()
       segmentView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedSegment)))
       let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipedUpSegment))
       swipeUpRecognizer.direction = .up
@@ -77,10 +76,10 @@ class SegmentsViewController: UIViewController {
   }
   
   @objc func tappedSegment(_ recognizer: UITapGestureRecognizer) {
-    guard let segment = recognizer.view else { return }
+    guard let segment = recognizer.view as? SegmentView else { return }
     let maybeIndex = segments.map{$0.minX}.sorted().firstIndex(of: segment.minX)
     guard let index = maybeIndex else { return }
-    if segment.tag == isSelectedTag {
+    if segment.isSelected {
       delegate?.segmentsVCDidSelectSegment(at: index)
     } else {
       for otherSegments in segments {
@@ -88,7 +87,7 @@ class SegmentsViewController: UIViewController {
         otherSegments.tag = 0
       }
       segment.startGlowing()
-      segment.tag = isSelectedTag
+      segment.isSelected = true
     }
   }
   

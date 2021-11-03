@@ -17,10 +17,16 @@ class LongPlayerViewController: UIViewController {
   let requiredAssetKeys = ["playable", "hasProtectedContent"]
   
   let playerView: PlayerView = PlayerView()
+  let centerPanel = UIView()
+  let pausedOverlay = UIImageView()
+
   let leftFastPanel = UIView()
   let rightFastPanel = UIView()
-  let centerPanel = UIView()
-  let fastSeconds: TimeInterval = 15
+  let fastSeconds: TimeInterval = 5
+  
+  var doubleTapLeftLabel: UILabel!
+  var doubleTapRightLabel: UILabel!
+  let doubleTapTutorialDoneKey = "kim.june.LongPlayerVC.doubleTapKey"
   
   private var playbackState: AVPlayer.TimeControlStatus {
     return player.timeControlStatus
@@ -42,6 +48,8 @@ class LongPlayerViewController: UIViewController {
     super.viewDidLoad()
     addPlayerView()
     addFastPanels()
+    addPausedOverlay()
+    addDoubleTapTutorial()
   }
   
   func addPlayerView() {
@@ -77,7 +85,10 @@ class LongPlayerViewController: UIViewController {
   }
   
   func addFastPanels() {
-    let panelScreenPortion = view.width * 0.27
+    // center panel goes behind left and right panels
+    playerView.addSubview(centerPanel)
+    
+    let panelScreenPortion = view.width * 0.29
     let panelHeight = view.height * 0.7
     let marginY = (view.height - panelHeight)/2
     
@@ -91,7 +102,7 @@ class LongPlayerViewController: UIViewController {
     playerView.addSubview(leftFastPanel)
     
     let leftFastLabel = fastLabel()
-    leftFastLabel.text = "◀◀ 15 sec"
+    leftFastLabel.text = "◀◀ \(Int(fastSeconds)) sec"
     leftFastLabel.center = CGPoint(x: leftFastPanel.width * 0.75, y: leftFastPanel.height / 2)
     leftFastPanel.addSubview(leftFastLabel)
     
@@ -103,22 +114,56 @@ class LongPlayerViewController: UIViewController {
     playerView.addSubview(rightFastPanel)
     
     let rightFastLabel = fastLabel()
-    rightFastLabel.text = "15 sec ▶▶"
+    rightFastLabel.text = "\(Int(fastSeconds)) sec ▶▶"
     rightFastLabel.textAlignment = .right
     rightFastLabel.center = CGPoint(x: rightFastPanel.width * 0.25, y: rightFastPanel.height / 2)
     rightFastPanel.addSubview(rightFastLabel)
     
     centerPanel.frame = CGRect(x: panelScreenPortion,
                                y: marginY,
-                               width: playerView.width - 2 * panelScreenPortion,
+                               width: view.width - panelScreenPortion * 2,
                                height: rightFastPanel.height)
-    playerView.addSubview(centerPanel)
+    
     let centerSingleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapCenterPanel))
     centerPanel.addGestureRecognizer(centerSingleTapRecognizer)
   }
   
+  func addPausedOverlay() {
+    let overlayConfig = UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight, scale: .large)
+    pausedOverlay.image = UIImage(systemName: "play.circle", withConfiguration: overlayConfig)
+    pausedOverlay.tintColor = .white
+    centerPanel.addSubview(pausedOverlay)
+    pausedOverlay.centerXInParent()
+    pausedOverlay.centerYInParent()
+    pausedOverlay.setSquare(constant: 150)
+    pausedOverlay.contentMode = .scaleAspectFit
+    pausedOverlay.alpha = 0.8
+  }
+  
+  func addDoubleTapTutorial() {
+    let panelScreenPortion = view.width * 0.29
+
+    doubleTapLeftLabel = fastLabel()
+    doubleTapLeftLabel.text = "◀◀\nDouble tap"
+    doubleTapLeftLabel.textAlignment = .center
+    doubleTapLeftLabel.center = CGPoint(x: 50 - panelScreenPortion, y: centerPanel.height / 2)
+    centerPanel.addSubview(doubleTapLeftLabel)
+    
+    doubleTapRightLabel = fastLabel()
+    doubleTapRightLabel.text = "▶▶\nDouble tap"
+    doubleTapRightLabel.textAlignment = .center
+    doubleTapRightLabel.center = CGPoint(x: centerPanel.width + panelScreenPortion - 50, y: centerPanel.height / 2)
+    centerPanel.addSubview(doubleTapRightLabel)
+
+    if UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
+//      doubleTapLeftLabel.isHidden = true
+//      doubleTapRightLabel.isHidden = true
+    }
+  }
+  
   func fastLabel() -> UILabel {
     let label = UILabel(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+    label.numberOfLines = 0
     label.textColor = .white
     label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
     return label
@@ -131,9 +176,9 @@ class LongPlayerViewController: UIViewController {
   
   func togglePlayback() {
     if player.timeControlStatus == .playing {
-      player.pause()
+      pause()
     } else if player.status == .readyToPlay {
-      player.play()
+      play()
     } else {
       assert(false, "OOPS")
     }
@@ -152,6 +197,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func handleDoubleTapLeft() {
+    UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
     leftFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
       self.leftFastPanel.alpha = 0
@@ -166,6 +212,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func handleDoubleTapRight() {
+    UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
     rightFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
       self.rightFastPanel.alpha = 0
@@ -176,7 +223,7 @@ class LongPlayerViewController: UIViewController {
       seek(at: 0, localTime: 0)
       return
     }
-    seek(to: current - fastSeconds)
+    seek(to: current + fastSeconds)
   }
   
   func seek(to time: TimeInterval) {
@@ -216,10 +263,19 @@ class LongPlayerViewController: UIViewController {
   
   func play() {
     player.play()
+    pausedOverlay.isHidden = true
+    doubleTapLeftLabel.isHidden = true
+    doubleTapRightLabel.isHidden = true
   }
   
   func pause() {
     player.pause()
+    pausedOverlay.isHidden = false
+    
+    if !UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
+      doubleTapLeftLabel.isHidden = false
+      doubleTapRightLabel.isHidden = false
+    }
   }
   
   func currentPlaybackTime() -> TimeInterval {
@@ -251,7 +307,7 @@ class LongPlayerViewController: UIViewController {
     if let currentIndex = composition.assets.firstIndex(of: currentAsset),
        currentIndex + 1 < composition.assets.count {
       makePlayer(item: makePlayerItem(at: currentIndex + 1))
-      player.play()
+      play()
     } else {
       
     }

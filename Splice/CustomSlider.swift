@@ -32,16 +32,18 @@ class CustomSlider: UISlider {
   private func thumbImage(radius: CGFloat) -> UIImage {
     // Set proper frame
     // y: radius / 2 will correctly offset the thumb
-    
-    thumbView.frame = CGRect(x: 0, y: radius / 2, width: radius, height: radius)
+    let thumbContainer = UIView(frame: CGRect(x: 0, y: radius, width: radius * 2, height: radius * 2))
+    thumbView.frame = CGRect(x: 0, y: 0, width: radius, height: radius)
     thumbView.layer.cornerRadius = radius / 2
-    
+    thumbContainer.addSubview(thumbView)
+    thumbView.center = CGPoint(x: thumbContainer.width / 2, y: thumbContainer.height / 2)
+
     // Convert thumbView to UIImage
     // See this: https://stackoverflow.com/a/41288197/7235585
     
-    let renderer = UIGraphicsImageRenderer(bounds: thumbView.bounds)
+    let renderer = UIGraphicsImageRenderer(bounds: thumbContainer.bounds)
     return renderer.image { rendererContext in
-      thumbView.layer.render(in: rendererContext.cgContext)
+      thumbContainer.layer.render(in: rendererContext.cgContext)
     }
   }
   

@@ -41,7 +41,7 @@ class AudioWaveViewController: UIViewController {
       let waveConfig = Waveform.Configuration(
         size: waveformImageView.size,
         backgroundColor: .clear,
-        style: .striped(.init(color: .systemOrange.withAlphaComponent(0.3), width: 3, spacing: 2, lineCap: .round)),
+        style: .striped(.init(color: .systemOrange.withAlphaComponent(0.4), width: 3, spacing: 2, lineCap: .round)),
         dampening: nil,
         position: .bottom,
         scale: 1,
