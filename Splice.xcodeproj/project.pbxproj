@@ -50,6 +50,7 @@
 		0EC338FF27322108003D9E63 /* SegmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC338FE27322108003D9E63 /* SegmentView.swift */; };
 		0EC339012732EC72003D9E63 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339002732EC72003D9E63 /* String+.swift */; };
 		0EC339032732EF62003D9E63 /* UUID+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339022732EF62003D9E63 /* UUID+.swift */; };
+		0EC339052733B3DF003D9E63 /* UIFont+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339042733B3DF003D9E63 /* UIFont+.swift */; };
 		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
 /* End PBXBuildFile section */
 
@@ -99,6 +100,7 @@
 		0EC338FE27322108003D9E63 /* SegmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentView.swift; sourceTree = "<group>"; };
 		0EC339002732EC72003D9E63 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		0EC339022732EF62003D9E63 /* UUID+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+.swift"; sourceTree = "<group>"; };
+		0EC339042733B3DF003D9E63 /* UIFont+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+.swift"; sourceTree = "<group>"; };
 		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				0E2511DF27260CED00E425D6 /* Date+.swift */,
 				0E2511EC272CA87D00E425D6 /* UIImage+.swift */,
 				0E2511EB272CA87D00E425D6 /* UIView+.swift */,
+				0EC339042733B3DF003D9E63 /* UIFont+.swift */,
 				0EC339002732EC72003D9E63 /* String+.swift */,
 				0EC339022732EF62003D9E63 /* UUID+.swift */,
 				0E2511EF272CA8C400E425D6 /* UIButton+.swift */,
@@ -406,6 +409,7 @@
 				0E2511D627260C0900E425D6 /* VideoAsset.swift in Sources */,
 				0E7A24432731EC8400A57A40 /* WaveformImageView.swift in Sources */,
 				0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */,
+				0EC339052733B3DF003D9E63 /* UIFont+.swift in Sources */,
 				0E2511D227260A5800E425D6 /* SpliceViewController.swift in Sources */,
 				0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */,
 				0E2511D427260AEC00E425D6 /* LongPlayerViewController.swift in Sources */,

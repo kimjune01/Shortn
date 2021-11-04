@@ -204,13 +204,13 @@ class SpliceViewController: UIViewController {
   func finishSplicing() {
     switch spliceState {
     case .including(let beginTime):
+      spliceState = .neutral
       let endTime = playerVC.currentPlaybackTime()
-      if endTime - beginTime <= 0.05 {
+      guard endTime - beginTime > 0.05 else {
         showTooltipOnSpliceButton()
         break
       }
       composition.append(beginTime...endTime)
-      spliceState = .neutral
     case .neutral:
       updateAppearance()
       return

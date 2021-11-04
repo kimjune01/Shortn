@@ -275,9 +275,11 @@ extension UIView {
     
     let tooltip = UIView()
     
+    let font =  UIFont.preferredFont(for: .headline, weight: .medium)
+    
     let tooltipLabel = UILabel()
     tooltipLabel.text = "\(message)"
-    tooltipLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+    tooltipLabel.font = font
     tooltipLabel.textAlignment = .center
     tooltipLabel.textColor = .white
     tooltipLabel.layer.backgroundColor = UIColor(red: 44 / 255, green: 44 / 255, blue: 44 / 255, alpha: 1).cgColor
@@ -290,8 +292,8 @@ extension UIView {
     tooltipLabel.leadingAnchor.constraint(equalTo: tooltip.leadingAnchor).isActive = true
     tooltipLabel.trailingAnchor.constraint(equalTo: tooltip.trailingAnchor).isActive = true
     
-    let labelHeight = message.height(withWidth: .greatestFiniteMagnitude, font: UIFont.systemFont(ofSize: 12)) + padding.y
-    let labelWidth = message.width(withHeight: .zero, font: UIFont.systemFont(ofSize: 12)) + padding.x
+    let labelHeight = message.height(withWidth: .greatestFiniteMagnitude, font: font) + padding.y
+    let labelWidth = message.width(withHeight: .zero, font: font) + padding.x
     
     let pointerTip = CGPoint(x: labelWidth / 2, y: labelHeight + pointerHeight)
     let pointerBaseLeft = CGPoint(x: labelWidth / 2 - pointerBaseWidth / 2, y: labelHeight)
@@ -319,7 +321,7 @@ extension UIView {
     UIView.animate(withDuration: 0.2, animations: {
       tooltip.alpha = tooltipAlpha
     }, completion: { _ in
-      UIView.animate(withDuration: 0.5, delay: 0.5, animations: {
+      UIView.animate(withDuration: 2.5, delay: 0.5, animations: {
         tooltip.alpha = 0
       }, completion: { _ in
         tooltip.removeFromSuperview()
