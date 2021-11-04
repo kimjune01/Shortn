@@ -1,0 +1,1 @@
+Test with video, Live Photo, and both combined. Does not yet support iCloud assets.
