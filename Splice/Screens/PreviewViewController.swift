@@ -76,7 +76,7 @@ class PreviewViewController: UIViewController {
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if item.asset.isPortrait {
-      playerView.videoGravity = .resizeAspect
+      playerView.videoGravity = .resizeAspectFill
     }
   }
   

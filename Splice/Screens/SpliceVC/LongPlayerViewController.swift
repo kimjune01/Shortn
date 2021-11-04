@@ -78,7 +78,7 @@ class LongPlayerViewController: UIViewController {
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if currentAsset.isPortrait {
-      playerView.videoGravity = .resizeAspect
+      playerView.videoGravity = .resizeAspectFill
     }
   }
   
