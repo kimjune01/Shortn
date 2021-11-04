@@ -12,6 +12,15 @@ protocol LongPlayerViewControllerDelegate: AnyObject {
   func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController)
 }
 
+enum LongPlayerState {
+  case initial
+  case playing
+  case paused
+  case scrubbingWhenPlaying
+  case scrubbingWhenPaused
+  case atEnd
+}
+
 class LongPlayerViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: LongPlayerViewControllerDelegate?
@@ -19,7 +28,12 @@ class LongPlayerViewController: UIViewController {
   private var currentAsset: AVAsset!
   // Key-value observing context
   private var playerItemContext = 0
-  let requiredAssetKeys = ["playable", "hasProtectedContent"]
+  
+  var state: LongPlayerState  = .initial {
+    didSet {
+      updateApperance()
+    }
+  }
   
   let playerView: PlayerView = PlayerView()
   let centerPanel = UIView()
@@ -79,6 +93,8 @@ class LongPlayerViewController: UIViewController {
     playerView.player = player
     if currentAsset.isPortrait {
       playerView.videoGravity = .resizeAspectFill
+    } else {
+      playerView.videoGravity = .resizeAspect
     }
   }
   
@@ -167,6 +183,29 @@ class LongPlayerViewController: UIViewController {
     maybeHideDoubleTapLabels()
   }
   
+  func updateApperance() {
+    switch state {
+    case .initial:
+      break
+    case .playing:
+      pausedOverlay.isHidden = true
+      doubleTapLeftLabel.isHidden = true
+      doubleTapRightLabel.isHidden = true
+    case .paused, .atEnd:
+      pausedOverlay.isHidden = false
+      pausedOverlay.alpha = 0.8
+      if !UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
+        doubleTapLeftLabel.isHidden = false
+        doubleTapRightLabel.isHidden = false
+      }
+    case .scrubbingWhenPaused:
+      pausedOverlay.alpha = 0.2
+    case .scrubbingWhenPlaying:
+      pausedOverlay.alpha = 1
+    }
+    
+  }
+  
   func maybeHideDoubleTapLabels() {
     if UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
       doubleTapLeftLabel.isHidden = true
@@ -189,7 +228,7 @@ class LongPlayerViewController: UIViewController {
   
   func togglePlayback() {
     if player.timeControlStatus == .playing {
-      pause()
+      player.pause()
     } else if player.status == .readyToPlay {
       play()
     } else {
@@ -276,30 +315,26 @@ class LongPlayerViewController: UIViewController {
     }
   }
   
-  func atEnd() -> Bool {
+  func playerAtEnd() -> Bool {
     return  currentAsset == composition.assets.last &&
     currentPlaybackTime() == currentAsset.duration.seconds
   }
   
   func play() {
-    if atEnd() {
+    if state == .atEnd {
       seek(to: 0)
     }
     player.play()
-
-    pausedOverlay.isHidden = true
-    doubleTapLeftLabel.isHidden = true
-    doubleTapRightLabel.isHidden = true
+    state = .playing
   }
   
   func pause() {
     guard player != nil else { return }
     player.pause()
-    pausedOverlay.isHidden = false
-    
-    if !UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
-      doubleTapLeftLabel.isHidden = false
-      doubleTapRightLabel.isHidden = false
+    if playerAtEnd() {
+      state = .atEnd
+    } else {
+      state = .paused
     }
   }
   
@@ -320,9 +355,7 @@ class LongPlayerViewController: UIViewController {
     return 0
   }
   
-  @objc func tappedPlayer() {
-    print("tappedPlayer")
-  }
+  @objc func tappedPlayer() {  }
   
   @objc func playerDidFinishPlaying(note: NSNotification) {
     guard let _ = note.object as? AVPlayerItem else {
@@ -334,7 +367,7 @@ class LongPlayerViewController: UIViewController {
       makePlayer(item: makePlayerItem(at: currentIndex + 1))
       play()
     } else {
-      pause()
+      state = .atEnd
       delegate?.longPlayerVCDidFinishPlaying(self)
     }
   }
@@ -343,15 +376,21 @@ class LongPlayerViewController: UIViewController {
     togglePlayback()
   }
   
-  func appearScrubbing() {
-    if !pausedOverlay.isHidden {
-      pausedOverlay.alpha = 0.2
+  func appearScrubbing(_ wasPlaying: Bool) {
+    pause()
+    if wasPlaying {
+      state = .scrubbingWhenPlaying
+    } else {
+      state = .scrubbingWhenPaused
     }
   }
   
-  func appearNotScrubbing() {
-    if !pausedOverlay.isHidden {
-      pausedOverlay.alpha = 1
+  func handleStoppedScrubbing(_ wasPlaying: Bool) {
+    if wasPlaying {
+      play()
+      state = .playing
+    } else {
+      state = .paused
     }
   }
   

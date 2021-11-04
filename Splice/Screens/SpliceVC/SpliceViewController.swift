@@ -178,7 +178,7 @@ class SpliceViewController: UIViewController {
       playerVC.play()
     }
     var playbackTime = playerVC.currentPlaybackTime()
-    if playerVC.atEnd() {
+    if playerVC.playerAtEnd() {
       playbackTime = 0
     }
     spliceState = .including(playbackTime)
@@ -245,7 +245,7 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
 extension SpliceViewController: TimelineViewControllerDelegate {
   func currentTimeForDisplay() -> TimeInterval {
     // currentPlaybackTime is not exact when looping over
-    if playerVC.atEnd() {
+    if playerVC.playerAtEnd() {
       return 0
     }
     return playerVC.currentPlaybackTime()
@@ -260,16 +260,11 @@ extension SpliceViewController: TimelineViewControllerDelegate {
   }
   
   func timelineVCDidTouchDownScrubber() {
-    wasPlaying = playerVC.isPlaying
-    playerVC.pause()
-    playerVC.appearScrubbing()
+    playerVC.appearScrubbing(playerVC.isPlaying)
   }
 
   func timelineVCDidTouchDoneScrubber() {
-    if wasPlaying {
-      playerVC.play()
-    }
-    playerVC.appearNotScrubbing()
+    playerVC.handleStoppedScrubbing(wasPlaying)
   }
   
   func timelineVCDidDeleteSegment() {
