@@ -201,7 +201,7 @@ class LongPlayerViewController: UIViewController {
     case .scrubbingWhenPaused:
       pausedOverlay.alpha = 0.2
     case .scrubbingWhenPlaying:
-      pausedOverlay.alpha = 1
+      break
     }
     
   }
@@ -229,8 +229,10 @@ class LongPlayerViewController: UIViewController {
   func togglePlayback() {
     if player.timeControlStatus == .playing {
       player.pause()
+      state = .paused
     } else if player.status == .readyToPlay {
       play()
+      state = .playing
     } else {
       assert(false, "OOPS")
     }
@@ -377,7 +379,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func appearScrubbing(_ wasPlaying: Bool) {
-    pause()
+    player.pause()
     if wasPlaying {
       state = .scrubbingWhenPlaying
     } else {
@@ -387,7 +389,7 @@ class LongPlayerViewController: UIViewController {
   
   func handleStoppedScrubbing(_ wasPlaying: Bool) {
     if wasPlaying {
-      play()
+      player.play()
       state = .playing
     } else {
       state = .paused

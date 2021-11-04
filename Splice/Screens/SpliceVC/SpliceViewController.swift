@@ -260,6 +260,7 @@ extension SpliceViewController: TimelineViewControllerDelegate {
   }
   
   func timelineVCDidTouchDownScrubber() {
+    wasPlaying = playerVC.isPlaying
     playerVC.appearScrubbing(playerVC.isPlaying)
   }
 
