@@ -18,7 +18,7 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new release build to the App Store"
   lane :release do
-    increment_build_number(xcodeproj: "Users/junekim/Library/Mobile Documents/com~apple~CloudDocs/Documents/Splice/Shortn.xcodeproj")
+    increment_build_number(xcodeproj: "Users/junekim/Documents/Splice/Shortn.xcodeproj")
     build_app(workspace: "Shortn.xcworkspace", scheme: "Shortn")
     upload_to_app_store
   end

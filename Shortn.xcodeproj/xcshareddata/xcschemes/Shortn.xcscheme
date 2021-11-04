@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0E2511B72726066800E425D6"
-               BuildableName = "Shorten.app"
-               BlueprintName = "Shorten"
+               BuildableName = "Shortn.app"
+               BlueprintName = "Shortn"
                ReferencedContainer = "container:Shortn.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0E2511B72726066800E425D6"
-            BuildableName = "Shorten.app"
-            BlueprintName = "Shorten"
+            BuildableName = "Shortn.app"
+            BlueprintName = "Shortn"
             ReferencedContainer = "container:Shortn.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0E2511B72726066800E425D6"
-            BuildableName = "Shorten.app"
-            BlueprintName = "Shorten"
+            BuildableName = "Shortn.app"
+            BlueprintName = "Shortn"
             ReferencedContainer = "container:Shortn.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

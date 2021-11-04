@@ -51,11 +51,11 @@
 		0EC339012732EC72003D9E63 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339002732EC72003D9E63 /* String+.swift */; };
 		0EC339032732EF62003D9E63 /* UUID+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339022732EF62003D9E63 /* UUID+.swift */; };
 		0EC339052733B3DF003D9E63 /* UIFont+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339042733B3DF003D9E63 /* UIFont+.swift */; };
-		8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 495892CD97D8D3419CAC2239 /* Pods_Splice.framework */; };
+		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0E2511B82726066800E425D6 /* Shorten.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shorten.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E2511B82726066800E425D6 /* Shortn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Shortn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0E2511BB2726066800E425D6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0E2511BD2726066800E425D6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		0E2511C42726066900E425D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -101,8 +101,10 @@
 		0EC339002732EC72003D9E63 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		0EC339022732EF62003D9E63 /* UUID+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+.swift"; sourceTree = "<group>"; };
 		0EC339042733B3DF003D9E63 /* UIFont+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+.swift"; sourceTree = "<group>"; };
-		495892CD97D8D3419CAC2239 /* Pods_Splice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Splice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
+		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
+		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
+		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -111,7 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8477AD5BD21E9DC279F800B3 /* Pods_Splice.framework in Frameworks */,
+				401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +123,7 @@
 		02C7B4317AAEA228DB7D8062 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				495892CD97D8D3419CAC2239 /* Pods_Splice.framework */,
+				D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -139,7 +141,7 @@
 		0E2511B92726066800E425D6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0E2511B82726066800E425D6 /* Shorten.app */,
+				0E2511B82726066800E425D6 /* Shortn.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -257,6 +259,8 @@
 			children = (
 				DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */,
 				B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */,
+				B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */,
+				C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -264,9 +268,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0E2511B72726066800E425D6 /* Shorten */ = {
+		0E2511B72726066800E425D6 /* Shortn */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shorten" */;
+			buildConfigurationList = 0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shortn" */;
 			buildPhases = (
 				D1C6B0CEE14F510FC6F7B2EF /* [CP] Check Pods Manifest.lock */,
 				0E2511B42726066800E425D6 /* Sources */,
@@ -278,9 +282,9 @@
 			);
 			dependencies = (
 			);
-			name = Shorten;
+			name = Shortn;
 			productName = Splice;
-			productReference = 0E2511B82726066800E425D6 /* Shorten.app */;
+			productReference = 0E2511B82726066800E425D6 /* Shortn.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -298,7 +302,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0E2511B32726066800E425D6 /* Build configuration list for PBXProject "Splice" */;
+			buildConfigurationList = 0E2511B32726066800E425D6 /* Build configuration list for PBXProject "Shortn" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -311,7 +315,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0E2511B72726066800E425D6 /* Shorten */,
+				0E2511B72726066800E425D6 /* Shortn */,
 			);
 		};
 /* End PBXProject section */
@@ -337,15 +341,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Shortn/Pods-Shortn-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Shortn/Pods-Shortn-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Splice/Pods-Splice-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Shortn/Pods-Shortn-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D1C6B0CEE14F510FC6F7B2EF /* [CP] Check Pods Manifest.lock */ = {
@@ -363,7 +367,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Splice-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Shortn-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -552,7 +556,7 @@
 		};
 		0E2511CD2726066900E425D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */;
+			baseConfigurationReference = B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -584,7 +588,7 @@
 		};
 		0E2511CE2726066900E425D6 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */;
+			baseConfigurationReference = C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -617,7 +621,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0E2511B32726066800E425D6 /* Build configuration list for PBXProject "Splice" */ = {
+		0E2511B32726066800E425D6 /* Build configuration list for PBXProject "Shortn" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0E2511CA2726066900E425D6 /* Debug */,
@@ -626,7 +630,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shorten" */ = {
+		0E2511CC2726066900E425D6 /* Build configuration list for PBXNativeTarget "Shortn" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0E2511CD2726066900E425D6 /* Debug */,

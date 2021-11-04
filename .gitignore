@@ -19,3 +19,9 @@ DerivedData
 .idea/
 # Pods - for those of you who use CocoaPods
 Pods
+
+# fastlane 
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
