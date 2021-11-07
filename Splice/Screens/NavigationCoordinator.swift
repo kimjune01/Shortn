@@ -15,10 +15,12 @@ class NavigationCoordinator: NSObject {
     let albumImportVC = AlbumImportViewController(composition: composition)
     navController = UINavigationController(rootViewController: albumImportVC)
 //    navController = UINavigationController(rootViewController: BpmConfigViewController())
+//    navController = UINavigationController(rootViewController: SpliceViewController(composition: composition))
     super.init()
     albumImportVC.delegate = self
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
+    navController.isNavigationBarHidden = true
   }
   
   @objc func didTapNextButtonOnSpliceVC() {

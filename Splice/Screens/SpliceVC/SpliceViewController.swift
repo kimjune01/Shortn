@@ -23,6 +23,7 @@ enum SpliceState {
 class SpliceViewController: UIViewController {
   unowned var composition: SpliceComposition
   
+  let topBar = UIView()
   var playerVC: LongPlayerViewController!
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
@@ -61,41 +62,99 @@ class SpliceViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .systemGray
+    view.backgroundColor = .black
+    addTopBar()
     addPlayerVC()
     addSpliceButton()
     addTimelineVC()
-    addTimerLabel()
-    addBpmVC()
     observeTimeSubject()
   }
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
+    view.isUserInteractionEnabled = !composition.assets.isEmpty
+    if composition.assets.isEmpty {
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(handleAssetTransformDone),
+                                             name: SpliceComposition.transformDoneNotification,
+                                             object: nil)
+    }
+  }
+  
+  func addTopBar() {
+    let barHeight: CGFloat = 40
+    view.addSubview(topBar)
+    topBar.backgroundColor = .black
+    topBar.pinTopToParent()
+    topBar.fillWidthOfParent()
+    topBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: barHeight).isActive = true
     
+    // stackView
+    let stackView = UIStackView()
+    stackView.axis = .horizontal
+    stackView.alignment = .center
+    stackView.distribution = .equalSpacing
+    topBar.addSubview(stackView)
+    stackView.fillWidthOfParent()
+    stackView.pinBottomToParent()
+    stackView.set(height: barHeight)
+    
+    // album button
+    var albumButtonConfig = topBarButtonConfig()
+    albumButtonConfig.image = UIImage(systemName: "photo.on.rectangle")
+    let albumButton = UIButton(configuration: albumButtonConfig, primaryAction: UIAction() { _ in
+      self.navigationController?.popViewController(animated: true)
+    })
+    stackView.addArrangedSubview(albumButton)
+    
+    // timer
+    stackView.addArrangedSubview(timerLabel)
+    timerLabel.set(height: 50)
+    timerLabel.textAlignment = .center
+    timerLabel.text = "0:00"
+    timerLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .medium)
+    timerLabel.textColor = .white
+    timerLabel.isUserInteractionEnabled = true
+    timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
+    
+    // bpm
+    stackView.addArrangedSubview(bpmBadgeVC.view)
+    addChild(bpmBadgeVC)
+    bpmBadgeVC.didMove(toParent: self)
+    
+  }
+  
+  func topBarButtonConfig() -> UIButton.Configuration {
+    var config = UIButton.Configuration.plain()
+    config.baseForegroundColor = .white
+    return config
   }
   
   func addPlayerVC() {
     playerVC = LongPlayerViewController(composition: composition)
     playerVC.delegate = self
     view.addSubview(playerVC.view)
+    playerVC.view.pinTop(toBottomOf: topBar)
+    playerVC.view.fillWidthOfParent()
+    playerVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
     addChild(playerVC)
     playerVC.didMove(toParent: self)
   }
   
   func addSpliceButton() {
-    var config = UIButton.Configuration.plain()
-    config.image = UIImage(systemName: "scissors.circle.fill")
+    var config = UIButton.Configuration.filled()
+    config.image = UIImage(systemName: "scissors")
+    config.baseForegroundColor = .white
+    config.baseBackgroundColor = .systemBlue
     
     spliceButton.configuration = config
     view.addSubview(spliceButton)
     spliceButton.pinBottomToParent(margin: 25, insideSafeArea: true)
     spliceButton.centerXInParent()
-    spliceButton.setSquare(constant: 47)
+    spliceButton.set(height:47)
+    spliceButton.set(width:110)
     spliceButton.roundCorner(radius: 47 / 2, cornerCurve: .circular)
-    spliceButton.setImageScale(to: 2)
-    spliceButton.tintColor = .systemBlue
-    spliceButton.backgroundColor = .white
+    spliceButton.setImageScale(to: 1)
     
     spliceButton.addTarget(self, action: #selector(touchedDownSliceButton), for: .touchDown)
     spliceButton.addTarget(self, action: #selector(touchDoneSliceButton), for: .touchUpInside)
@@ -111,34 +170,7 @@ class SpliceViewController: UIViewController {
     addChild(timelineVC)
     timelineVC.didMove(toParent: self)
   }
-  
-  func addTimerLabel() {
-    view.addSubview(timerLabel)
-    timerLabel.set(height: 20)
-    timerLabel.pinTop(toBottomOf: timelineVC.view, margin: 2)
-    timerLabel.pinLeadingToParent(margin: 8)
-    timerLabel.textAlignment = .center
-    timerLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
-    timerLabel.text = "0:00"
-    timerLabel.font = .monospacedDigitSystemFont(ofSize: 12, weight: .medium)
-    timerLabel.textColor = .white
-    timerLabel.backgroundColor = .black.withAlphaComponent(0.2)
-    timerLabel.roundCorner(radius: 3, cornerCurve: .continuous)
-    timerLabel.isUserInteractionEnabled = true
-    timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
-  }
-  
-  func addBpmVC() {
-    view.addSubview(bpmBadgeVC.view)
-    addChild(bpmBadgeVC)
-    bpmBadgeVC.didMove(toParent: self)
-    
-    bpmBadgeVC.view.set(height: BpmBadgeViewController.height)
-    bpmBadgeVC.view.set(width: BpmBadgeViewController.width)
-    bpmBadgeVC.view.pinTop(toBottomOf: timelineVC.view, margin: 2)
-    bpmBadgeVC.view.pinTrailingToParent(margin: 8)
-  }
-  
+      
   func observeTimeSubject() {
     composition.timeSubject.receive(on: DispatchQueue.main).sink { timeInterval in
       switch self.spliceState {
@@ -157,9 +189,15 @@ class SpliceViewController: UIViewController {
     case .including:
       playerVC.view.isUserInteractionEnabled = false
       timelineVC.appearIncluding()
+      UIView.animate(withDuration: 0.2) {
+        self.spliceButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+      }
     case .neutral:
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearNeutral()
+      UIView.animate(withDuration: 0.2) {
+        self.spliceButton.transform = CGAffineTransform(scaleX: 1, y: 1)
+      }
     }
     self.updateTimerLabel(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
@@ -227,6 +265,12 @@ class SpliceViewController: UIViewController {
   
   @objc func tappedTimerLabel() {
     
+  }
+  
+  @objc func handleAssetTransformDone() {
+    guard !composition.assets.isEmpty else { return }
+    view.isUserInteractionEnabled = true
+    NotificationCenter.default.removeObserver(self)
   }
   
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {

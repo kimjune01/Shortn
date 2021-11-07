@@ -20,6 +20,7 @@ class SpliceComposition {
   
   var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)
   let group = DispatchGroup()
+  static let transformDoneNotification = Notification.Name("june.kim.SpliceComposition.transformDoneNotification")
 
   let timeSubject = CurrentValueSubject<TimeInterval, Never>(0)
   var exporter: CompositionExporter?
@@ -153,7 +154,7 @@ class SpliceComposition {
       self.group.notify(queue: .main) {
         self.assets = orderedAssets.compactMap{$0}
         completion()
-        //        self.saveAssetsToTempDirectory()
+        NotificationCenter.default.post(name: SpliceComposition.transformDoneNotification, object: nil)
       }
     }
   }

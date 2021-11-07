@@ -11,14 +11,16 @@
 #
 
 # Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+update_fastlane
 
 default_platform(:ios)
 
 platform :ios do
   desc "Push a new release build to the App Store"
   lane :release do
-    increment_build_number(xcodeproj: "Users/junekim/Documents/Splice/Shortn.xcodeproj")
+    get_certificates           # invokes cert
+    get_provisioning_profile   # invokes sigh
+    increment_build_number(xcodeproj: "/Users/junekim/Documents/Splice/Shortn.xcodeproj")
     build_app(workspace: "Shortn.xcworkspace", scheme: "Shortn")
     upload_to_app_store
   end

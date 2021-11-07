@@ -25,3 +25,10 @@ Pods
 **/fastlane/Preview.html
 **/fastlane/screenshots
 **/fastlane/test_output
+
+*.cer
+*.certSigningRequest
+*.p12
+*.mobileprovision
+*.ipa
+*.app.dSYM.zip

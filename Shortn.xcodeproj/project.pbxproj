@@ -101,11 +101,9 @@
 		0EC339002732EC72003D9E63 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		0EC339022732EF62003D9E63 /* UUID+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+.swift"; sourceTree = "<group>"; };
 		0EC339042733B3DF003D9E63 /* UIFont+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+.swift"; sourceTree = "<group>"; };
-		B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.release.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.release.xcconfig"; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Splice.debug.xcconfig"; path = "Target Support Files/Pods-Splice/Pods-Splice.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -173,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				0E2511CF2726099F00E425D6 /* NavigationCoordinator.swift */,
+				0EC339062734584E003D9E63 /* Tutorial */,
 				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
 				0E2EC9C5272F345800AE84A1 /* SpliceVC */,
 				0E2511F9272E582A00E425D6 /* PreviewViewController.swift */,
@@ -254,11 +253,16 @@
 			path = Waveform;
 			sourceTree = "<group>";
 		};
+		0EC339062734584E003D9E63 /* Tutorial */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Tutorial;
+			sourceTree = "<group>";
+		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				DFEA9B5ADCC2EE10D06F7BC6 /* Pods-Splice.debug.xcconfig */,
-				B042FEED2FB06DB6E5DD0AB4 /* Pods-Splice.release.xcconfig */,
 				B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */,
 				C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */,
 			);
@@ -561,7 +565,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
@@ -578,7 +582,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shorten;
+				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -593,7 +597,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 11;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
@@ -610,7 +614,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shorten;
+				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

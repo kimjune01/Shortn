@@ -1,4 +1,4 @@
-app_identifier("kim.june.shorten") # The bundle identifier of your app
+app_identifier("kim.june.shortn") # The bundle identifier of your app
 apple_id("kimjune01@gmail.com") # Your Apple email address
 
 itc_team_id("89860800") # App Store Connect Team ID

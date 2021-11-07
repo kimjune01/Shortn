@@ -14,8 +14,8 @@ enum BpmBadgeState {
 
 // a tiny component to show the BPM when asked.
 class BpmBadgeViewController: UIViewController {
-  static let width: CGFloat = 36
-  static let height: CGFloat = 20
+  static let width: CGFloat = 60
+  static let height: CGFloat = 30
   
   var bpmTimer: BPMTimer!
   var config = BpmConfig.userDefault() {
@@ -38,8 +38,8 @@ class BpmBadgeViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .black.withAlphaComponent(0.2)
-    view.roundCorner(radius: 3, cornerCurve: .continuous)
+    view.set(height: BpmBadgeViewController.height)
+    view.set(width: BpmBadgeViewController.width)
 
     addTimer()
     addTickTockView()
@@ -75,7 +75,7 @@ class BpmBadgeViewController: UIViewController {
     view.addSubview(stoppedLabel)
     stoppedLabel.centerXInParent()
     stoppedLabel.centerYInParent()
-    stoppedLabel.font = .monospacedDigitSystemFont(ofSize: 10, weight: .medium)
+    stoppedLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .medium)
     stoppedLabel.textColor = .white
     stoppedLabel.text = "BPM"
     stoppedLabel.textAlignment = .center

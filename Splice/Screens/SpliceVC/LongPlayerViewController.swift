@@ -25,7 +25,7 @@ class LongPlayerViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: LongPlayerViewControllerDelegate?
   private var player: AVPlayer!
-  private var currentAsset: AVAsset!
+  private var currentAsset: AVAsset?
   // Key-value observing context
   private var playerItemContext = 0
   
@@ -71,6 +71,19 @@ class LongPlayerViewController: UIViewController {
     addDoubleTapTutorial()
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if !composition.assets.isEmpty {
+      makePlayer(item: makePlayerItem(at: 0))
+    } else {
+      view.isUserInteractionEnabled = false
+      NotificationCenter.default.addObserver(self,
+                                             selector: #selector(handleAssetTransformDone),
+                                             name: SpliceComposition.transformDoneNotification,
+                                             object: nil)
+    }
+  }
+  
   override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
     pause()
@@ -78,7 +91,6 @@ class LongPlayerViewController: UIViewController {
   func addPlayerView() {
     view.addSubview(playerView)
     playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)
-    makePlayer(item: makePlayerItem(at: 0))
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
     playerView.addGestureRecognizer(singleTapRecognizer)
@@ -89,6 +101,11 @@ class LongPlayerViewController: UIViewController {
   }
   
   func makePlayer(item: AVPlayerItem) {
+    guard let currentAsset = currentAsset else {
+      assert(!composition.assets.isEmpty)
+      return
+    }
+
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if currentAsset.isPortrait {
@@ -99,8 +116,9 @@ class LongPlayerViewController: UIViewController {
   }
   
   func makePlayerItem(at index: Int) -> AVPlayerItem {
+    assert(!composition.assets.isEmpty)
     currentAsset = composition.assets[index]
-    let item = AVPlayerItem(asset: currentAsset)
+    let item = AVPlayerItem(asset: currentAsset!)
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(playerDidFinishPlaying),
                                            name: .AVPlayerItemDidPlayToEndTime,
@@ -318,6 +336,10 @@ class LongPlayerViewController: UIViewController {
   }
   
   func playerAtEnd() -> Bool {
+    guard let currentAsset = currentAsset else {
+      return false
+    }
+
     return  currentAsset == composition.assets.last &&
     currentPlaybackTime() == currentAsset.duration.seconds
   }
@@ -341,6 +363,10 @@ class LongPlayerViewController: UIViewController {
   }
   
   func currentPlaybackTime() -> TimeInterval {
+    guard let currentAsset = currentAsset else {
+      return 0
+    }
+
     guard let currentItemIndex = composition.assets.firstIndex(of: currentAsset)
     else { return 0 }
     var runSum: TimeInterval = 0
@@ -351,6 +377,10 @@ class LongPlayerViewController: UIViewController {
   }
   
   func currentlyPlayingIndex() -> Int {
+    guard let currentAsset = currentAsset else {
+      return 0
+    }
+
     if let currentItemIndex = composition.assets.firstIndex(of: currentAsset) {
       return currentItemIndex
     }
@@ -360,8 +390,7 @@ class LongPlayerViewController: UIViewController {
   @objc func tappedPlayer() {  }
   
   @objc func playerDidFinishPlaying(note: NSNotification) {
-    guard let _ = note.object as? AVPlayerItem else {
-      print("BOO!!!")
+    guard let currentAsset = currentAsset else {
       return
     }
     if let currentIndex = composition.assets.firstIndex(of: currentAsset),
@@ -396,5 +425,11 @@ class LongPlayerViewController: UIViewController {
     }
   }
   
+  @objc func handleAssetTransformDone() {
+    guard !composition.assets.isEmpty else { return }
+    view.isUserInteractionEnabled = true
+    makePlayer(item: makePlayerItem(at: 0))
+    NotificationCenter.default.removeObserver(self)
+  }
 }
 
