@@ -15,14 +15,21 @@ enum SpliceMode {
 }
 
 enum SpliceState {
+  case initial
   case including(TimeInterval)
   case neutral
+}
+
+protocol SpliceViewControllerDelegate: AnyObject {
+  func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController)
 }
 
 // A full-screen VC that contains the progress bar, the player, and control buttons.
 class SpliceViewController: UIViewController {
   unowned var composition: SpliceComposition
+  weak var delegate: SpliceViewControllerDelegate?
   
+  let spinner = UIActivityIndicatorView(style:.large)
   let topBar = UIView()
   var playerVC: LongPlayerViewController!
   let spliceButton = UIButton(type: .system)
@@ -63,6 +70,7 @@ class SpliceViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .black
+    addSpinner()
     addTopBar()
     addPlayerVC()
     addSpliceButton()
@@ -72,13 +80,20 @@ class SpliceViewController: UIViewController {
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    view.isUserInteractionEnabled = !composition.assets.isEmpty
     if composition.assets.isEmpty {
       NotificationCenter.default.addObserver(self,
                                              selector: #selector(handleAssetTransformDone),
                                              name: SpliceComposition.transformDoneNotification,
                                              object: nil)
     }
+  }
+  
+  func addSpinner() {
+    view.addSubview(spinner)
+    spinner.hidesWhenStopped = true
+    spinner.centerXInParent()
+    spinner.centerYInParent(offset: -40)
+    spinner.startAnimating()
   }
   
   func addTopBar() {
@@ -103,7 +118,7 @@ class SpliceViewController: UIViewController {
     var albumButtonConfig = topBarButtonConfig()
     albumButtonConfig.image = UIImage(systemName: "photo.on.rectangle")
     let albumButton = UIButton(configuration: albumButtonConfig, primaryAction: UIAction() { _ in
-      self.navigationController?.popViewController(animated: true)
+      self.delegate?.spliceVCDidRequestAlbumPicker(self)
     })
     stackView.addArrangedSubview(albumButton)
     
@@ -186,6 +201,8 @@ class SpliceViewController: UIViewController {
   
   func updateAppearance() {
     switch spliceState {
+    case .initial:
+      spinner.startAnimating()
     case .including:
       playerVC.view.isUserInteractionEnabled = false
       timelineVC.appearIncluding()
@@ -208,6 +225,13 @@ class SpliceViewController: UIViewController {
     let minutes = (intSeconds % 3600) / 60
     let seconds = intSeconds % 60
     timerLabel.text = String(format: "%01d:%02d", minutes, seconds)
+  }
+  
+  func renderFreshAssets() {
+    playerVC.composition = composition
+    playerVC.renderFreshAssets()
+    timelineVC.composition = composition
+    timelineVC.renderFreshAssets()
   }
   
   @objc func touchedDownSliceButton() {
@@ -241,6 +265,8 @@ class SpliceViewController: UIViewController {
   
   func finishSplicing() {
     switch spliceState {
+    case .initial:
+      return
     case .including(let beginTime):
       spliceState = .neutral
       let endTime = playerVC.currentPlaybackTime()
@@ -270,6 +296,7 @@ class SpliceViewController: UIViewController {
   @objc func handleAssetTransformDone() {
     guard !composition.assets.isEmpty else { return }
     view.isUserInteractionEnabled = true
+    spinner.stopAnimating()
     NotificationCenter.default.removeObserver(self)
   }
   

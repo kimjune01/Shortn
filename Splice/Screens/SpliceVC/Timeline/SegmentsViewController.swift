@@ -44,6 +44,10 @@ class SegmentsViewController: UIViewController {
 
   }
   
+  func renderFreshAssets() {
+    
+  }
+  
   func startExpandingSegment(time: TimeInterval) {
     expandingSegmentMinX = time * view.width / composition.totalDuration
   }

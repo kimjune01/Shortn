@@ -22,6 +22,9 @@ protocol TimelineViewControllerDelegate: AnyObject {
 class TimelineViewController: UIViewController {
   weak var delegate: TimelineViewControllerDelegate?
   unowned var composition: SpliceComposition
+  
+  var waveVC: AudioWaveViewController!
+  
   static let defaultHeight: CGFloat = 80
   var currentFps: CGFloat = 60
   var advanceRate: CGFloat {
@@ -96,8 +99,7 @@ class TimelineViewController: UIViewController {
   }
   
   func addWaveform() {
-    // CGRect-slinging!
-    let waveVC = AudioWaveViewController(composition: composition)
+    waveVC = AudioWaveViewController(composition: composition)
     waveVC.view.frame = CGRect(x: 0, y: -20,
                                width: UIScreen.main.bounds.width - UIView.defaultEdgeMargin * 2,
                                height: 40)
@@ -144,6 +146,14 @@ class TimelineViewController: UIViewController {
     // buggy, sometimes it dont do what it say it do
     scrubber.isEnabled = true
     scrubber.alpha = 1
+  }
+  
+  func renderFreshAssets() {
+    scrubber.maximumValue = Float(composition.totalDuration)
+    segmentsVC.composition = composition
+    segmentsVC.renderFreshAssets()
+    waveVC.composition = composition
+    waveVC.renderFreshAssets()
   }
   
   func deleteSegment(at index: Int) {

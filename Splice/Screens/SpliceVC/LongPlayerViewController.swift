@@ -256,6 +256,10 @@ class LongPlayerViewController: UIViewController {
     }
   }
   
+  func renderFreshAssets() {
+    
+  }
+  
   @objc func doubleTappedPlayerView(_ recognizer: UITapGestureRecognizer) {
     let touchPortion: CGFloat = 0.3
     if recognizer.state == .recognized {

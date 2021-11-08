@@ -12,7 +12,7 @@ import PhotosUI
 // responsible for getting an array of videos from album
 
 protocol AlbumImportViewControllerDelegate: AnyObject {
-  func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController)
+  func albumImportVCDidRequestAlbumPicker(_ importVC: AlbumImportViewController)
 }
 
 class AlbumImportViewController: UIViewController {
@@ -68,8 +68,7 @@ class AlbumImportViewController: UIViewController {
   
   func addImportButton() {
     importButton = UIButton(type: .roundedRect, primaryAction: UIAction() { _ in
-      self.importButton.isEnabled = false
-      self.showPicker()
+      self.requestAlbumPicker()
     })
     var config = UIButton.Configuration.gray()
     config.title = "Import Videos from Album"
@@ -87,11 +86,11 @@ class AlbumImportViewController: UIViewController {
     super.viewDidAppear(animated)
   }
   
-  func showPicker() {
+  func requestAlbumPicker() {
     guard PHPhotoLibrary.authorizationStatus() == .authorized else {
       askForAlbumPermission() { granted in
         if granted {
-          self.showPicker()
+          self.requestAlbumPicker()
         } else {
           self.showAlbumAccessAlert()
         }
@@ -99,17 +98,7 @@ class AlbumImportViewController: UIViewController {
       }
       return
     }
-    
-    var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
-    pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
-    pickerConfig.selection = .ordered
-    pickerConfig.selectionLimit = 0
-    
-    let picker = PHPickerViewController(configuration: pickerConfig)
-    picker.delegate = self
-    present(picker, animated: true) {
-      self.importButton.isEnabled = true
-    }
+    delegate?.albumImportVCDidRequestAlbumPicker(self)
   }
   
   func showAlbumAccessAlert() {
@@ -131,21 +120,4 @@ class AlbumImportViewController: UIViewController {
   }
   
   override var prefersStatusBarHidden: Bool { return true }
-}
-
-extension AlbumImportViewController: PHPickerViewControllerDelegate {
-  
-  func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-    let identifiers = results.compactMap(\.assetIdentifier)
-    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-    composition.assetIdentifiers = identifiers
-    picker.dismiss(animated: true)
-    spinner.startAnimating()
-    composition.requestAVAssets(from: fetchResult) {
-      self.spinner.stopAnimating()
-      self.delegate?.albumImportViewControllerDidPick(self)
-    }
-  }
-  
-  
 }

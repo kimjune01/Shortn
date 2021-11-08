@@ -7,17 +7,20 @@
 
 import UIKit
 import AVFoundation
+import PhotosUI
 
 class NavigationCoordinator: NSObject {
   let navController: UINavigationController
   let composition = SpliceComposition()
   override init() {
     let albumImportVC = AlbumImportViewController(composition: composition)
+    let spliceVC = SpliceViewController(composition: composition)
     navController = UINavigationController(rootViewController: albumImportVC)
 //    navController = UINavigationController(rootViewController: BpmConfigViewController())
-//    navController = UINavigationController(rootViewController: SpliceViewController(composition: composition))
+//    navController = UINavigationController(rootViewController: spliceVC)
     super.init()
     albumImportVC.delegate = self
+    spliceVC.delegate = self
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
@@ -50,6 +53,21 @@ class NavigationCoordinator: NSObject {
     
   }
   
+  func showAlbumPicker() {
+    var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
+    pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
+    pickerConfig.selection = .ordered
+    pickerConfig.selectionLimit = 0
+    pickerConfig.preselectedAssetIdentifiers = composition.assetIdentifiers
+    
+    let picker = PHPickerViewController(configuration: pickerConfig)
+    picker.delegate = self
+    self.navController.topViewController?.view.isUserInteractionEnabled = false
+    navController.present(picker, animated: true) {
+      self.navController.topViewController?.view.isUserInteractionEnabled = true
+    }
+  }
+  
 }
 
 extension NavigationCoordinator: UINavigationControllerDelegate {
@@ -57,18 +75,11 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 }
 
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
-  func albumImportViewControllerDidPick(_ importVC: AlbumImportViewController) {
-    composition.splices = []
-    guard composition.assets.count > 0 else { return }
-    let spliceViewController = SpliceViewController(composition: composition)
-    spliceViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      title: "Next",
-      style: .plain,
-      target: self,
-      action: #selector(didTapNextButtonOnSpliceVC))
-    spliceViewController.navigationItem.rightBarButtonItem?.isEnabled = false
-    navController.pushViewController(spliceViewController, animated: true)
+  
+  func albumImportVCDidRequestAlbumPicker(_ importVC: AlbumImportViewController) {
+    showAlbumPicker()
   }
+  
 }
 
 extension NavigationCoordinator: PreviewViewControllerDelegate {
@@ -76,5 +87,39 @@ extension NavigationCoordinator: PreviewViewControllerDelegate {
     
   }
   
+  
+}
+
+extension NavigationCoordinator: SpliceViewControllerDelegate {
+  func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController) {
+    showAlbumPicker()
+  }
+}
+
+extension NavigationCoordinator: PHPickerViewControllerDelegate {
+  
+  func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+    let identifiers = results.compactMap(\.assetIdentifier)
+    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    composition.assetIdentifiers = identifiers
+    picker.dismiss(animated: true)
+    navController.topViewController?.view.isUserInteractionEnabled = false
+    composition.requestAVAssets(from: fetchResult) {
+      self.navController.topViewController?.view.isUserInteractionEnabled = true
+      self.pickerDidPick()
+    }
+  }
+  
+  func pickerDidPick() {
+    guard composition.assets.count > 0 else { return }
+    if let spliceVC = navController.topViewController as? SpliceViewController {
+      spliceVC.composition = composition
+      spliceVC.renderFreshAssets()
+    } else {
+      composition.splices = []
+      let spliceViewController = SpliceViewController(composition: composition)
+      navController.pushViewController(spliceViewController, animated: true)
+    }
+  }
   
 }

@@ -26,6 +26,13 @@ class AudioWaveViewController: UIViewController {
     addWaveform()
   }
   
+  func renderFreshAssets() {
+    for subview in view.subviews {
+      subview.removeFromSuperview()
+    }
+    addWaveform()
+  }
+  
   func addWaveform() {
     let targetTotalWidth = UIScreen.main.bounds.width - UIView.defaultEdgeMargin * 2
     var runX: CGFloat = 0
