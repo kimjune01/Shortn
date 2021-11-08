@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import UIKit
 
 enum CompositionExporterError: Error {
   case badVideoInput
@@ -30,6 +31,8 @@ class CompositionExporter {
         completion(nil, error)
         return
       }
+      completion(url, nil)
+      return;
       self.splice(url, completion)
     }
   }
@@ -47,6 +50,13 @@ class CompositionExporter {
     guard let firstClipVideoTrack = videoAsset.tracks(withMediaType: .video).first else {
       completion(nil, CompositionExporterError.badVideoInput)
       return
+    }
+    var isPortraitFrame = false
+    let firstTransform = firstClipVideoTrack.preferredTransform
+    if (firstTransform.a == 0 && firstTransform.d == 0 &&
+        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
+        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
+      isPortraitFrame = true
     }
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
     let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
@@ -80,14 +90,9 @@ class CompositionExporter {
       return
     }
     
-    let layerInstructions = [VideoHelper.videoCompositionInstruction(videoTrack, asset: videoAsset)]
-    let mainInstruction = AVMutableVideoCompositionInstruction()
-    mainInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: currentDuration)
-    mainInstruction.layerInstructions = layerInstructions
-    
     let firstVideoTrack = videoAsset.tracks(withMediaType: .video)[0]
     let mainComposition = AVMutableVideoComposition()
-    mainComposition.instructions = [mainInstruction]
+    mainComposition.instructions = []
     //    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
     mainComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstVideoTrack.nominalFrameRate.rounded()))
     mainComposition.renderSize = firstVideoTrack.naturalSize
@@ -150,7 +155,8 @@ class CompositionExporter {
       return
     }
     
-    guard let firstClipVideoTrack = videoAssets.first!.tracks(withMediaType: .video).first else {
+    guard let firstAsset = videoAssets.first,
+          let firstClipVideoTrack = firstAsset.tracks(withMediaType: .video).first else {
       completion(nil, CompositionExporterError.badVideoInput)
       return
     }
@@ -160,19 +166,32 @@ class CompositionExporter {
      NSLog(@"video is portrait ");
      videoSize = CGSizeMake(videoSize.height, videoSize.width);
      */
+    var isPortraitFrame = false
+    let firstTransform = firstClipVideoTrack.preferredTransform
+    if (firstTransform.a == 0 && firstTransform.d == 0 &&
+        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
+        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
+      isPortraitFrame = true
+    }
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
-    let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    mixComposition.naturalSize = portraitSize
-    videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
+    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    mixComposition.naturalSize = absoluteSize
     
+    // 1 instruction per layer!
+    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: firstClipVideoTrack)
+
     var currentDuration = CMTime.zero
     for eachAsset in videoAssets {
       assert(eachAsset.tracks(withMediaType: .video).count > 0, "No video data found in this video asset")
       do {
+        guard let sourceTrack = eachAsset.tracks(withMediaType: .video).first else { break }
         try videoTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: eachAsset.duration),
-                                       of: eachAsset.tracks(withMediaType: .video)[0],
+                                       of: sourceTrack,
                                        at: currentDuration)
-        
+        let transform = transform(for: sourceTrack,
+                                     isPortraitFrame: isPortraitFrame,
+                                     renderSize: mixComposition.naturalSize)
+        layerInstruction.setTransform(transform, at: currentDuration)
         currentDuration = CMTimeAdd(currentDuration, eachAsset.duration)
       } catch {
         completion(nil, CompositionExporterError.badVideoInput)
@@ -184,19 +203,15 @@ class CompositionExporter {
     }
     assert(currentDuration.seconds == totalDuration.seconds)
     
-    let layerInstructions = videoAssets.map{ asset in
-      return VideoHelper.videoCompositionInstruction(videoTrack, asset: asset)
-    }
     let mainInstruction = AVMutableVideoCompositionInstruction()
     mainInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
-    mainInstruction.layerInstructions = layerInstructions
+    mainInstruction.layerInstructions = [layerInstruction]
     
-    let firstVideoTrack = videoAssets.first!.tracks(withMediaType: .video)[0]
     let mainComposition = AVMutableVideoComposition()
     mainComposition.instructions = [mainInstruction]
-    //    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
-    mainComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstVideoTrack.nominalFrameRate.rounded()))
-    mainComposition.renderSize = portraitSize
+    mainComposition.frameDuration = CMTimeMake(value: 1,
+                                               timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
+    mainComposition.renderSize = absoluteSize
     
     guard let clipsAudioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
@@ -228,7 +243,7 @@ class CompositionExporter {
     
     guard let exporter = AVAssetExportSession(
       asset: mixComposition,
-      presetName: AVAssetExportPresetPassthrough)
+      presetName: exportPreset(for: videoAssets.first!))
     else { return }
     
     exporter.outputURL = url
@@ -256,4 +271,54 @@ class CompositionExporter {
     }
 
   }
+  
+  func exportPreset(for asset: AVAsset) -> String {
+    let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
+    let preference = [
+      AVAssetExportPresetHEVCHighestQuality,
+      AVAssetExportPresetHighestQuality,
+      AVAssetExportPresetMediumQuality,
+      AVAssetExportPresetLowQuality
+    ]
+    for eachPref in preference {
+      if presets.contains(eachPref) {
+        return eachPref
+      }
+    }
+    return AVAssetExportPresetPassthrough
+  }
+  
+  func transform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
+    let transform = VideoHelper.transform(basedOn: assetTrack)
+    let naturalSize = assetTrack.naturalSize.applying(transform)
+    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    let isPortraitAsset = absoluteSize.width < absoluteSize.height
+    
+    // 4 cases total, potrait frame * asset orientation
+    if isPortraitFrame {
+      if isPortraitAsset {
+        return transform.translatedBy(x: 0, y: absoluteSize.height - renderSize.width)
+      }
+      if !isPortraitAsset {
+        let sizeRatio = absoluteSize.width / absoluteSize.height
+        let scaleFactor = absoluteSize.height / absoluteSize.width
+        return CGAffineTransform.fit(from: CGRect(origin: .zero, size: absoluteSize),
+                                     to: CGRect(origin: .zero, size: renderSize))
+          .scaledBy(x: 1, y: pow(scaleFactor, 2))
+          .translatedBy(x: 0, y: (renderSize.height - absoluteSize.height) * sqrt(sizeRatio))
+      }
+    }
+    if !isPortraitFrame, isPortraitAsset {
+      let scaleFactor = absoluteSize.height / absoluteSize.width
+      return transform
+        .scaledBy(x: 1/scaleFactor, y: 1/scaleFactor)
+        .translatedBy(x: 0, y: (absoluteSize.height - renderSize.height) * sqrt(scaleFactor))
+    }
+    if !isPortraitFrame, !isPortraitAsset {
+      return transform
+    }
+    
+    return .identity
+  }
+
 }

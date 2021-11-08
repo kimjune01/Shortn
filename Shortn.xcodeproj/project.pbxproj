@@ -51,6 +51,7 @@
 		0EC339012732EC72003D9E63 /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339002732EC72003D9E63 /* String+.swift */; };
 		0EC339032732EF62003D9E63 /* UUID+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339022732EF62003D9E63 /* UUID+.swift */; };
 		0EC339052733B3DF003D9E63 /* UIFont+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339042733B3DF003D9E63 /* UIFont+.swift */; };
+		0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -101,6 +102,7 @@
 		0EC339002732EC72003D9E63 /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		0EC339022732EF62003D9E63 /* UUID+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+.swift"; sourceTree = "<group>"; };
 		0EC339042733B3DF003D9E63 /* UIFont+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+.swift"; sourceTree = "<group>"; };
+		0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGAffineTransform+.swift"; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -215,6 +217,7 @@
 				0EC339022732EF62003D9E63 /* UUID+.swift */,
 				0E2511EF272CA8C400E425D6 /* UIButton+.swift */,
 				0E2511F5272E0DB600E425D6 /* TimeInterval+.swift */,
+				0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -425,6 +428,7 @@
 				0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */,
 				0E2511F0272CA8C400E425D6 /* UIButton+.swift in Sources */,
 				0E2511FA272E582A00E425D6 /* PreviewViewController.swift in Sources */,
+				0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

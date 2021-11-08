@@ -91,6 +91,7 @@ class SpliceViewController: UIViewController {
                                              name: SpliceComposition.transformDoneNotification,
                                              object: nil)
     }
+    updateAppearance()
   }
   
   func addSpinner() {
@@ -243,6 +244,9 @@ class SpliceViewController: UIViewController {
     switch spliceState {
     case .initial:
       spinner.startAnimating()
+      playerVC.view.isUserInteractionEnabled = false
+      playButton.isEnabled = false
+      previewButton.isEnabled = composition.splices.count > 0
     case .including:
       playerVC.view.isUserInteractionEnabled = false
       timelineVC.appearIncluding()
@@ -250,6 +254,7 @@ class SpliceViewController: UIViewController {
         self.spliceButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
       }
       playButton.isEnabled = false
+      previewButton.isEnabled = false
     case .neutral:
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearNeutral()
@@ -257,6 +262,7 @@ class SpliceViewController: UIViewController {
         self.spliceButton.transform = CGAffineTransform(scaleX: 1, y: 1)
       }
       playButton.isEnabled = timelineVC.scrubbingState == .notScrubbing
+      previewButton.isEnabled = composition.splices.count > 0
     }
     self.updateTimerLabel(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
@@ -310,13 +316,13 @@ class SpliceViewController: UIViewController {
     case .initial:
       return
     case .including(let beginTime):
-      spliceState = .neutral
       let endTime = playerVC.currentPlaybackTime()
       guard endTime - beginTime > 0.05 else {
         showTooltipOnSpliceButton()
         break
       }
       composition.append(beginTime...endTime)
+      spliceState = .neutral
     case .neutral:
       updateAppearance()
       return
@@ -326,7 +332,7 @@ class SpliceViewController: UIViewController {
   }
   
   func showTooltipOnSpliceButton() {
-    spliceButton.displayTooltip("Tap & Hold") {
+    spliceButton.displayTooltip("Tap & Hold\nto include") {
       //
     }
   }

@@ -70,8 +70,15 @@ class PreviewViewController: UIViewController {
   
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
-    if self.player != nil {
-      self.player.play()
+    if player != nil {
+      player.play()
+    }
+  }
+  
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    if player != nil {
+      player.pause()
     }
   }
     
@@ -199,7 +206,8 @@ class PreviewViewController: UIViewController {
     player = AVPlayer(playerItem: item)
     playerView.player = player
     if item.asset.isPortrait {
-      playerView.videoGravity = .resizeAspectFill
+//      playerView.videoGravity = .resizeAspectFill
+      playerView.videoGravity = .resizeAspect
     } else {
       playerView.videoGravity = .resizeAspect
     }
