@@ -29,31 +29,11 @@ class NavigationCoordinator: NSObject {
   func showPreviewVC() {
     let previewVC = PreviewViewController(composition: composition)
     previewVC.delegate = self
-    previewVC.navigationItem.rightBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "square.and.arrow.up"),
-      style: .done,
-      target: self,
-      action: #selector(previewVCTappedShare))
     let presenter = navController.topViewController
     presenter?.view.isUserInteractionEnabled = false
     navController.present(previewVC, animated: true) {
       presenter?.view.isUserInteractionEnabled = true
     }
-  }
-  
-  @objc func previewVCTappedShare(_ barButton: UIBarButtonItem) {
-    guard let assetToShare = composition.previewAsset else { return }
-    let activityVC = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
-    activityVC.title = "Save to album"
-    activityVC.excludedActivityTypes = []
-    // for ipads
-    if let popover = activityVC.popoverPresentationController {
-      popover.barButtonItem = barButton
-      popover.permittedArrowDirections = .up
-    }
-
-    navController.present(activityVC, animated: true, completion: nil)
-    
   }
   
   func showAlbumPicker() {
@@ -86,6 +66,20 @@ extension NavigationCoordinator: AlbumImportViewControllerDelegate {
 }
 
 extension NavigationCoordinator: PreviewViewControllerDelegate {
+  func previewVCDidCancel(_ previewVC: PreviewViewController) {
+    previewVC.dismiss(animated: true, completion: nil)
+  }
+  
+  func previewVCDidFailExport(_ previewVC: PreviewViewController) {
+    previewVC.dismiss(animated: true)
+    let alertController = UIAlertController(title: "Oops!",
+                                            message: "Something went wrong while processing the video. Please try again.",
+                                            preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+    navController.present(alertController, animated: true)
+    
+  }
+  
   func previewVCDidApprove(_ previewVC: PreviewViewController) {
     
   }

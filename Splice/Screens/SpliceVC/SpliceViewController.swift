@@ -189,7 +189,7 @@ class SpliceViewController: UIViewController {
     previewConfig.image = UIImage(systemName: "square.and.arrow.up")
     previewConfig.baseForegroundColor = .white
     
-    let previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
+    previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
       self.delegate?.spliceVCDidRequestPreview(self)
     })
     previewButton.setImageScale(to: 1.2)
