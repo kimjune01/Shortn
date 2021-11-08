@@ -26,7 +26,7 @@ class NavigationCoordinator: NSObject {
     navController.isNavigationBarHidden = true
   }
   
-  @objc func didTapNextButtonOnSpliceVC() {
+  func showPreviewVC() {
     let previewVC = PreviewViewController(composition: composition)
     previewVC.delegate = self
     previewVC.navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -34,8 +34,11 @@ class NavigationCoordinator: NSObject {
       style: .done,
       target: self,
       action: #selector(previewVCTappedShare))
-    
-    navController.pushViewController(previewVC, animated: true)
+    let presenter = navController.topViewController
+    presenter?.view.isUserInteractionEnabled = false
+    navController.present(previewVC, animated: true) {
+      presenter?.view.isUserInteractionEnabled = true
+    }
   }
   
   @objc func previewVCTappedShare(_ barButton: UIBarButtonItem) {
@@ -91,6 +94,10 @@ extension NavigationCoordinator: PreviewViewControllerDelegate {
 }
 
 extension NavigationCoordinator: SpliceViewControllerDelegate {
+  func spliceVCDidRequestPreview(_ spliceVC: SpliceViewController) {
+    showPreviewVC()
+  }
+  
   func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController) {
     showAlbumPicker()
   }
@@ -113,11 +120,13 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
   func pickerDidPick() {
     guard composition.assets.count > 0 else { return }
     if let spliceVC = navController.topViewController as? SpliceViewController {
+      composition.splices = []
       spliceVC.composition = composition
       spliceVC.renderFreshAssets()
     } else {
       composition.splices = []
       let spliceViewController = SpliceViewController(composition: composition)
+      spliceViewController.delegate = self
       navController.pushViewController(spliceViewController, animated: true)
     }
   }

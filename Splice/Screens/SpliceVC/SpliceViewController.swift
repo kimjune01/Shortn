@@ -22,6 +22,7 @@ enum SpliceState {
 
 protocol SpliceViewControllerDelegate: AnyObject {
   func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController)
+  func spliceVCDidRequestPreview(_ spliceVC: SpliceViewController)
 }
 
 // A full-screen VC that contains the progress bar, the player, and control buttons.
@@ -32,6 +33,9 @@ class SpliceViewController: UIViewController {
   let spinner = UIActivityIndicatorView(style:.large)
   let topBar = UIView()
   var playerVC: LongPlayerViewController!
+  let bottomStack = UIStackView()
+  var playButton: UIButton!
+  var previewButton: UIButton!
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
   let timerLabel = UILabel()
@@ -73,6 +77,7 @@ class SpliceViewController: UIViewController {
     addSpinner()
     addTopBar()
     addPlayerVC()
+    addBottomStackView()
     addSpliceButton()
     addTimelineVC()
     observeTimeSubject()
@@ -97,7 +102,7 @@ class SpliceViewController: UIViewController {
   }
   
   func addTopBar() {
-    let barHeight: CGFloat = 40
+    let barHeight: CGFloat = 50
     view.addSubview(topBar)
     topBar.backgroundColor = .black
     topBar.pinTopToParent()
@@ -156,6 +161,41 @@ class SpliceViewController: UIViewController {
     playerVC.didMove(toParent: self)
   }
   
+  func addBottomStackView() {
+    let stackHeight: CGFloat = 50
+    
+    view.addSubview(bottomStack)
+    bottomStack.pinBottomToParent(margin: 12, insideSafeArea: true)
+    bottomStack.fillWidthOfParent()
+    bottomStack.set(height: stackHeight)
+    
+    bottomStack.axis = .horizontal
+    bottomStack.alignment = .center
+    bottomStack.distribution = .equalSpacing
+    
+    // play button
+    var playConfig = UIButton.Configuration.plain()
+    playConfig.image = UIImage(systemName: "play.fill")
+    playConfig.baseForegroundColor = .white
+    
+    playButton = UIButton(configuration: playConfig, primaryAction: UIAction() { _ in
+      self.playerVC.togglePlayback()
+    })
+    playButton.setImageScale(to: 1.2)
+    bottomStack.addArrangedSubview(playButton)
+    
+    // export button
+    var previewConfig = UIButton.Configuration.plain()
+    previewConfig.image = UIImage(systemName: "square.and.arrow.up")
+    previewConfig.baseForegroundColor = .white
+    
+    let previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
+      self.delegate?.spliceVCDidRequestPreview(self)
+    })
+    previewButton.setImageScale(to: 1.2)
+    bottomStack.addArrangedSubview(previewButton)
+  }
+  
   func addSpliceButton() {
     var config = UIButton.Configuration.filled()
     config.image = UIImage(systemName: "scissors")
@@ -163,17 +203,17 @@ class SpliceViewController: UIViewController {
     config.baseBackgroundColor = .systemBlue
     
     spliceButton.configuration = config
-    view.addSubview(spliceButton)
-    spliceButton.pinBottomToParent(margin: 25, insideSafeArea: true)
-    spliceButton.centerXInParent()
+    bottomStack.addSubview(spliceButton)
     spliceButton.set(height:47)
     spliceButton.set(width:110)
     spliceButton.roundCorner(radius: 47 / 2, cornerCurve: .circular)
-    spliceButton.setImageScale(to: 1)
+    spliceButton.centerXInParent()
+    spliceButton.centerYInParent()
     
     spliceButton.addTarget(self, action: #selector(touchedDownSliceButton), for: .touchDown)
     spliceButton.addTarget(self, action: #selector(touchDoneSliceButton), for: .touchUpInside)
     spliceButton.addTarget(self, action: #selector(touchDoneSliceButton), for: .touchDragExit)
+    
   }
   
   func addTimelineVC() {
@@ -181,7 +221,7 @@ class SpliceViewController: UIViewController {
     view.addSubview(timelineVC.view)
     timelineVC.view.set(height: TimelineViewController.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
-    timelineVC.view.pinBottom(toTopOf: spliceButton, margin: 8)
+    timelineVC.view.pinBottom(toTopOf: bottomStack, margin: 8)
     addChild(timelineVC)
     timelineVC.didMove(toParent: self)
   }
@@ -209,12 +249,14 @@ class SpliceViewController: UIViewController {
       UIView.animate(withDuration: 0.2) {
         self.spliceButton.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
       }
+      playButton.isEnabled = false
     case .neutral:
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearNeutral()
       UIView.animate(withDuration: 0.2) {
         self.spliceButton.transform = CGAffineTransform(scaleX: 1, y: 1)
       }
+      playButton.isEnabled = timelineVC.scrubbingState == .notScrubbing
     }
     self.updateTimerLabel(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
@@ -308,6 +350,19 @@ class SpliceViewController: UIViewController {
 }
 
 extension SpliceViewController: LongPlayerViewControllerDelegate {
+  func longPlayerVCDidChangePlaybackState(_ state: LongPlayerState) {
+    switch state {
+    case .playing, .scrubbingWhenPlaying:
+      playButton.configuration?.image = UIImage(systemName: "pause.fill")
+    case .paused, .scrubbingWhenPaused:
+      playButton.configuration?.image = UIImage(systemName: "play.fill")
+    case .initial, .atEnd:
+      playButton.configuration?.image = UIImage(systemName: "play.fill")
+    }
+
+    updateAppearance()
+  }
+  
   func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController) {
     finishSplicing()
   }

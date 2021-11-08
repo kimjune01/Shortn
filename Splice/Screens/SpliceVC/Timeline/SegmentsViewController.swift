@@ -45,7 +45,7 @@ class SegmentsViewController: UIViewController {
   }
   
   func renderFreshAssets() {
-    
+    updateSegmentsForSplices()
   }
   
   func startExpandingSegment(time: TimeInterval) {

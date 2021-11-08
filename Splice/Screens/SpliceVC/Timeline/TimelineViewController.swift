@@ -19,10 +19,16 @@ protocol TimelineViewControllerDelegate: AnyObject {
   func timelineVCDidDeleteSegment()
 }
 
+enum ScrubbingState {
+  case scrubbing
+  case notScrubbing
+}
+
 class TimelineViewController: UIViewController {
   weak var delegate: TimelineViewControllerDelegate?
   unowned var composition: SpliceComposition
   
+  var scrubbingState: ScrubbingState = .notScrubbing
   var waveVC: AudioWaveViewController!
   
   static let defaultHeight: CGFloat = 80
@@ -150,8 +156,12 @@ class TimelineViewController: UIViewController {
   
   func renderFreshAssets() {
     scrubber.maximumValue = Float(composition.totalDuration)
+    scrubber.setNeedsLayout()
+    scrubber.layoutIfNeeded()
+    
     segmentsVC.composition = composition
     segmentsVC.renderFreshAssets()
+
     waveVC.composition = composition
     waveVC.renderFreshAssets()
   }
@@ -176,11 +186,13 @@ class TimelineViewController: UIViewController {
   }
   
   @objc func didTouchDownScrubber(_ slider: UISlider) {
+    scrubbingState = .scrubbing
     delegate?.timelineVCDidTouchDownScrubber()
     segmentsVC.stopGlowing()
   }
   
   @objc func didTouchDoneScrubber(_ slider: UISlider) {
+    scrubbingState = .notScrubbing
     delegate?.timelineVCDidTouchDoneScrubber()
   }
 }

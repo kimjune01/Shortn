@@ -9,6 +9,7 @@ import UIKit
 import AVFoundation
 
 protocol LongPlayerViewControllerDelegate: AnyObject {
+  func longPlayerVCDidChangePlaybackState(_ state: LongPlayerState)
   func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController)
 }
 
@@ -32,12 +33,12 @@ class LongPlayerViewController: UIViewController {
   var state: LongPlayerState  = .initial {
     didSet {
       updateApperance()
+      delegate?.longPlayerVCDidChangePlaybackState(state)
     }
   }
   
   let playerView: PlayerView = PlayerView()
   let centerPanel = UIView()
-  let pausedOverlay = UIImageView()
 
   let leftFastPanel = UIView()
   let rightFastPanel = UIView()
@@ -67,7 +68,6 @@ class LongPlayerViewController: UIViewController {
     super.viewDidLoad()
     addPlayerView()
     addFastPanels()
-    addPausedOverlay()
     addDoubleTapTutorial()
   }
   
@@ -171,18 +171,6 @@ class LongPlayerViewController: UIViewController {
     centerPanel.addGestureRecognizer(centerSingleTapRecognizer)
   }
   
-  func addPausedOverlay() {
-    let overlayConfig = UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight, scale: .large)
-    pausedOverlay.image = UIImage(systemName: "play.circle", withConfiguration: overlayConfig)
-    pausedOverlay.tintColor = .white
-    centerPanel.addSubview(pausedOverlay)
-    pausedOverlay.centerXInParent()
-    pausedOverlay.centerYInParent()
-    pausedOverlay.setSquare(constant: 150)
-    pausedOverlay.contentMode = .scaleAspectFit
-    pausedOverlay.alpha = 0.8
-  }
-  
   func addDoubleTapTutorial() {
     let panelScreenPortion = view.width * 0.29
 
@@ -206,18 +194,15 @@ class LongPlayerViewController: UIViewController {
     case .initial:
       break
     case .playing:
-      pausedOverlay.isHidden = true
       doubleTapLeftLabel.isHidden = true
       doubleTapRightLabel.isHidden = true
     case .paused, .atEnd:
-      pausedOverlay.isHidden = false
-      pausedOverlay.alpha = 0.8
       if !UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
         doubleTapLeftLabel.isHidden = false
         doubleTapRightLabel.isHidden = false
       }
     case .scrubbingWhenPaused:
-      pausedOverlay.alpha = 0.2
+      break
     case .scrubbingWhenPlaying:
       break
     }
