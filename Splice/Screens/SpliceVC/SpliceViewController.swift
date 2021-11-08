@@ -280,6 +280,7 @@ class SpliceViewController: UIViewController {
     playerVC.renderFreshAssets()
     timelineVC.composition = composition
     timelineVC.renderFreshAssets()
+    spliceState = .neutral
   }
   
   @objc func touchedDownSliceButton() {
@@ -364,6 +365,7 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
       playButton.configuration?.image = UIImage(systemName: "play.fill")
     case .initial, .atEnd:
       playButton.configuration?.image = UIImage(systemName: "play.fill")
+      timelineVC.appearNeutral()
     }
 
     updateAppearance()

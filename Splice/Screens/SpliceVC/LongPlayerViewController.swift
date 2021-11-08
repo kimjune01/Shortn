@@ -243,7 +243,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func renderFreshAssets() {
-    
+    handleAssetTransformDone()
   }
   
   @objc func doubleTappedPlayerView(_ recognizer: UITapGestureRecognizer) {
@@ -419,6 +419,10 @@ class LongPlayerViewController: UIViewController {
     guard !composition.assets.isEmpty else { return }
     view.isUserInteractionEnabled = true
     makePlayer(item: makePlayerItem(at: 0))
+    seek(to: 0)
+  }
+  
+  deinit {
     NotificationCenter.default.removeObserver(self)
   }
 }

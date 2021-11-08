@@ -102,6 +102,10 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
     let identifiers = results.compactMap(\.assetIdentifier)
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    guard composition.assetIdentifiers != identifiers else {
+      picker.dismiss(animated: true)
+      return
+    }
     composition.assetIdentifiers = identifiers
     picker.dismiss(animated: true)
     navController.topViewController?.view.isUserInteractionEnabled = false
