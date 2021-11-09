@@ -85,14 +85,15 @@ class SegmentsViewController: UIViewController {
     guard let index = maybeIndex else { return }
     if segment.isSelected {
       delegate?.segmentsVCDidSelectSegment(at: index)
-    } else {
-      for otherSegments in segments {
-        otherSegments.stopGlowing()
-        otherSegments.tag = 0
-      }
-      segment.startGlowing()
-      segment.isSelected = true
+      return
     }
+    for otherSegments in segments {
+      otherSegments.stopAppearingDeletable()
+      otherSegments.isSelected = false
+    }
+    segment.appearDeletable()
+    segment.isSelected = true
+    
   }
   
   @objc func swipedUpSegment(_ recognizer: UISwipeGestureRecognizer) {
@@ -111,7 +112,7 @@ class SegmentsViewController: UIViewController {
   
   func stopGlowing() {
     for eachSegment in segments {
-      eachSegment.stopGlowing()
+      eachSegment.stopAppearingDeletable()
       eachSegment.tag = 0
     }
   }

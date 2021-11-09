@@ -9,13 +9,13 @@ import UIKit
 
 class SegmentView: UIView {
   var isSelected = false
-
+  var coloredPortion = UIView()
   
-  func startGlowing() {
-    stopGlowing()
+  func appearDeletable() {
+    stopAppearingDeletable()
     layer.masksToBounds = false
-    layer.shadowColor = UIColor.white.withAlphaComponent(0.9).cgColor
-    layer.shadowRadius = 0
+    layer.shadowColor = UIColor.white.cgColor
+    layer.shadowRadius = 8
     layer.shadowOpacity = 1
     layer.shadowOffset = .zero
     
@@ -28,18 +28,30 @@ class SegmentView: UIView {
     glowAnimation.autoreverses = true
     glowAnimation.repeatCount = .infinity
     layer.add(glowAnimation, forKey: "shadowGlowingAnimation")
+    
+    coloredPortion.backgroundColor = .systemPink
+
+    let xImage = UIImageView(image: UIImage(systemName: "xmark"))
+    xImage.tintColor = .white
+    coloredPortion.addSubview(xImage)
+    xImage.centerXInParent()
+    xImage.centerYInParent()
   }
   
-  func stopGlowing() {
+  func stopAppearingDeletable() {
     layer.removeAllAnimations()
     layer.shadowOpacity = 0
+    coloredPortion.backgroundColor = .systemBlue
+    for subview in coloredPortion.subviews {
+      subview.removeFromSuperview()
+    }
   }
   
   func addColor() {
-    let coloredPortion = UIView(frame: CGRect(x: 0,
-                                              y: CustomSlider.defaultHeight,
-                                              width: width,
-                                              height: CustomSlider.defaultHeight))
+    coloredPortion.frame = CGRect(x: 0,
+                                  y: CustomSlider.defaultHeight,
+                                  width: width,
+                                  height: CustomSlider.defaultHeight)
     coloredPortion.backgroundColor = .systemBlue
     coloredPortion.roundCorner(radius: 3, cornerCurve: .continuous)
     addSubview(coloredPortion)
