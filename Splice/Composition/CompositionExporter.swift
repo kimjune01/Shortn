@@ -31,8 +31,8 @@ class CompositionExporter {
         completion(nil, error)
         return
       }
-      completion(url, nil)
-      return;
+//      completion(url, nil)
+//      return;
       self.splice(url, completion)
     }
   }
@@ -51,13 +51,7 @@ class CompositionExporter {
       completion(nil, CompositionExporterError.badVideoInput)
       return
     }
-    var isPortraitFrame = false
-    let firstTransform = firstClipVideoTrack.preferredTransform
-    if (firstTransform.a == 0 && firstTransform.d == 0 &&
-        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
-        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
-      isPortraitFrame = true
-    }
+
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
     let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
     mixComposition.naturalSize = portraitSize
@@ -243,7 +237,7 @@ class CompositionExporter {
     
     guard let exporter = AVAssetExportSession(
       asset: mixComposition,
-      presetName: exportPreset(for: videoAssets.first!))
+      presetName: exportPreset(for: mixComposition))
     else { return }
     
     exporter.outputURL = url
@@ -274,12 +268,17 @@ class CompositionExporter {
   
   func exportPreset(for asset: AVAsset) -> String {
     let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
-    let preference = [
-      AVAssetExportPresetHEVCHighestQuality,
+    var preference: [String] = [
       AVAssetExportPresetHighestQuality,
       AVAssetExportPresetMediumQuality,
       AVAssetExportPresetLowQuality
     ]
+#if targetEnvironment(simulator)
+    // code to run if running on simulator
+#else
+    // code to run if not running on simulator
+    preference = [AVAssetExportPresetHEVCHighestQuality].append(contentsOf: preference)
+#endif
     for eachPref in preference {
       if presets.contains(eachPref) {
         return eachPref

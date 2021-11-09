@@ -52,6 +52,8 @@
 		0EC339032732EF62003D9E63 /* UUID+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339022732EF62003D9E63 /* UUID+.swift */; };
 		0EC339052733B3DF003D9E63 /* UIFont+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339042733B3DF003D9E63 /* UIFont+.swift */; };
 		0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */; };
+		0EC3390D273AA6CB003D9E63 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */; };
+		0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -103,6 +105,8 @@
 		0EC339022732EF62003D9E63 /* UUID+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+.swift"; sourceTree = "<group>"; };
 		0EC339042733B3DF003D9E63 /* UIFont+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+.swift"; sourceTree = "<group>"; };
 		0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGAffineTransform+.swift"; sourceTree = "<group>"; };
+		0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
+		0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortnAppProduct.swift; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,9 +158,9 @@
 				0E2EC9C6272F348900AE84A1 /* Composition */,
 				0E2EC9C4272F340000AE84A1 /* Screens */,
 				0E2EC9C7272F34AA00AE84A1 /* Extensions */,
+				0EC3390B273AA69F003D9E63 /* Helpers */,
 				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
 				0E7A24302731731B00A57A40 /* BPMTimer.swift */,
-				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
 				0E2511F3272DEA8800E425D6 /* CustomSlider.swift */,
 				0E7A24472731ECC700A57A40 /* bloop.wav */,
@@ -261,6 +265,16 @@
 			children = (
 			);
 			path = Tutorial;
+			sourceTree = "<group>";
+		};
+		0EC3390B273AA69F003D9E63 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				0E2511FD272E59A800E425D6 /* VideoHelper.swift */,
+				0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */,
+				0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
@@ -414,6 +428,7 @@
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */,
 				0EC339012732EC72003D9E63 /* String+.swift in Sources */,
+				0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */,
 				0E7A24442731EC8400A57A40 /* WaveformImageDrawer.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
 				0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */,
@@ -428,6 +443,7 @@
 				0E2511F2272CFA6A00E425D6 /* ShortGestureRecognizer.swift in Sources */,
 				0E2511F0272CA8C400E425D6 /* UIButton+.swift in Sources */,
 				0E2511FA272E582A00E425D6 /* PreviewViewController.swift in Sources */,
+				0EC3390D273AA6CB003D9E63 /* IAPHelper.swift in Sources */,
 				0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -569,7 +585,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
@@ -585,7 +601,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -601,7 +617,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
@@ -617,7 +633,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

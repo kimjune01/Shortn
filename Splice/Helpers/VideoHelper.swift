@@ -29,37 +29,6 @@ enum VideoHelper {
     return (assetOrientation, isPortrait)
   }
 
-  static func videoCompositionInstruction(
-    _ track: AVCompositionTrack,
-    asset: AVAsset,
-    currentTime: CMTime,
-    isPortraitFrame: Bool
-  ) -> AVMutableVideoCompositionLayerInstruction {
-    let instruction = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
-    let assetTrack = asset.tracks(withMediaType: AVMediaType.video)[0]
-
-    let transform = assetTrack.preferredTransform
-    let assetInfo = orientationFromTransform(transform)
-
-    if assetInfo.isPortrait {
-      print("portrait transform: ", transform)
-      instruction.setTransform(
-        assetTrack.preferredTransform,
-        at: currentTime)
-      
-    } else if isPortraitFrame {
-      
-      print("landscape transform in portrait frame: ", transform)
-      print("landscape transform time: ", currentTime)
-      return instruction
-      instruction.setTransform(
-        assetTrack.preferredTransform.rotated(by: CGFloat.pi),
-        at: currentTime)
-      instruction.setOpacity(0.5, at: currentTime)
-    }
-    return instruction
-  }
-  
   static func orientation(for track: AVAssetTrack) -> UIInterfaceOrientation {
     let t = track.preferredTransform
     if(t.a == 0 && t.b == 1.0 && t.c == -1.0 && t.d == 0) {
