@@ -36,6 +36,7 @@ public struct ShortnAppProduct {
   }
   // primary feature to gate.
   public static var PHPickerSelectionLimit = 1
+  public static let freeTierPickerSelectionLimit = 1
   //
   static func updatePHPickerSelectionLimit() {
     if store.isProductPurchased(monthlySubscriptionFullAccess) {
@@ -59,7 +60,7 @@ public struct ShortnAppProduct {
   }
   
   static func hasReachedFreeUsageLimit() -> Bool {
-    return usageCount > maxUsageCountBeforePurchase
+    return usageCount >= maxUsageCountBeforePurchase
   }
   
   static func shouldShowFreeForNowReminder() -> Bool {

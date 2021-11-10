@@ -10,7 +10,7 @@ import AVFoundation
 import PhotosUI
 
 protocol PreviewViewControllerDelegate: AnyObject {
-  func previewVCDidFailExport(_ previewVC: PreviewViewController)
+  func previewVCDidFailExport(_ previewVC: PreviewViewController, err: Error?)
   func previewVCDidCancel(_ previewVC: PreviewViewController)
   func previewVCDidApprove(_ previewVC: PreviewViewController)
 }
@@ -19,19 +19,11 @@ class PreviewViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: PreviewViewControllerDelegate?
   
-  var savedThisPreview = false
-  var shouldSaveUninterrupted: Bool {
-    return composition.assets.count == 1 ||
-    ShortnAppProduct.hasFullFeatureAccess() ||
-    !ShortnAppProduct.hasReachedFreeUsageLimit()
-  }
-  
   private var player: AVPlayer!
   let playerView = PlayerView()
   var currentAsset: AVAsset?
   let spinner = UIActivityIndicatorView(style: .large)
   var shareButton: UIButton!
-  var saveButton: UIButton!
   let bottomStack = UIStackView()
   
   private var playbackState: AVPlayer.TimeControlStatus {
@@ -56,11 +48,11 @@ class PreviewViewController: UIViewController {
     addPlayer()
     addBottonStack()
     addSpinner()
-    composition.exportForPreview { [weak self] completed in
+    composition.exportForPreview { [weak self] err in
       guard let self = self else { return }
-      guard completed else {
+      guard err == nil else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-          self.delegate?.previewVCDidFailExport(self)
+          self.delegate?.previewVCDidFailExport(self, err: err)
         }
         return
       }
@@ -118,145 +110,26 @@ class PreviewViewController: UIViewController {
     })
     bottomStack.addArrangedSubview(backButton)
     
-    var saveConfig = UIButton.Configuration.plain()
-    saveConfig.image = UIImage(named: "photos-app-icon")
-    saveButton = UIButton(configuration: saveConfig, primaryAction: UIAction() { _ in
-      guard !self.savedThisPreview else {
-        self.showAlreadySavedAlert()
-        return
-      }
-      if self.shouldSaveUninterrupted {
-        self.saveToPhotosAlbum()
-      } else {
-        self.offerPurchase()
-      }
-    })
-    saveButton.set(width: 110)
-    saveButton.set(height: 47)
-    saveButton.setImageScale(to: 0.8)
-    bottomStack.addArrangedSubview(saveButton)
+    let saveButtonVC = SaveButtonViewController(composition: composition)
+    view.addSubview(saveButtonVC.view)
+    addChild(saveButtonVC)
+    saveButtonVC.didMove(toParent: self)
+    saveButtonVC.view.set(width: 110)
+    saveButtonVC.view.set(height: 47)
+    bottomStack.addArrangedSubview(saveButtonVC.view)
     
     var shareConfig = UIButton.Configuration.plain()
     shareConfig.image = UIImage(systemName: "square.and.arrow.up")
     shareConfig.baseForegroundColor = .white
     shareButton = UIButton(configuration: shareConfig, primaryAction: UIAction(){ _ in
-      if self.shouldSaveUninterrupted {
-        self.incrementUsageCounterIfNeeded()
+      if saveButtonVC.shouldSaveUninterrupted {
+        saveButtonVC.incrementUsageCounterIfNeeded()
         self.showShareActivity()
       } else {
-        self.offerPurchase()
+        saveButtonVC.offerPurchase()
       }
     })
     bottomStack.addArrangedSubview(shareButton)
-  }
-  
-  func saveToPhotosAlbum() {
-    guard let asset = currentAsset as? AVURLAsset else { return }
-    saveVideoToAlbum(asset.url) { [weak self] err in
-      guard let self = self else { return }
-      guard err == nil else {
-        self.saveButton.isEnabled = false
-        self.showSaveFailAlert()
-        return
-      }
-      self.incrementUsageCounterIfNeeded()
-      self.showPostSaveAlert()
-    }
-  }
-  
-  func showAlreadySavedAlert() {
-    let alreadySavedAlert = UIAlertController(title: "Already Saved", message: "Looks like you already saved this one.", preferredStyle: .alert)
-    alreadySavedAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      self.showAlbumNavigationAlert()
-    }))
-  }
-  
-  func showPostSaveAlert() {
-    if ShortnAppProduct.hasFullFeatureAccess() ||
-        composition.assets.count <= 1 {
-      self.showAlbumNavigationAlert()
-    } else if ShortnAppProduct.shouldShowFreeForNowReminder() {
-      savedThisPreview = true
-      let freeForNowAlert = UIAlertController(
-        title: "Thanks for trying Shortn!",
-        message: "Your video is now saved to photos.\n\nCombining multiple clips is a paid feature, but you can use it \(String(ShortnAppProduct.usageRemaining)) more times.\n\nSubscribe today and get all the features for 1 month free. Cancel any time.",
-        preferredStyle: .alert)
-      freeForNowAlert.addAction(UIAlertAction(title: "Go to Photos", style: .default, handler: { action in
-        UIApplication.shared.open(URL(string:"photos-redirect://")!)
-      }))
-      freeForNowAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-        ShortnAppProduct.showSubscriptionPurchaseAlert(){ error in
-          if error != nil {
-            self.showPurchaseFailureAlert()
-          }
-        }
-      }))
-      present(freeForNowAlert, animated: true, completion: nil)
-    } else {
-      self.showAlbumNavigationAlert()
-    }
-  }
-  
-  func offerPurchase() {
-    let notFreeAlert = UIAlertController(
-      title: "Thanks for trying Shortn!",
-      message: "Combining multiple clips is a paid feature.\n\nSubscribe today and get all the features for 1 month free. Cancel any time.",
-      preferredStyle: .alert)
-    notFreeAlert.addAction(UIAlertAction(title: "No thanks", style: .default, handler: { action in
-      //
-    }))
-    notFreeAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-      ShortnAppProduct.showSubscriptionPurchaseAlert { error in
-        if error != nil {
-          self.showPurchaseFailureAlert()
-        }
-      }
-    }))
-    present(notFreeAlert, animated: true, completion: nil)
-  }
-  
-  func incrementUsageCounterIfNeeded() {
-    if !savedThisPreview {
-      ShortnAppProduct.incrementUsageCounter()
-    }
-    savedThisPreview = true
-  }
-  
-  func showPurchaseFailureAlert() {
-    let purchaseFailAlert = UIAlertController(title: "Purchase failed", message: "Oops! Cannot purchase at this time. Please try again later, with an internet connection", preferredStyle: .alert)
-    purchaseFailAlert.addAction(UIAlertAction(title: "OK", style: .cancel))
-    present(purchaseFailAlert, animated: true, completion: nil)
-  }
-  
-  func showSaveFailAlert() {
-    let alertController = UIAlertController(title: "Oops!", message: "Could not save to album", preferredStyle: .alert)
-    alertController.addAction(UIAlertAction(title: ":(", style: .cancel))
-    present(alertController, animated: true, completion: nil)
-  }
-  
-  func showAlbumNavigationAlert() {
-    let alertController = UIAlertController(title: "Saved to Photos Album", message: "Go to album now?", preferredStyle: .alert)
-    alertController.addAction(UIAlertAction(title: "Take me", style: .default, handler: { action in
-      UIApplication.shared.open(URL(string:"photos-redirect://")!)
-    }))
-    alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
-      self.delegate?.previewVCDidCancel(self)
-    }))
-    present(alertController, animated: true, completion: nil)
-  }
-  
-  func saveVideoToAlbum(_ outputURL: URL, _ completion: @escaping (Error?) -> ()) {
-    PHPhotoLibrary.shared().performChanges({
-      let request = PHAssetCreationRequest.forAsset()
-      request.addResource(with: .video, fileURL: outputURL, options: nil)
-    }) { (result, error) in
-      DispatchQueue.main.async {
-        if let error = error {
-          print(error.localizedDescription)
-        }
-        completion(error)
-      }
-    }
   }
   
   @objc func didSaveToAlbum() {

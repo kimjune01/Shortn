@@ -83,10 +83,10 @@ extension NavigationCoordinator: PreviewViewControllerDelegate {
     previewVC.dismiss(animated: true, completion: nil)
   }
   
-  func previewVCDidFailExport(_ previewVC: PreviewViewController) {
+  func previewVCDidFailExport(_ previewVC: PreviewViewController, err: Error?) {
     previewVC.dismiss(animated: true)
     let alertController = UIAlertController(title: "Oops!",
-                                            message: "Something went wrong while processing the video. Please try again.",
+                                            message: "Something went wrong while processing the video. Please try again.\n\(err?.localizedDescription ?? "Unknown error")",
                                             preferredStyle: .alert)
     alertController.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
     navController.present(alertController, animated: true)
@@ -116,23 +116,27 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
 
     var identifiers = results.compactMap(\.assetIdentifier)
     var fetchResult: PHFetchResult<PHAsset>
-    var postPickAlert: UIAlertController? = nil
+    var shouldShowPostPickAlert = false
+    
+    
+    guard identifiers.count > 0 else {
+      picker.dismiss(animated: true)
+      return
+    }
     
     // paywall for multiple selection
-    if !ShortnAppProduct.canImportMultipleClips(), identifiers.count > ShortnAppProduct.PHPickerSelectionLimit {
+    if !ShortnAppProduct.canImportMultipleClips(),
+        identifiers.count > ShortnAppProduct.freeTierPickerSelectionLimit {
       identifiers = [identifiers.first!]
       // user cannot import multiple clips anymore
-      postPickAlert = UIAlertController(title: "Free usage limit reached", message: "I hope you enjoyed using Shortn. The app won't combine clips anymore, but you can use it for shortning single clips anytime.\n\nOr, access the features with a monthly subscription.", preferredStyle: .alert)
-      postPickAlert!.addAction(UIAlertAction(title: "OK", style: .cancel))
-      postPickAlert!.addAction(UIAlertAction(title: "Subscribe", style: .default, handler: { _ in
-        ShortnAppProduct.showSubscriptionPurchaseAlert()
-      }))
+      shouldShowPostPickAlert = true
     }
     fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
     
     // picked nothing new
     guard composition.assetIdentifiers != identifiers else {
       picker.dismiss(animated: true)
+      pickerDidPick()
       return
     }
     // appended to previous selection
@@ -151,11 +155,11 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     navController.topViewController?.view.isUserInteractionEnabled = false
     composition.requestAVAssets(from: fetchResult) {
       self.navController.topViewController?.view.isUserInteractionEnabled = true
-      self.pickerDidPick()
+      self.pickerDidPick(shouldShowPostPickAlert: shouldShowPostPickAlert)
     }
   }
   
-  func pickerDidPick() {
+  func pickerDidPick(shouldShowPostPickAlert: Bool = false) {
     guard composition.assets.count > 0 else { return }
     if let spliceVC = navController.topViewController as? SpliceViewController {
       spliceVC.composition = composition
@@ -163,8 +167,25 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     } else {
       let spliceViewController = SpliceViewController(composition: composition)
       spliceViewController.delegate = self
-      navController.pushViewController(spliceViewController, animated: true)
+      if shouldShowPostPickAlert {
+        showPostPickAlert() {
+          self.navController.pushViewController(spliceViewController, animated: true)
+        }
+      } else {
+        navController.pushViewController(spliceViewController, animated: true)
+      }
     }
   }
+  
+  func showPostPickAlert(_ completion: @escaping Completion) {
+    let postPickAlert = UIAlertController(title: "Free usage limit reached", message: "I hope you enjoyed using Shortn. The app won't combine clips anymore, but you can use it for shortning single clips anytime.\n\nOr, access the features with a monthly subscription.", preferredStyle: .alert)
+    postPickAlert.addAction(UIAlertAction(title: "Import one clip", style: .cancel, handler: { _ in
+      completion()
+    }))
+    postPickAlert.addAction(UIAlertAction(title: "Subscribe", style: .default, handler: { _ in
+      ShortnAppProduct.showSubscriptionPurchaseAlert()
+    }))
+    navController.present(postPickAlert, animated: true, completion: nil)
+ }
   
 }

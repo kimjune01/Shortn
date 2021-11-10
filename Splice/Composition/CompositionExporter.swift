@@ -26,14 +26,16 @@ class CompositionExporter {
 
   
   func export(_ completion: @escaping CompositionExportCompletion) {
-    combine() { url, error in
-      guard let url = url, error == nil else {
-        completion(nil, error)
-        return
+    DispatchQueue.global().async {
+      self.combine() { url, error in
+        guard let url = url, error == nil else {
+          completion(nil, error)
+          return
+        }
+        //      completion(url, nil)
+        //      return;
+        self.splice(url, completion)
       }
-//      completion(url, nil)
-//      return;
-      self.splice(url, completion)
     }
   }
   
@@ -172,9 +174,12 @@ class CompositionExporter {
     mixComposition.naturalSize = absoluteSize
     
     // 1 instruction per layer!
-    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: firstClipVideoTrack)
+    // use videoTrack instead of firstClipVideoTrack
+    // https://www.ostack.cn/?qa=908888/
+    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
 
-    var currentDuration = CMTime.zero
+    // Video Track
+    var currentDuration = CMTime(value: 0, timescale: firstAsset.duration.timescale)
     for eachAsset in videoAssets {
       assert(eachAsset.tracks(withMediaType: .video).count > 0, "No video data found in this video asset")
       do {
@@ -192,7 +197,7 @@ class CompositionExporter {
         break
       }
     }
-    let totalDuration = videoAssets.reduce(CMTime.zero) { sum, asset in
+    let totalDuration = videoAssets.reduce(CMTime(value: 0, timescale: firstAsset.duration.timescale)) { sum, asset in
       return CMTimeAdd(sum, asset.duration)
     }
     assert(currentDuration.seconds == totalDuration.seconds)
@@ -207,6 +212,7 @@ class CompositionExporter {
                                                timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
     mainComposition.renderSize = absoluteSize
     
+    // Audio Track
     guard let clipsAudioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
       preferredTrackID: kCMPersistentTrackID_Invalid) else {

@@ -9,6 +9,7 @@ import UIKit
 
 typealias Completion = ()->()
 typealias BoolCompletion = (Bool)->()
+typealias ErrorCompletion = (Error?)->()
 
 extension UIView {
   var width: CGFloat {

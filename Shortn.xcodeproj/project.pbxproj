@@ -54,6 +54,7 @@
 		0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */; };
 		0EC3390D273AA6CB003D9E63 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */; };
 		0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */; };
+		0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +108,7 @@
 		0EC339092739B19C003D9E63 /* CGAffineTransform+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGAffineTransform+.swift"; sourceTree = "<group>"; };
 		0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortnAppProduct.swift; sourceTree = "<group>"; };
+		0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonViewController.swift; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -180,7 +182,7 @@
 				0EC339062734584E003D9E63 /* Tutorial */,
 				0E2511E5272C60EF00E425D6 /* AlbumImportViewController.swift */,
 				0E2EC9C5272F345800AE84A1 /* SpliceVC */,
-				0E2511F9272E582A00E425D6 /* PreviewViewController.swift */,
+				0EC33910273C350D003D9E63 /* Preview */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -275,6 +277,15 @@
 				0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		0EC33910273C350D003D9E63 /* Preview */ = {
+			isa = PBXGroup;
+			children = (
+				0E2511F9272E582A00E425D6 /* PreviewViewController.swift */,
+				0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */,
+			);
+			path = Preview;
 			sourceTree = "<group>";
 		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
@@ -405,6 +416,7 @@
 				0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */,
 				0E2511F4272DEA8800E425D6 /* CustomSlider.swift in Sources */,
 				0EC338FF27322108003D9E63 /* SegmentView.swift in Sources */,
+				0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */,
 				0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
 				0EC339032732EF62003D9E63 /* UUID+.swift in Sources */,
