@@ -18,6 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     window.rootViewController = navigationCoordinator.navController
     self.window = window
     window.makeKeyAndVisible()
+    ShortnAppProduct.updatePHPickerSelectionLimit()
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {

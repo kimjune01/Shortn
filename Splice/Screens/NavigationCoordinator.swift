@@ -40,7 +40,7 @@ class NavigationCoordinator: NSObject {
     var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
     pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
     pickerConfig.selection = .ordered
-    pickerConfig.selectionLimit = 0
+    pickerConfig.selectionLimit = ShortnAppProduct.PHPickerSelectionLimit
     pickerConfig.preselectedAssetIdentifiers = composition.assetIdentifiers
     
     let picker = PHPickerViewController(configuration: pickerConfig)
