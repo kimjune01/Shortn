@@ -24,18 +24,6 @@ class NavigationCoordinator: NSObject {
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
-    
-    /// DEBUG
-    
-//    ShortnAppProduct.store.requestProducts { success, products in
-//      guard success else {
-//        print("OOPS")
-//        return
-//      }
-//      print(products)
-//    }
-    
-    //
   }
   
   func showPreviewVC() {

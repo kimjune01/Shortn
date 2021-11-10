@@ -6,5 +6,5 @@ target 'Shortn' do
   use_frameworks!
 
   # Pods for Splice
-  pod 'Player'
+pod 'SwiftKeychainWrapper'
 end

@@ -139,6 +139,9 @@ class PreviewViewController: UIViewController {
         self.showSaveFailAlert()
         return
       }
+      //
+      
+      //
       self.showAlbumNavigationAlert()
     }
   }

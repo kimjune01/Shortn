@@ -1,16 +1,16 @@
 PODS:
-  - Player (0.14.0)
+  - SwiftKeychainWrapper (4.0.1)
 
 DEPENDENCIES:
-  - Player
+  - SwiftKeychainWrapper
 
 SPEC REPOS:
   trunk:
-    - Player
+    - SwiftKeychainWrapper
 
 SPEC CHECKSUMS:
-  Player: 37e0acc16ea1495fc241df88fe9f089367513331
+  SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: e0a4be4fb0a9ee46565875387422b18c13b48935
+PODFILE CHECKSUM: 5270ccbbae37e1a086712701f58eba19407b4c40
 
 COCOAPODS: 1.11.0
