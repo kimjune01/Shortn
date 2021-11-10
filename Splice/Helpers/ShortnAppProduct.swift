@@ -10,6 +10,9 @@ import StoreKit
 import SwiftKeychainWrapper
 import UIKit
 
+enum ProductError {
+  case purchaseFailed
+}
 // Helps with:
 // - deciding to show offer
 // v deciding to show generosity reminder
@@ -66,5 +69,19 @@ public struct ShortnAppProduct {
   static func shouldShowPurchaseOffer() -> Bool {
     return !hasFullFeatureAccess() && hasReachedFreeUsageLimit()
   }
-    
+  
+  static func canImportMultipleClips() -> Bool {
+    return hasFullFeatureAccess() || !hasReachedFreeUsageLimit()
+  }
+  
+  static func showSubscriptionPurchaseAlert(_ completion: @escaping (ProductError?) -> () = {_ in }) {
+    ShortnAppProduct.store.requestProducts { success, products in
+      guard success, let products = products, let firstProduct = products.first else {
+        completion(.purchaseFailed)
+        return
+      }
+      ShortnAppProduct.store.buyProduct(firstProduct)
+    }
+  }
+
 }

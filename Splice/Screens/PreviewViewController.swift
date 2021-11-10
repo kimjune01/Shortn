@@ -185,21 +185,15 @@ class PreviewViewController: UIViewController {
         UIApplication.shared.open(URL(string:"photos-redirect://")!)
       }))
       freeForNowAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-        self.showSubscriptionPurchaseAlert()
+        ShortnAppProduct.showSubscriptionPurchaseAlert(){ error in
+          if error != nil {
+            self.showPurchaseFailureAlert()
+          }
+        }
       }))
       present(freeForNowAlert, animated: true, completion: nil)
     } else {
       self.showAlbumNavigationAlert()
-    }
-  }
-  
-  func showSubscriptionPurchaseAlert() {
-    ShortnAppProduct.store.requestProducts { success, products in
-      guard success, let products = products, let firstProduct = products.first else {
-        self.showPurchaseFailureAlert()
-        return
-      }
-      ShortnAppProduct.store.buyProduct(firstProduct)
     }
   }
   
@@ -212,7 +206,11 @@ class PreviewViewController: UIViewController {
       //
     }))
     notFreeAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-      self.showSubscriptionPurchaseAlert()
+      ShortnAppProduct.showSubscriptionPurchaseAlert { error in
+        if error != nil {
+          self.showPurchaseFailureAlert()
+        }
+      }
     }))
     present(notFreeAlert, animated: true, completion: nil)
   }

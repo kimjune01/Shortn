@@ -24,6 +24,8 @@ class NavigationCoordinator: NSObject {
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
+    
+    subscribeToPurchaseStatus()
   }
   
   func showPreviewVC() {
@@ -40,7 +42,7 @@ class NavigationCoordinator: NSObject {
     var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
     pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
     pickerConfig.selection = .ordered
-    pickerConfig.selectionLimit = ShortnAppProduct.PHPickerSelectionLimit
+    pickerConfig.selectionLimit = 0 // ShortnAppProduct.PHPickerSelectionLimit
     pickerConfig.preselectedAssetIdentifiers = composition.assetIdentifiers
     
     let picker = PHPickerViewController(configuration: pickerConfig)
@@ -51,6 +53,17 @@ class NavigationCoordinator: NSObject {
     }
   }
   
+  func subscribeToPurchaseStatus() {
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(handlePurchaseNotification(_:)),
+                                           name: .IAPHelperPurchaseNotification,
+                                           object: nil)
+  }
+  
+  @objc func handlePurchaseNotification(_ notification: Notification) {
+    guard let _ = notification.object as? String  else { return }
+    ShortnAppProduct.updatePHPickerSelectionLimit()
+  }
 }
 
 extension NavigationCoordinator: UINavigationControllerDelegate {
@@ -100,9 +113,24 @@ extension NavigationCoordinator: SpliceViewControllerDelegate {
 extension NavigationCoordinator: PHPickerViewControllerDelegate {
   
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-    let identifiers = results.compactMap(\.assetIdentifier)
-    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-    // picked nothing
+
+    var identifiers = results.compactMap(\.assetIdentifier)
+    var fetchResult: PHFetchResult<PHAsset>
+    var postPickAlert: UIAlertController? = nil
+    
+    // paywall for multiple selection
+    if !ShortnAppProduct.canImportMultipleClips(), identifiers.count > ShortnAppProduct.PHPickerSelectionLimit {
+      identifiers = [identifiers.first!]
+      // user cannot import multiple clips anymore
+      postPickAlert = UIAlertController(title: "Free usage limit reached", message: "I hope you enjoyed using Shortn. The app won't combine clips anymore, but you can use it for shortning single clips anytime.\n\nOr, access the features with a monthly subscription.", preferredStyle: .alert)
+      postPickAlert!.addAction(UIAlertAction(title: "OK", style: .cancel))
+      postPickAlert!.addAction(UIAlertAction(title: "Subscribe", style: .default, handler: { _ in
+        ShortnAppProduct.showSubscriptionPurchaseAlert()
+      }))
+    }
+    fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    
+    // picked nothing new
     guard composition.assetIdentifiers != identifiers else {
       picker.dismiss(animated: true)
       return
@@ -114,7 +142,11 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     } else {
       composition.splices = []
     }
+    
+        
     composition.assetIdentifiers = identifiers
+    
+    
     picker.dismiss(animated: true)
     navController.topViewController?.view.isUserInteractionEnabled = false
     composition.requestAVAssets(from: fetchResult) {
