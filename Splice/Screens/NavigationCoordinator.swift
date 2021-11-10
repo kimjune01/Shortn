@@ -24,6 +24,18 @@ class NavigationCoordinator: NSObject {
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
+    
+    /// DEBUG
+    
+//    ShortnAppProduct.store.requestProducts { success, products in
+//      guard success else {
+//        print("OOPS")
+//        return
+//      }
+//      print(products)
+//    }
+    
+    //
   }
   
   func showPreviewVC() {
@@ -102,9 +114,17 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
     let identifiers = results.compactMap(\.assetIdentifier)
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    // picked nothing
     guard composition.assetIdentifiers != identifiers else {
       picker.dismiss(animated: true)
       return
+    }
+    // appended to previous selection
+    if identifiers.count > composition.assetIdentifiers.count,
+       Array(identifiers.prefix(upTo: composition.assetIdentifiers.count)) == composition.assetIdentifiers {
+      // nop. Do not clear splices if appending to the end of selection.
+    } else {
+      composition.splices = []
     }
     composition.assetIdentifiers = identifiers
     picker.dismiss(animated: true)
@@ -118,11 +138,9 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
   func pickerDidPick() {
     guard composition.assets.count > 0 else { return }
     if let spliceVC = navController.topViewController as? SpliceViewController {
-      composition.splices = []
       spliceVC.composition = composition
       spliceVC.renderFreshAssets()
     } else {
-      composition.splices = []
       let spliceViewController = SpliceViewController(composition: composition)
       spliceViewController.delegate = self
       navController.pushViewController(spliceViewController, animated: true)

@@ -277,7 +277,7 @@ class CompositionExporter {
     // code to run if running on simulator
 #else
     // code to run if not running on simulator
-    preference = [AVAssetExportPresetHEVCHighestQuality].append(contentsOf: preference)
+    preference = [AVAssetExportPresetHEVCHighestQuality] + preference
 #endif
     for eachPref in preference {
       if presets.contains(eachPref) {

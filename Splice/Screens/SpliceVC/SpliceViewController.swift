@@ -192,6 +192,8 @@ class SpliceViewController: UIViewController {
     
     previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
       self.delegate?.spliceVCDidRequestPreview(self)
+      self.spliceState = .neutral
+      self.playerVC.pause()
     })
     previewButton.setImageScale(to: 1.2)
     bottomStack.addArrangedSubview(previewButton)
