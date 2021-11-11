@@ -67,8 +67,11 @@ class SaveButtonViewController: UIViewController {
   
   func showAlreadySavedAlert() {
     let alreadySavedAlert = UIAlertController(title: "Already Saved", message: "Looks like you already saved this one.", preferredStyle: .alert)
-    alreadySavedAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-      self.showAlbumNavigationAlert()
+    alreadySavedAlert.addAction(UIAlertAction(title: "Go to Photos", style: .default, handler: { action in
+      UIApplication.shared.open(URL(string:"photos-redirect://")!)
+    }))
+    alreadySavedAlert.addAction(UIAlertAction(title: "Stay here", style: .cancel, handler: { action in
+      //
     }))
     present(alreadySavedAlert, animated: true)
   }
@@ -82,39 +85,37 @@ class SaveButtonViewController: UIViewController {
       let plural = ShortnAppProduct.usageRemaining > 1
       let freeForNowAlert = UIAlertController(
         title: "Thanks for trying Shortn!",
-        message: "Your video is now saved to photos.\n\nCombining multiple clips is a paid feature, but you can use it \(String(ShortnAppProduct.usageRemaining)) more time\(plural ? "s" : "").\n\nSubscribe today and get all the features for 1 month free. Cancel any time.",
+        message: "Your video is now saved to photos.\n\nCombining multiple clips is a paid feature, but you can use it \(String(ShortnAppProduct.usageRemaining)) more time\(plural ? "s" : "").\n\nGet the full version for 1 month free. Cancel any time.",
         preferredStyle: .alert)
       freeForNowAlert.addAction(UIAlertAction(title: "Go to Photos", style: .default, handler: { action in
         UIApplication.shared.open(URL(string:"photos-redirect://")!)
       }))
-      freeForNowAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-        ShortnAppProduct.showSubscriptionPurchaseAlert(){ error in
-          if error != nil {
-            self.showPurchaseFailureAlert()
-          }
-        }
-      }))
+      freeForNowAlert.addAction(purchaseAlertAction())
       present(freeForNowAlert, animated: true, completion: nil)
     } else {
       self.showAlbumNavigationAlert()
     }
   }
   
-  func offerPurchase() {
-    let notFreeAlert = UIAlertController(
-      title: "Thanks for trying Shortn!",
-      message: "Combining multiple clips is a paid feature.\n\nSubscribe today and get all the features for 1 month free. Cancel any time.",
-      preferredStyle: .alert)
-    notFreeAlert.addAction(UIAlertAction(title: "No thanks", style: .default, handler: { action in
-      //
-    }))
-    notFreeAlert.addAction(UIAlertAction(title: "Try it free", style: .default, handler: { _ in
-      ShortnAppProduct.showSubscriptionPurchaseAlert { error in
+  func purchaseAlertAction() -> UIAlertAction {
+    return UIAlertAction(title: "Try it free", style: .default, handler: { _ in
+      ShortnAppProduct.showSubscriptionPurchaseAlert(){ error in
         if error != nil {
           self.showPurchaseFailureAlert()
         }
       }
+    })
+  }
+  
+  func offerPurchase() {
+    let notFreeAlert = UIAlertController(
+      title: "Thanks for trying Shortn!",
+      message: "Combining multiple clips is a paid feature.\n\nGet the full version for 1 month free. Cancel any time.",
+      preferredStyle: .alert)
+    notFreeAlert.addAction(UIAlertAction(title: "No thanks", style: .default, handler: { action in
+      //
     }))
+    notFreeAlert.addAction(purchaseAlertAction())
     present(notFreeAlert, animated: true, completion: nil)
   }
   

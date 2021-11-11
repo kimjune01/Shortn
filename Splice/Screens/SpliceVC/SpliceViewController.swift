@@ -50,6 +50,8 @@ class SpliceViewController: UIViewController {
   }
   var wasPlaying: Bool = false
   var subscriptions = Set<AnyCancellable>()
+  var touchDownTimer: Timer?
+  var touchDoneTimer: Timer?
 
   var assets: [AVAsset] {
     return composition.assets
@@ -194,6 +196,7 @@ class SpliceViewController: UIViewController {
       self.delegate?.spliceVCDidRequestPreview(self)
       self.spliceState = .neutral
       self.playerVC.pause()
+      Tutorial.shared.previewButtonTapDone = true
     })
     previewButton.setImageScale(to: 1.2)
     bottomStack.addArrangedSubview(previewButton)
@@ -296,6 +299,8 @@ class SpliceViewController: UIViewController {
     }
     spliceState = .including(playbackTime)
     timelineVC.startExpandingSegment()
+    touchDoneTimer?.invalidate()
+    showTouchDownTutorialsIfNeeded()
   }
   
   func setSpliceMode() {
@@ -312,6 +317,54 @@ class SpliceViewController: UIViewController {
       playerVC.pause()
     }
     finishSplicing()
+    touchDownTimer?.invalidate()
+    showTouchDoneTutorialsIfNeeded()
+  }
+  
+  func showTouchDownTutorialsIfNeeded() {
+    if !Tutorial.shared.tapAndHoldContinueDone {
+      touchDownTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+        guard let expandingSegment = self.timelineVC.expandingSegment(), expandingSegment.width > 35 else {
+          self.showTouchDownTutorialsIfNeeded()
+          return
+        }
+        expandingSegment.displayTooltip("Including")
+        Tutorial.shared.tapAndHoldContinueDone = true
+        self.showTouchDownTutorialsIfNeeded()
+      })
+    } else if !Tutorial.shared.tapAndHoldStopDone {
+      touchDownTimer = Timer.scheduledTimer(withTimeInterval: 3.5, repeats: false, block: { _ in
+        self.spliceButton.displayTooltip("Touch up to stop")
+        Tutorial.shared.tapAndHoldStopDone = true
+        self.showTouchDownTutorialsIfNeeded()
+      })
+    }
+  }
+  
+  func showTouchDoneTutorialsIfNeeded() {
+    if !Tutorial.shared.scrubTimelineDone {
+      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+        self.timelineVC.scrubber.displayTooltip("Move the slider to skip")
+        Tutorial.shared.scrubTimelineDone = true
+        self.showTouchDoneTutorialsIfNeeded()
+      })
+    } else if !Tutorial.shared.deleteSegmentDone,
+            let _ = self.timelineVC.firstSegment() {
+      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false, block: { _ in
+        if let segment = self.timelineVC.firstSegment(), segment.width > 35 {
+          segment.displayTooltip("Tap to delete")
+          Tutorial.shared.deleteSegmentDone = true
+          self.showTouchDoneTutorialsIfNeeded()
+        }
+      })
+    }
+  }
+  
+  func showPlaybackAtEndTutorialIfNeeded() {
+    if composition.splices.count > 1, !Tutorial.shared.previewButtonTapDone {
+      previewButton.displayTooltip("Preview")
+      Tutorial.shared.previewButtonTapDone = true
+    }
   }
   
   func finishSplicing() {
@@ -321,7 +374,8 @@ class SpliceViewController: UIViewController {
     case .including(let beginTime):
       let endTime = playerVC.currentPlaybackTime()
       guard endTime - beginTime > 0.05 else {
-        showTooltipOnSpliceButton()
+        spliceButton.displayTooltip("Tap & Hold")
+        spliceState = .neutral
         break
       }
       composition.append(beginTime...endTime)
@@ -332,12 +386,6 @@ class SpliceViewController: UIViewController {
     }
     timelineVC.stopExpandingSegment()
     timelineVC.updateSegmentsForSplices()
-  }
-  
-  func showTooltipOnSpliceButton() {
-    spliceButton.displayTooltip("Tap & Hold\nto include") {
-      //
-    }
   }
   
   @objc func tappedTimerLabel() {
@@ -369,7 +417,9 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
       playButton.configuration?.image = UIImage(systemName: "play.fill")
       timelineVC.appearNeutral()
     }
-
+    if state == .atEnd {
+      showPlaybackAtEndTutorialIfNeeded()
+    }
     updateAppearance()
   }
   

@@ -276,7 +276,7 @@ extension UIView {
     
     let tooltip = UIView()
     
-    let font =  UIFont.preferredFont(for: .headline, weight: .medium)
+    let font = UIFont.preferredFont(for: .headline, weight: .medium)
     
     let tooltipLabel = UILabel()
     tooltipLabel.text = "\(message)"

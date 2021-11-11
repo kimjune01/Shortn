@@ -58,6 +58,7 @@ class NavigationCoordinator: NSObject {
   }
   
   func subscribeToPurchaseStatus() {
+    ShortnAppProduct.store.restorePurchases()
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(handlePurchaseNotification(_:)),
                                            name: .IAPHelperPurchaseNotification,

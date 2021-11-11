@@ -172,6 +172,14 @@ class TimelineViewController: UIViewController {
     delegate?.timelineVCDidDeleteSegment()
   }
   
+  public func firstSegment() -> UIView? {
+    return segmentsVC.firstSegment()
+  }
+  
+  public func expandingSegment() -> UIView? {
+    return segmentsVC.expandingSegment
+  }
+  
   @objc func displayStep(_ displaylink: CADisplayLink) {
     if isCurrentlyExpanding {
       let actualFramesPerSecond = 1 / (displaylink.targetTimestamp - displaylink.timestamp)

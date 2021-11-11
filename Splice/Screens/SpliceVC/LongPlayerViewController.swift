@@ -46,7 +46,6 @@ class LongPlayerViewController: UIViewController {
   
   var doubleTapLeftLabel: UILabel!
   var doubleTapRightLabel: UILabel!
-  let doubleTapTutorialDoneKey = "kim.june.LongPlayerVC.doubleTapKey"
   
   private var playbackState: AVPlayer.TimeControlStatus {
     return player.timeControlStatus
@@ -198,7 +197,7 @@ class LongPlayerViewController: UIViewController {
       doubleTapLeftLabel.isHidden = true
       doubleTapRightLabel.isHidden = true
     case .paused, .atEnd:
-      if !UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
+      if !Tutorial.shared.doubleTapTutorialDone {
         doubleTapLeftLabel.isHidden = false
         doubleTapRightLabel.isHidden = false
       }
@@ -211,7 +210,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func maybeHideDoubleTapLabels() {
-    if UserDefaults.standard.bool(forKey: doubleTapTutorialDoneKey) {
+    if Tutorial.shared.doubleTapTutorialDone {
       doubleTapLeftLabel.isHidden = true
       doubleTapRightLabel.isHidden = true
     }
@@ -259,7 +258,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func handleDoubleTapLeft() {
-    UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
+    Tutorial.shared.doubleTapTutorialDone = true
     maybeHideDoubleTapLabels()
     leftFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {
@@ -275,7 +274,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func handleDoubleTapRight() {
-    UserDefaults.standard.set(true, forKey: doubleTapTutorialDoneKey)
+    Tutorial.shared.doubleTapTutorialDone = true
     maybeHideDoubleTapLabels()
     rightFastPanel.alpha = 1
     UIView.animate(withDuration: 0.5) {

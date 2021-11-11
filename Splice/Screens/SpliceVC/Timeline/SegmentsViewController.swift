@@ -116,4 +116,8 @@ class SegmentsViewController: UIViewController {
       eachSegment.tag = 0
     }
   }
+  
+  public func firstSegment() -> UIView? {
+    return segments.first
+  }
 }
