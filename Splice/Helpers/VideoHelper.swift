@@ -66,28 +66,26 @@ enum VideoHelper {
     }
     
   }
-//  - (CGAffineTransform)transformBasedOnAsset:(AVAsset *)asset {
-//    UIInterfaceOrientation orientation = [AVUtilities orientationForTrack:asset];
-//    AVAssetTrack *assetTrack = [asset tracksWithMediaType:AVMediaTypeVideo][0];
-//    CGSize naturalSize = assetTrack.naturalSize;
-//    CGAffineTransform finalTranform;
-//    switch (orientation) {
-//    case UIInterfaceOrientationLandscapeLeft:
-//      finalTranform = CGAffineTransformMake(-1, 0, 0, -1, naturalSize.width, naturalSize.height);
-//      break;
-//    case UIInterfaceOrientationLandscapeRight:
-//      finalTranform = CGAffineTransformMake(1, 0, 0, 1, 0, 0);
-//      break;
-//    case UIInterfaceOrientationPortrait:
-//      finalTranform = CGAffineTransformMake(0, 1, -1, 0, naturalSize.height, 0);
-//      break;
-//    case UIInterfaceOrientationPortraitUpsideDown:
-//      finalTranform = CGAffineTransformMake(0, -1, 1, 0, 0, naturalSize.width);
-//      break;
-//    default:
-//      break;
-//    }
-//    return finalTranform;
-//  }
+  
+  static func exportPreset(for asset: AVAsset) -> String {
+    let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
+    var preference: [String] = [
+      AVAssetExportPresetHighestQuality,
+      AVAssetExportPresetMediumQuality,
+      AVAssetExportPresetLowQuality
+    ]
+#if targetEnvironment(simulator)
+    // code to run if running on simulator
+#else
+    // code to run if not running on simulator
+    preference = [AVAssetExportPresetHEVCHighestQuality] + preference
+#endif
+    for eachPref in preference {
+      if presets.contains(eachPref) {
+        return eachPref
+      }
+    }
+    return AVAssetExportPresetPassthrough
+  }
   
 }

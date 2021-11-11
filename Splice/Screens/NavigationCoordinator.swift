@@ -10,7 +10,7 @@ import AVFoundation
 import PhotosUI
 
 class NavigationCoordinator: NSObject {
-  let navController: UINavigationController
+  let navController: AppNavController
   var topVC: UIViewController? {
     return navController.topViewController
   }
@@ -18,9 +18,9 @@ class NavigationCoordinator: NSObject {
   override init() {
     let albumImportVC = AlbumImportViewController(composition: composition)
     let spliceVC = SpliceViewController(composition: composition)
-    navController = UINavigationController(rootViewController: albumImportVC)
-//    navController = UINavigationController(rootViewController: BpmConfigViewController())
-//    navController = UINavigationController(rootViewController: spliceVC)
+    navController = AppNavController(rootViewController: albumImportVC)
+//    navController = AppNavController(rootViewController: BpmConfigViewController())
+//    navController = AppNavController(rootViewController: spliceVC)
     super.init()
     albumImportVC.delegate = self
     spliceVC.delegate = self
@@ -29,15 +29,17 @@ class NavigationCoordinator: NSObject {
     navController.isNavigationBarHidden = true
     
     subscribeToPurchaseStatus()
+    
+    Tutorial.shared.nuke()
   }
   
   func showPreviewVC() {
     let previewVC = PreviewViewController(composition: composition)
     previewVC.delegate = self
-    let presenter = topVC
-    presenter?.view.isUserInteractionEnabled = false
+    let presenter = topVC as? Spinnable
+    presenter?.spin()
     navController.present(previewVC, animated: true) {
-      presenter?.view.isUserInteractionEnabled = true
+      presenter?.stopSpinning()
     }
   }
   
@@ -50,14 +52,15 @@ class NavigationCoordinator: NSObject {
     
     let picker = PHPickerViewController(configuration: pickerConfig)
     picker.delegate = self
-    let presenter = topVC
-    presenter?.view.isUserInteractionEnabled = false
+    let presenter = topVC as? Spinnable
+    presenter?.spin()
     navController.present(picker, animated: true) {
-      presenter?.view.isUserInteractionEnabled = true
+      presenter?.stopSpinning()
     }
   }
   
   func subscribeToPurchaseStatus() {
+    ShortnAppProduct.resetUsageCounter()
     ShortnAppProduct.store.restorePurchases()
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(handlePurchaseNotification(_:)),
@@ -144,7 +147,7 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
       handleFreeTierFlow(identifiers)
       return
     }
-    // reached limit, but picked within the limit.
+    // reached usage limit, but picked within the limit.
     if identifiers.count <= ShortnAppProduct.freeTierPickerSelectionLimit {
       handleFreeTierFlow(identifiers)
       return
@@ -161,11 +164,11 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     resetSplicesIfNeeded(identifiers)
     composition.assetIdentifiers = identifiers
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-    let presenter = topVC
-    presenter?.view.isUserInteractionEnabled = false
+    let presenter = topVC as? Spinnable
+    presenter?.spin()
     composition.requestAVAssets(from: fetchResult) {
       assert(self.composition.assets.count > 0)
-      presenter?.view.isUserInteractionEnabled = true
+      presenter?.stopSpinning()
       self.pushOrStayOnSpliceVC()
     }
   }
@@ -182,11 +185,11 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     composition.assetIdentifiers = oneIdentifier
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: oneIdentifier, options: nil)
 
-    let presenter = topVC
-    presenter?.view.isUserInteractionEnabled = false
+    let presenter = topVC as? Spinnable
+    presenter?.spin()
     composition.requestAVAssets(from: fetchResult) {
       assert(self.composition.assets.count > 0)
-      presenter?.view.isUserInteractionEnabled = true
+      presenter?.stopSpinning()
 
       var spliceVC: SpliceViewController! = self.topVC as? SpliceViewController
       if spliceVC == nil {

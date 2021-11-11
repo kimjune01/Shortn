@@ -165,10 +165,10 @@ class SpliceViewController: UIViewController {
   }
   
   func addBottomStackView() {
-    let stackHeight: CGFloat = 50
+    let stackHeight: CGFloat = 56
     
     view.addSubview(bottomStack)
-    bottomStack.pinBottomToParent(margin: 12, insideSafeArea: true)
+    bottomStack.pinBottomToParent(margin: 18, insideSafeArea: true)
     bottomStack.fillWidthOfParent()
     bottomStack.set(height: stackHeight)
     
@@ -177,28 +177,32 @@ class SpliceViewController: UIViewController {
     bottomStack.distribution = .equalSpacing
     
     // play button
-    var playConfig = UIButton.Configuration.plain()
+    var playConfig = UIButton.Configuration.filled()
     playConfig.image = UIImage(systemName: "play.fill")
     playConfig.baseForegroundColor = .white
+    playConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
+    playConfig.buttonSize = .medium
     
     playButton = UIButton(configuration: playConfig, primaryAction: UIAction() { _ in
       self.playerVC.togglePlayback()
     })
-    playButton.setImageScale(to: 1.2)
+//    playButton.setImageScale(to: 1.2)
     bottomStack.addArrangedSubview(playButton)
     
     // export button
-    var previewConfig = UIButton.Configuration.plain()
+    var previewConfig = UIButton.Configuration.filled()
     previewConfig.image = UIImage(systemName: "square.and.arrow.up")
     previewConfig.baseForegroundColor = .white
-    
+    previewConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
+    previewConfig.buttonSize = .medium
+
     previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
       self.delegate?.spliceVCDidRequestPreview(self)
       self.spliceState = .neutral
       self.playerVC.pause()
       Tutorial.shared.previewButtonTapDone = true
     })
-    previewButton.setImageScale(to: 1.2)
+//    previewButton.setImageScale(to: 1.2)
     bottomStack.addArrangedSubview(previewButton)
   }
   
@@ -456,5 +460,14 @@ extension SpliceViewController: TimelineViewControllerDelegate {
   
   func timelineVCDidDeleteSegment() {
     updateAppearance()
+  }
+}
+
+extension SpliceViewController: Spinnable {
+  func spin() {
+    spinner.startAnimating()
+  }
+  func stopSpinning() {
+    spinner.stopAnimating()
   }
 }

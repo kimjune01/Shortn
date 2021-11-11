@@ -110,7 +110,7 @@ class SaveButtonViewController: UIViewController {
   func offerPurchase() {
     let notFreeAlert = UIAlertController(
       title: "Thanks for trying Shortn!",
-      message: "Combining multiple clips is a paid feature.\n\nGet the full version for 1 month free. Cancel any time.",
+      message: "Combining multiple clips is a paid feature.\n\nGet the full version for 1 month free. Cancel any time.",  
       preferredStyle: .alert)
     notFreeAlert.addAction(UIAlertAction(title: "No thanks", style: .default, handler: { action in
       //

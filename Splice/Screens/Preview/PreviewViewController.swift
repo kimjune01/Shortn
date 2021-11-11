@@ -23,6 +23,7 @@ class PreviewViewController: UIViewController {
   let playerView = PlayerView()
   var currentAsset: AVAsset?
   let spinner = UIActivityIndicatorView(style: .large)
+  let waitLabel = UILabel()
   var shareButton: UIButton!
   let bottomStack = UIStackView()
   
@@ -48,6 +49,7 @@ class PreviewViewController: UIViewController {
     addPlayer()
     addBottonStack()
     addSpinner()
+    addWaitLabel()
     composition.exportForPreview { [weak self] err in
       guard let self = self else { return }
       guard err == nil else {
@@ -60,6 +62,7 @@ class PreviewViewController: UIViewController {
         return
       }
       self.spinner.stopAnimating()
+      self.waitLabel.isHidden = true
       self.playerView.isUserInteractionEnabled = true
       self.currentAsset = asset
       self.makePlayer(item: self.makePlayerItem(from: asset))
@@ -87,6 +90,16 @@ class PreviewViewController: UIViewController {
     spinner.centerYInParent()
     spinner.startAnimating()
     spinner.hidesWhenStopped = true
+  }
+  
+  func addWaitLabel() {
+    view.addSubview(waitLabel)
+    waitLabel.centerXInParent()
+    waitLabel.pinTop(toBottomOf: spinner)
+    waitLabel.numberOfLines = 0
+    waitLabel.fillWidthOfParent(withDefaultMargin: true)
+    
+    waitLabel.text = "Please wait for the video to finish processing... This could take a while for longer videos."
   }
   
   func addBottonStack() {

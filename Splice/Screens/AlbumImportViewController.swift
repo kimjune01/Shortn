@@ -33,8 +33,8 @@ class AlbumImportViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .systemBackground
-    addSpinner()
     addIntroLabel()
+    addSpinner()
     addImportButton()
   }
   
@@ -120,4 +120,14 @@ class AlbumImportViewController: UIViewController {
   }
   
   override var prefersStatusBarHidden: Bool { return true }
+}
+
+extension AlbumImportViewController: Spinnable {
+  func spin() {
+    spinner.startAnimating()
+  }
+  
+  func stopSpinning() {
+    spinner.stopAnimating()
+  }
 }

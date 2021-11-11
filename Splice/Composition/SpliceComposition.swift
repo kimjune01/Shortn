@@ -162,13 +162,11 @@ class SpliceComposition {
   func exportForPreview(_ completion: @escaping ErrorCompletion) {
     exporter = CompositionExporter(composition: self)
     exporter!.export { url, err in
-      DispatchQueue.main.async {
-        if let url = url {
-          self.previewAsset = AVURLAsset(url: url)
-          completion(nil)
-        } else {
-          completion(err)
-        }
+      if let url = url {
+        self.previewAsset = AVURLAsset(url: url)
+        completion(nil)
+      } else {
+        completion(err)
       }
     }
   }

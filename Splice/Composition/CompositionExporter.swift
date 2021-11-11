@@ -27,125 +27,34 @@ class CompositionExporter {
   
   func export(_ completion: @escaping CompositionExportCompletion) {
     DispatchQueue.global().async {
-      self.combine() { url, error in
-        guard let url = url, error == nil else {
-          completion(nil, error)
-          return
-        }
-        //      completion(url, nil)
-        //      return;
-        self.splice(url, completion)
-      }
+      self.concatAndSplice(completion)
     }
   }
   
-  func splice(_ url: URL, _ completion: @escaping CompositionExportCompletion) {
-    let videoAsset = AVURLAsset(url: url)
+  /*
+   exporter                   AVAssetExportSession
+   | mixComposition           AVMutableComposition
+   | | videoTrack             AVMutableCompositionTrack.video
+   | | audioTrack        AVMutableCompositionTrack.audio
+   | mainComposition          AVMutableVideoComposition
+   | | mainInstruction        AVMutableVideoCompositionInstruction
+   | | | layerInstruction        AVMutableVideoCompositionLayerInstruction
+   */
+  func concatAndSplice(_ completion: @escaping CompositionExportCompletion) {
+    assert(composition.assets.count > 0, "empty clips cannot be exported")
+    let videoAssets: [AVAsset] = composition.assets
+    
     let mixComposition = AVMutableComposition()
-    guard let videoTrack = mixComposition.addMutableTrack(
+    guard var videoTrack = mixComposition.addMutableTrack(
       withMediaType: .video,
       preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
     else {
       completion(nil, CompositionExporterError.avFoundation)
       return
     }
-    guard let firstClipVideoTrack = videoAsset.tracks(withMediaType: .video).first else {
-      completion(nil, CompositionExporterError.badVideoInput)
-      return
-    }
-
-    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
-    let portraitSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    mixComposition.naturalSize = portraitSize
-    videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
-    
-    guard let clipsAudioTrack = mixComposition.addMutableTrack(
+    guard var audioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
-      preferredTrackID: kCMPersistentTrackID_Invalid) else {
-        completion(nil, CompositionExporterError.avFoundation)
-        return
-      }
-    
-    var currentDuration = CMTime.zero
-    do {
-      for eachSplice in composition.splices {
-        let eachRange = CMTimeRangeMake(start: eachSplice.lowerBound.cmTime,
-                                        duration: (eachSplice.upperBound - eachSplice.lowerBound).cmTime)
-        try videoTrack.insertTimeRange(eachRange,
-                                       of: videoAsset.tracks(withMediaType: .video)[0],
-                                       at: currentDuration)
-        if videoAsset.tracks(withMediaType: .audio).count > 0 {
-          try clipsAudioTrack.insertTimeRange(eachRange,
-                                              of: videoAsset.tracks(withMediaType: .audio)[0], // assume one channel
-                                              at: currentDuration)
-        }
-        currentDuration = currentDuration + eachRange.duration
-      }
-    } catch {
-      completion(nil, CompositionExporterError.badVideoAudio)
-      return
-    }
-    
-    let firstVideoTrack = videoAsset.tracks(withMediaType: .video)[0]
-    let mainComposition = AVMutableVideoComposition()
-    mainComposition.instructions = []
-    //    print("videoTrack.nominalFrameRate: ", videoTrack.nominalFrameRate)
-    mainComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstVideoTrack.nominalFrameRate.rounded()))
-    mainComposition.renderSize = firstVideoTrack.naturalSize
-
-    let tempDirectory = FileManager.default.temporaryDirectory
-    let url = tempDirectory.appendingPathComponent("shortn-\(UUID().shortened()).mov")
-    
-    guard let exporter = AVAssetExportSession(
-      asset: mixComposition,
-      presetName: AVAssetExportPresetPassthrough)
-    else { return }
-    
-    exporter.outputURL = url
-    exporter.outputFileType = AVFileType.mov
-    exporter.shouldOptimizeForNetworkUse = true
-    exporter.videoComposition = mainComposition
-    
-    exporter.exportAsynchronously {
-      DispatchQueue.main.async {
-        switch exporter.status {
-        case .completed:
-          print("export success")
-          completion(url, nil)
-        case .failed:
-          print("export failed \(exporter.error?.localizedDescription ?? "error nil")")
-          completion(nil, exporter.error)
-        case .cancelled:
-          print("export cancelled \(exporter.error?.localizedDescription ?? "error nil")")
-          completion(nil, exporter.error)
-        default:
-          print("export complete with error")
-          completion(nil, exporter.error)
-        }
-      }
-    }
-
-    
-    
-
-  }
-
-  /*
-   exporter                   AVAssetExportSession
-   | mixComposition           AVMutableComposition
-   | | videoTrack             AVMutableCompositionTrack.video
-   | | clipsAudioTrack        AVMutableCompositionTrack.audio
-   | mainComposition          AVMutableVideoComposition
-   | | mainInstruction        AVMutableVideoCompositionInstruction
-   */
-  func combine(_ completion: @escaping CompositionExportCompletion) {
-    assert(composition.assets.count > 0, "empty clips cannot be exported")
-    let videoAssets: [AVAsset] = composition.assets
-    
-    let mixComposition = AVMutableComposition()
-    guard let videoTrack = mixComposition.addMutableTrack(
-      withMediaType: .video,
-      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+      preferredTrackID: kCMPersistentTrackID_Invalid)
     else {
       completion(nil, CompositionExporterError.avFoundation)
       return
@@ -156,12 +65,6 @@ class CompositionExporter {
       completion(nil, CompositionExporterError.badVideoInput)
       return
     }
-    /*
-     isPortrait_ = [self isVideoPortrait:asset];
-     if(isPortrait_) {
-     NSLog(@"video is portrait ");
-     videoSize = CGSizeMake(videoSize.height, videoSize.width);
-     */
     var isPortraitFrame = false
     let firstTransform = firstClipVideoTrack.preferredTransform
     if (firstTransform.a == 0 && firstTransform.d == 0 &&
@@ -176,32 +79,19 @@ class CompositionExporter {
     // 1 instruction per layer!
     // use videoTrack instead of firstClipVideoTrack
     // https://www.ostack.cn/?qa=908888/
-    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-
-    // Video Track
-    var currentDuration = CMTime(value: 0, timescale: firstAsset.duration.timescale)
-    for eachAsset in videoAssets {
-      assert(eachAsset.tracks(withMediaType: .video).count > 0, "No video data found in this video asset")
-      do {
-        guard let sourceTrack = eachAsset.tracks(withMediaType: .video).first else { break }
-        try videoTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: eachAsset.duration),
-                                       of: sourceTrack,
-                                       at: currentDuration)
-        let transform = transform(for: sourceTrack,
-                                     isPortraitFrame: isPortraitFrame,
-                                     renderSize: mixComposition.naturalSize)
-        layerInstruction.setTransform(transform, at: currentDuration)
-        currentDuration = CMTimeAdd(currentDuration, eachAsset.duration)
-      } catch {
-        completion(nil, CompositionExporterError.badVideoInput)
-        break
-      }
-    }
-    let totalDuration = videoAssets.reduce(CMTime(value: 0, timescale: firstAsset.duration.timescale)) { sum, asset in
-      return CMTimeAdd(sum, asset.duration)
-    }
-    assert(currentDuration.seconds == totalDuration.seconds)
+    var layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
     
+    let (totalDuration, error) = fillTracks(from: videoAssets,
+                                            splices: composition.splices,
+                                            isPortraitFrame: isPortraitFrame,
+                                            renderSize: mixComposition.naturalSize,
+                                            videoTrackOutput: &videoTrack,
+                                            audioTrackOutput: &audioTrack,
+                                            instructionOutput: &layerInstruction)
+    if error != nil {
+      completion(nil, error)
+    }
+
     let mainInstruction = AVMutableVideoCompositionInstruction()
     mainInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
     mainInstruction.layerInstructions = [layerInstruction]
@@ -212,42 +102,19 @@ class CompositionExporter {
                                                timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
     mainComposition.renderSize = absoluteSize
     
-    // Audio Track
-    guard let clipsAudioTrack = mixComposition.addMutableTrack(
-      withMediaType: .audio,
-      preferredTrackID: kCMPersistentTrackID_Invalid) else {
-        completion(nil, CompositionExporterError.avFoundation)
-        return
-      }
-    var currentClipAudioDuration = CMTime.zero
-    for i in 0..<videoAssets.count {
-      let eachVideoAsset = videoAssets[i]
-      do {
-        if eachVideoAsset.tracks(withMediaType: .audio).count > 0 {
-          try clipsAudioTrack.insertTimeRange(CMTimeRangeMake(start: CMTime.zero,duration: eachVideoAsset.duration),
-                                              of: eachVideoAsset.tracks(withMediaType: .audio)[0], // assume one channel
-                                              at: currentClipAudioDuration)
-        }
-        currentClipAudioDuration = CMTimeAdd(currentClipAudioDuration, eachVideoAsset.duration)
-      } catch {
-        completion(nil, CompositionExporterError.badVideoAudio)
-        return
-      }
-    }
-    
     let tempDirectory = FileManager.default.temporaryDirectory
     let dateFormatter = DateFormatter()
     dateFormatter.dateStyle = .long
     dateFormatter.timeStyle = .short
-    let url = tempDirectory.appendingPathComponent("temp\(UUID()).mov")
+    let url = tempDirectory.appendingPathComponent("temp\(UUID().shortened()).mp4")
     
     guard let exporter = AVAssetExportSession(
       asset: mixComposition,
-      presetName: exportPreset(for: mixComposition))
+      presetName: VideoHelper.exportPreset(for: mixComposition))
     else { return }
     
     exporter.outputURL = url
-    exporter.outputFileType = AVFileType.mov
+    exporter.outputFileType = AVFileType.mp4
     exporter.shouldOptimizeForNetworkUse = true
     exporter.videoComposition = mainComposition
     
@@ -272,26 +139,69 @@ class CompositionExporter {
 
   }
   
-  func exportPreset(for asset: AVAsset) -> String {
-    let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
-    var preference: [String] = [
-      AVAssetExportPresetHighestQuality,
-      AVAssetExportPresetMediumQuality,
-      AVAssetExportPresetLowQuality
-    ]
-#if targetEnvironment(simulator)
-    // code to run if running on simulator
-#else
-    // code to run if not running on simulator
-    preference = [AVAssetExportPresetHEVCHighestQuality] + preference
-#endif
-    for eachPref in preference {
-      if presets.contains(eachPref) {
-        return eachPref
+  func fillTracks(from sourceVideoAssets: [AVAsset],
+                  splices: [Splice],
+                  isPortraitFrame: Bool,
+                  renderSize: CGSize,
+                  videoTrackOutput: inout AVMutableCompositionTrack,
+                  audioTrackOutput: inout AVMutableCompositionTrack,
+                  instructionOutput: inout AVMutableVideoCompositionLayerInstruction)
+  -> (CMTime, CompositionExporterError?) {
+    guard sourceVideoAssets.count > 0 else { return (.zero, .badVideoInput) }
+    
+    func cuts(for sourceAsset: AVAsset, at index: Int) -> [CMTimeRange]{
+      let assetStartTime: Double = sourceVideoAssets[0..<index].reduce(CMTime.zero) { partialResult, prefixAsset in
+        return CMTimeAdd(partialResult, prefixAsset.duration)
+      }.seconds
+      let assetEndTime = assetStartTime + sourceAsset.duration.seconds
+      let ranges = splices.map { eachSplice in
+        return (eachSplice.lowerBound - assetStartTime)...(eachSplice.upperBound - assetStartTime)
+      }.filter { eachSplice in
+        return eachSplice.upperBound > 0 && eachSplice.lowerBound < assetEndTime
+      }.map { eachSplice -> Splice in
+        if eachSplice.lowerBound < 0 {
+          return 0...eachSplice.upperBound
+        } else if eachSplice.upperBound > assetEndTime {
+          return eachSplice.lowerBound...assetEndTime
+        } else {
+          return eachSplice
+        }
+      }.map { eachSplice -> CMTimeRange in
+        let startCMTime = CMTime(seconds: eachSplice.lowerBound,
+                                 preferredTimescale: sourceAsset.duration.timescale)
+        let endCMTime = CMTime(seconds: eachSplice.upperBound,
+                               preferredTimescale: sourceAsset.duration.timescale)
+        return CMTimeRange(start: startCMTime, end: endCMTime)
       }
+      return ranges
     }
-    return AVAssetExportPresetPassthrough
+
+    var currentDuration = CMTime.zero
+    do {
+      for i in 0..<sourceVideoAssets.count {
+        let sourceAsset = sourceVideoAssets[i]
+        print("cuts for asset:  \(i)", cuts(for: sourceAsset, at: i))
+        for eachRange in cuts(for: sourceAsset, at: i) {
+          if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
+            try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
+            let transform = transform(for: sourceVideoTrack,
+                                         isPortraitFrame: isPortraitFrame,
+                                         renderSize: renderSize)
+            instructionOutput.setTransform(transform, at: currentDuration)
+          }
+          if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
+            try audioTrackOutput.insertTimeRange(eachRange, of: sourceAudioTrack, at: currentDuration)
+          }
+
+          currentDuration = currentDuration + eachRange.duration
+        }
+      }
+    } catch {
+      return (.zero, .badVideoInput)
+    }
+    return (currentDuration, nil)
   }
+  
   
   func transform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
     let transform = VideoHelper.transform(basedOn: assetTrack)

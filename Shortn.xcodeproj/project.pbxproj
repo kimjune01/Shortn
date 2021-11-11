@@ -56,6 +56,8 @@
 		0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */; };
 		0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */; };
 		0EC33914273CB874003D9E63 /* Tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC33913273CB873003D9E63 /* Tutorial.swift */; };
+		0EC33917273CECF6003D9E63 /* Spinnable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC33916273CECF6003D9E63 /* Spinnable.swift */; };
+		0EC33919273CF0C1003D9E63 /* AppNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC33918273CF0C1003D9E63 /* AppNavController.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -111,6 +113,8 @@
 		0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortnAppProduct.swift; sourceTree = "<group>"; };
 		0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveButtonViewController.swift; sourceTree = "<group>"; };
 		0EC33913273CB873003D9E63 /* Tutorial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tutorial.swift; sourceTree = "<group>"; };
+		0EC33916273CECF6003D9E63 /* Spinnable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spinnable.swift; sourceTree = "<group>"; };
+		0EC33918273CF0C1003D9E63 /* AppNavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavController.swift; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -163,6 +167,7 @@
 				0E2EC9C4272F340000AE84A1 /* Screens */,
 				0E2EC9C7272F34AA00AE84A1 /* Extensions */,
 				0EC3390B273AA69F003D9E63 /* Helpers */,
+				0EC33915273CECBA003D9E63 /* Protocols */,
 				0E2511F1272CFA6A00E425D6 /* ShortGestureRecognizer.swift */,
 				0E7A24302731731B00A57A40 /* BPMTimer.swift */,
 				0E2511E9272C99CA00E425D6 /* PlayerView.swift */,
@@ -278,6 +283,7 @@
 				0EC3390C273AA6CB003D9E63 /* IAPHelper.swift */,
 				0EC3390E273AA90A003D9E63 /* ShortnAppProduct.swift */,
 				0EC33913273CB873003D9E63 /* Tutorial.swift */,
+				0EC33918273CF0C1003D9E63 /* AppNavController.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -289,6 +295,14 @@
 				0EC33911273C351E003D9E63 /* SaveButtonViewController.swift */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		0EC33915273CECBA003D9E63 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				0EC33916273CECF6003D9E63 /* Spinnable.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 		5CF56B7B117DBDADECDAEF46 /* Pods */ = {
@@ -418,6 +432,7 @@
 			files = (
 				0E2511DA27260C3E00E425D6 /* FileManager+.swift in Sources */,
 				0E2511F4272DEA8800E425D6 /* CustomSlider.swift in Sources */,
+				0EC33917273CECF6003D9E63 /* Spinnable.swift in Sources */,
 				0EC338FF27322108003D9E63 /* SegmentView.swift in Sources */,
 				0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */,
 				0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */,
@@ -435,6 +450,7 @@
 				0E7A24462731EC8400A57A40 /* TempiFFT.swift in Sources */,
 				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,
 				0E2511D02726099F00E425D6 /* NavigationCoordinator.swift in Sources */,
+				0EC33919273CF0C1003D9E63 /* AppNavController.swift in Sources */,
 				0EC33914273CB874003D9E63 /* Tutorial.swift in Sources */,
 				0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */,
 				0E2511E8272C8CB000E425D6 /* SpliceComposition.swift in Sources */,
