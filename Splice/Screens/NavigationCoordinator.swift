@@ -11,6 +11,9 @@ import PhotosUI
 
 class NavigationCoordinator: NSObject {
   let navController: UINavigationController
+  var topVC: UIViewController? {
+    return navController.topViewController
+  }
   let composition = SpliceComposition()
   override init() {
     let albumImportVC = AlbumImportViewController(composition: composition)
@@ -31,7 +34,7 @@ class NavigationCoordinator: NSObject {
   func showPreviewVC() {
     let previewVC = PreviewViewController(composition: composition)
     previewVC.delegate = self
-    let presenter = navController.topViewController
+    let presenter = topVC
     presenter?.view.isUserInteractionEnabled = false
     navController.present(previewVC, animated: true) {
       presenter?.view.isUserInteractionEnabled = true
@@ -47,9 +50,10 @@ class NavigationCoordinator: NSObject {
     
     let picker = PHPickerViewController(configuration: pickerConfig)
     picker.delegate = self
-    self.navController.topViewController?.view.isUserInteractionEnabled = false
+    let presenter = topVC
+    presenter?.view.isUserInteractionEnabled = false
     navController.present(picker, animated: true) {
-      self.navController.topViewController?.view.isUserInteractionEnabled = true
+      presenter?.view.isUserInteractionEnabled = true
     }
   }
   
@@ -63,6 +67,10 @@ class NavigationCoordinator: NSObject {
   @objc func handlePurchaseNotification(_ notification: Notification) {
     guard let _ = notification.object as? String  else { return }
     ShortnAppProduct.updatePHPickerSelectionLimit()
+  }
+  
+  func pushAnimated(_ vc: UIViewController) {
+    navController.pushViewController(vc, animated: true)
   }
 }
 
@@ -113,77 +121,118 @@ extension NavigationCoordinator: SpliceViewControllerDelegate {
 extension NavigationCoordinator: PHPickerViewControllerDelegate {
   
   func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-
-    var identifiers = results.compactMap(\.assetIdentifier)
-    var fetchResult: PHFetchResult<PHAsset>
-    var shouldShowPostPickAlert = false
-    
-    
-    guard identifiers.count > 0 else {
-      picker.dismiss(animated: true)
-      return
-    }
-    
-    // paywall for multiple selection
-    if !ShortnAppProduct.canImportMultipleClips(),
-        identifiers.count > ShortnAppProduct.freeTierPickerSelectionLimit {
-      identifiers = [identifiers.first!]
-      // user cannot import multiple clips anymore
-      shouldShowPostPickAlert = true
-    }
-    fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
-    
-    // picked nothing new
-    guard composition.assetIdentifiers != identifiers else {
-      picker.dismiss(animated: true)
-      pickerDidPick()
-      return
-    }
-    // appended to previous selection
-    if identifiers.count > composition.assetIdentifiers.count,
-       Array(identifiers.prefix(upTo: composition.assetIdentifiers.count)) == composition.assetIdentifiers {
-      // nop. Do not clear splices if appending to the end of selection.
-    } else {
-      composition.splices = []
-    }
-    
-        
-    composition.assetIdentifiers = identifiers
-    
-    
     picker.dismiss(animated: true)
-    navController.topViewController?.view.isUserInteractionEnabled = false
+
+    let identifiers = results.compactMap(\.assetIdentifier)
+
+    // picked nothing, or canceled.
+    guard identifiers.count > 0 else {
+      return
+    }
+    // do nothing if identifiers hasn't changed
+    guard composition.assetIdentifiers != identifiers else {
+      return
+    }
+    // full featured access
+    if ShortnAppProduct.hasFullFeatureAccess() {
+      handleFullFeatureFlow(identifiers)
+      return
+    }
+    // free tier access, not yet reached limit
+    if !ShortnAppProduct.hasReachedFreeUsageLimit() {
+      handleFreeTierFlow(identifiers)
+      return
+    }
+    // reached limit, but picked within the limit.
+    if identifiers.count <= ShortnAppProduct.freeTierPickerSelectionLimit {
+      handleFreeTierFlow(identifiers)
+      return
+    }
+    // reached limit, paywall for multiple selection
+    if identifiers.count > ShortnAppProduct.freeTierPickerSelectionLimit {
+      handleRestrictedTierFlow(identifiers)
+      return
+    }
+    assert(false)
+  }
+  
+  func handleFullFeatureFlow(_ identifiers: [String]) {
+    resetSplicesIfNeeded(identifiers)
+    composition.assetIdentifiers = identifiers
+    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+    let presenter = topVC
+    presenter?.view.isUserInteractionEnabled = false
     composition.requestAVAssets(from: fetchResult) {
-      self.navController.topViewController?.view.isUserInteractionEnabled = true
-      self.pickerDidPick(shouldShowPostPickAlert: shouldShowPostPickAlert)
+      assert(self.composition.assets.count > 0)
+      presenter?.view.isUserInteractionEnabled = true
+      self.pushOrStayOnSpliceVC()
     }
   }
   
-  func pickerDidPick(shouldShowPostPickAlert: Bool = false) {
-    guard composition.assets.count > 0 else { return }
-    if let spliceVC = navController.topViewController as? SpliceViewController {
-      spliceVC.composition = composition
-      spliceVC.renderFreshAssets()
-    } else {
-      let spliceViewController = SpliceViewController(composition: composition)
-      spliceViewController.delegate = self
-      if shouldShowPostPickAlert {
-        showPostPickAlert() {
-          self.navController.pushViewController(spliceViewController, animated: true)
-        }
+  // identical to full feature flow for now..
+  func handleFreeTierFlow(_ identifiers: [String]) {
+    handleFullFeatureFlow(identifiers)
+  }
+  
+  func handleRestrictedTierFlow(_ identifiers: [String]) {
+    // user cannot import multiple clips anymore
+    let oneIdentifier = [identifiers.first!]
+    resetSplicesIfNeeded(identifiers)
+    composition.assetIdentifiers = oneIdentifier
+    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: oneIdentifier, options: nil)
+
+    let presenter = topVC
+    presenter?.view.isUserInteractionEnabled = false
+    composition.requestAVAssets(from: fetchResult) {
+      assert(self.composition.assets.count > 0)
+      presenter?.view.isUserInteractionEnabled = true
+
+      var spliceVC: SpliceViewController! = self.topVC as? SpliceViewController
+      if spliceVC == nil {
+        spliceVC = SpliceViewController(composition: self.composition)
+        spliceVC.delegate = self
       } else {
-        navController.pushViewController(spliceViewController, animated: true)
+        spliceVC.composition = self.composition
+        spliceVC.renderFreshAssets()
+      }
+      self.showPostPickAlert() {
+        if self.topVC != spliceVC {
+          self.pushAnimated(spliceVC)
+        }
       }
     }
   }
   
+  func resetSplicesIfNeeded(_ identifiers: [String]) {
+    let oldAssetsCount = composition.assetIdentifiers.count
+    // appended to previous selection
+    if identifiers.count > oldAssetsCount,
+       Array(identifiers.prefix(upTo: oldAssetsCount)) == composition.assetIdentifiers {
+      // nop. Do not clear splices if appending to the end of selection.
+    } else {
+      composition.splices = []
+    }
+  }
+  
+  func pushOrStayOnSpliceVC() {
+    if let spliceVC = topVC as? SpliceViewController {
+      spliceVC.composition = composition
+      spliceVC.renderFreshAssets()
+      return
+    }
+    let spliceViewController = SpliceViewController(composition: composition)
+    spliceViewController.delegate = self
+    pushAnimated(spliceViewController)
+  }
+  
   func showPostPickAlert(_ completion: @escaping Completion) {
     let postPickAlert = UIAlertController(title: "Free usage limit reached", message: "I hope you enjoyed using Shortn. The app won't combine clips anymore, but you can use it for shortning single clips anytime.\n\nOr, access the features with a monthly subscription.", preferredStyle: .alert)
-    postPickAlert.addAction(UIAlertAction(title: "Import one clip", style: .cancel, handler: { _ in
+    postPickAlert.addAction(UIAlertAction(title: "Import first clip", style: .cancel, handler: { _ in
       completion()
     }))
     postPickAlert.addAction(UIAlertAction(title: "Subscribe", style: .default, handler: { _ in
       ShortnAppProduct.showSubscriptionPurchaseAlert()
+      completion()
     }))
     navController.present(postPickAlert, animated: true, completion: nil)
  }
