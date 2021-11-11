@@ -191,7 +191,7 @@ class SpliceViewController: UIViewController {
     
     // export button
     var previewConfig = UIButton.Configuration.filled()
-    previewConfig.image = UIImage(systemName: "square.and.arrow.up")
+    previewConfig.image = UIImage(systemName: "eye")
     previewConfig.baseForegroundColor = .white
     previewConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
     previewConfig.buttonSize = .medium

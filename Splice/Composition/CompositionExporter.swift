@@ -148,39 +148,44 @@ class CompositionExporter {
                   instructionOutput: inout AVMutableVideoCompositionLayerInstruction)
   -> (CMTime, CompositionExporterError?) {
     guard sourceVideoAssets.count > 0 else { return (.zero, .badVideoInput) }
+//    print("splices: ", splices)
+//    print("sum of splices: ", splices.reduce(0.0, { partialResult, sp in
+//      partialResult - sp.lowerBound + sp.upperBound
+//    }))
     
     func cuts(for sourceAsset: AVAsset, at index: Int) -> [CMTimeRange]{
       let assetStartTime: Double = sourceVideoAssets[0..<index].reduce(CMTime.zero) { partialResult, prefixAsset in
         return CMTimeAdd(partialResult, prefixAsset.duration)
       }.seconds
-      let assetEndTime = assetStartTime + sourceAsset.duration.seconds
+      let assetDuration = sourceAsset.duration.seconds
       let ranges = splices.map { eachSplice in
         return (eachSplice.lowerBound - assetStartTime)...(eachSplice.upperBound - assetStartTime)
       }.filter { eachSplice in
-        return eachSplice.upperBound > 0 && eachSplice.lowerBound < assetEndTime
+        return eachSplice.upperBound > 0 && eachSplice.lowerBound < assetDuration
       }.map { eachSplice -> Splice in
         if eachSplice.lowerBound < 0 {
           return 0...eachSplice.upperBound
-        } else if eachSplice.upperBound > assetEndTime {
-          return eachSplice.lowerBound...assetEndTime
+        } else if eachSplice.upperBound > assetDuration {
+          return eachSplice.lowerBound...assetDuration
         } else {
           return eachSplice
         }
       }.map { eachSplice -> CMTimeRange in
-        let startCMTime = CMTime(seconds: eachSplice.lowerBound,
-                                 preferredTimescale: sourceAsset.duration.timescale)
-        let endCMTime = CMTime(seconds: eachSplice.upperBound,
-                               preferredTimescale: sourceAsset.duration.timescale)
+        let startCMTime = eachSplice.lowerBound.cmTime
+        let endCMTime = eachSplice.upperBound.cmTime
         return CMTimeRange(start: startCMTime, end: endCMTime)
       }
+//      print("for vid starting at \(assetStartTime) with duration \(assetDuration), \n  there are \(ranges.count) ranges")
+//      for r in ranges {
+//        print("__ start: \(r.start.seconds), end: \(r.end.seconds)")
+//      }
       return ranges
     }
 
-    var currentDuration = CMTime.zero
+    var currentDuration = 0.0.cmTime
     do {
       for i in 0..<sourceVideoAssets.count {
         let sourceAsset = sourceVideoAssets[i]
-        print("cuts for asset:  \(i)", cuts(for: sourceAsset, at: i))
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
@@ -192,8 +197,7 @@ class CompositionExporter {
           if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
             try audioTrackOutput.insertTimeRange(eachRange, of: sourceAudioTrack, at: currentDuration)
           }
-
-          currentDuration = currentDuration + eachRange.duration
+          currentDuration = CMTimeAdd(currentDuration, eachRange.duration)
         }
       }
     } catch {

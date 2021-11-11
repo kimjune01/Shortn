@@ -95,11 +95,13 @@ class PreviewViewController: UIViewController {
   func addWaitLabel() {
     view.addSubview(waitLabel)
     waitLabel.centerXInParent()
-    waitLabel.pinTop(toBottomOf: spinner)
+    waitLabel.pinTop(toBottomOf: spinner, margin: 24)
     waitLabel.numberOfLines = 0
+    waitLabel.textAlignment = .center
+    waitLabel.font = UIFont.italicSystemFont(ofSize: 12)
     waitLabel.fillWidthOfParent(withDefaultMargin: true)
     
-    waitLabel.text = "Please wait for the video to finish processing... This could take a while for longer videos."
+    waitLabel.text = "Please wait for the video to finish processing.\nThis could take a while for longer videos."
   }
   
   func addBottonStack() {
