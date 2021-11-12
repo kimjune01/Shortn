@@ -30,7 +30,7 @@ class NavigationCoordinator: NSObject {
     
     subscribeToPurchaseStatus()
     
-    Tutorial.shared.nuke()
+//    Tutorial.shared.nuke()
   }
   
   func showPreviewVC() {
