@@ -28,9 +28,7 @@ class NavigationCoordinator: NSObject {
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
     
-    subscribeToPurchaseStatus()
-    
-//    Tutorial.shared.nuke()
+    subscribeToPurchaseStatus()    
   }
   
   func showPreviewVC() {

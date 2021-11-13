@@ -17,6 +17,7 @@ class SpliceComposition {
   var assetIdentifiers: [String] = []
   var assets: [AVAsset] = []
   var splices: [Splice] = []
+  var bpm: Int?
   
   var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)
   let group = DispatchGroup()
@@ -238,6 +239,25 @@ class SpliceComposition {
   
   func removeSplice(at index: Int) {
     splices.remove(at: index)
+  }
+  
+  func cutToTheBeatIfNeeded() {
+    guard let bpm = bpm else { return }
+    let unitTime: TimeInterval = 60.0 / Double(bpm)
+    splices = splices.map({ splice in
+      let duration = splice.upperBound - splice.lowerBound
+      let numberOfBeats = max(1.0, (duration / unitTime).rounded())
+      if splice.upperBound.rounded(.up) < totalDuration {
+        let lower = splice.lowerBound
+        let upper = lower + unitTime * numberOfBeats
+        return lower...upper
+      } else {
+        let lower = splice.upperBound - unitTime * numberOfBeats
+        let upper = splice.upperBound
+        return lower...upper
+      }
+    })
+    merge(intervals: &splices)
   }
 }
 

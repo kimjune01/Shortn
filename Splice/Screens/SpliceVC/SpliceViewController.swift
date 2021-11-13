@@ -39,7 +39,7 @@ class SpliceViewController: UIViewController {
   let spliceButton = UIButton(type: .system)
   let timelineVC: TimelineViewController
   let timerLabel = UILabel()
-  let bpmBadgeVC = BpmBadgeViewController()
+  var bpmBadgeVC: BpmBadgeViewController!
 
   var spliceMode: SpliceMode = .pauseSplice
   var spliceStartTime: TimeInterval = 0
@@ -141,6 +141,7 @@ class SpliceViewController: UIViewController {
     timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
     
     // bpm
+    bpmBadgeVC = BpmBadgeViewController(composition: composition)
     stackView.addArrangedSubview(bpmBadgeVC.view)
     addChild(bpmBadgeVC)
     bpmBadgeVC.didMove(toParent: self)

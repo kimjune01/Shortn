@@ -26,6 +26,7 @@ class CompositionExporter {
 
   
   func export(_ completion: @escaping CompositionExportCompletion) {
+    composition.cutToTheBeatIfNeeded()
     DispatchQueue.global().async {
       self.concatAndSplice(completion)
     }

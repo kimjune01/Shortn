@@ -36,6 +36,7 @@ class AlbumImportViewController: UIViewController {
     addIntroLabel()
     addSpinner()
     addImportButton()
+    addSecretGesture()
   }
   
   func addSpinner() {
@@ -82,6 +83,13 @@ class AlbumImportViewController: UIViewController {
     importButton.pinBottomToParent(margin: 36, insideSafeArea: true)
   }
 
+  func addSecretGesture() {
+    let secretGesture = UILongPressGestureRecognizer(target: self, action: #selector(secretGestureRecognized))
+    secretGesture.numberOfTouchesRequired = 2
+    secretGesture.minimumPressDuration = 2.0
+    view.addGestureRecognizer(secretGesture)
+  }
+
   override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
   }
@@ -119,7 +127,19 @@ class AlbumImportViewController: UIViewController {
     
   }
   
+  // reset state to first fresh install
+  @objc func secretGestureRecognized() {
+    Tutorial.shared.nuke()
+    ShortnAppProduct.resetUsageCounter()
+    let alert = UIAlertController(title: "Reset.", message: "Tutorial & usage counter has been reset. Enjoy!", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "Nice.", style: .default, handler: { _ in
+      //
+    }))
+    present(alert, animated: true, completion: nil)
+  }
+  
   override var prefersStatusBarHidden: Bool { return true }
+  
 }
 
 extension AlbumImportViewController: Spinnable {
