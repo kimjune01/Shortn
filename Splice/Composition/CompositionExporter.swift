@@ -190,9 +190,9 @@ class CompositionExporter {
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
-            let transform = otherTransform(for: sourceVideoTrack,
-                                              isPortraitFrame: isPortraitFrame,
-                                              renderSize: renderSize)
+            let transform = transform(for: sourceVideoTrack,
+                                         isPortraitFrame: isPortraitFrame,
+                                         renderSize: renderSize)
             instructionOutput.setTransform(transform, at: currentDuration)
           }
           if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
@@ -209,66 +209,6 @@ class CompositionExporter {
   
   
   func transform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
-    let transform = VideoHelper.transform(basedOn: assetTrack)
-    let naturalSize = assetTrack.naturalSize.applying(transform)
-    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    let isPortraitAsset = absoluteSize.width < absoluteSize.height
-    
-    let frameAspect = renderSize.width / renderSize.height
-    let assetAspect = absoluteSize.width / absoluteSize.height
-    // 4 cases total, potrait frame * asset orientation
-    if isPortraitFrame {
-      if isPortraitAsset {
-        if absoluteSize == renderSize {
-          return transform.translatedBy(x: 0, y: absoluteSize.height - absoluteSize.width)
-        }
-        if frameAspect >= assetAspect {
-          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-          return transform
-            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
-            .translatedBy(x: 0, y: -renderSize.width * boxPortionX / 2)
-        } else {
-          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-          let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
-          return transform
-            .scaledBy(x: 1-boxPortionY, y: 1-boxPortionY)
-            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
-            .translatedBy(x: 0, y: -renderSize.width * boxPortionX)
-            .translatedBy(x: boxPortionY * renderSize.height, y: 0)
-        }
-      } else {
-        let scaleFactor = absoluteSize.height / renderSize.height
-        let boxPortionY = (renderSize.height - absoluteSize.height * scaleFactor) / renderSize.height
-        // HAX
-        return transform.scaledBy(x: scaleFactor, y: scaleFactor)
-          .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
-      }
-    }
-    if !isPortraitFrame {
-      if isPortraitAsset {
-        let scaleFactor = renderSize.height / absoluteSize.height
-        let boxPortionX = (renderSize.width - absoluteSize.width * scaleFactor) / renderSize.width
-        return transform
-          .scaledBy(x: scaleFactor, y: scaleFactor)
-          .translatedBy(x: 0, y: boxPortionX * renderSize.height * 1.5)
-      } else {
-        let scaleFactor = absoluteSize.width / renderSize.width
-        let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-        let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
-        if frameAspect >= assetAspect {
-          return transform.scaledBy(x: scaleFactor, y: scaleFactor)
-            .translatedBy(x: boxPortionX * renderSize.width, y: 0)
-        } else {
-          return transform.scaledBy(x: 1/scaleFactor, y: 1/scaleFactor)
-            .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
-        }
-      }
-    }
-    return .identity
-  }
-  
-  func otherTransform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
-    
     let transform = VideoHelper.transform(basedOn: assetTrack)
     let naturalSize = assetTrack.naturalSize.applying(transform)
     let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))

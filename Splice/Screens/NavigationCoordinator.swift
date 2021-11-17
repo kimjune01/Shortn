@@ -43,7 +43,7 @@ class NavigationCoordinator: NSObject {
   
   func showAlbumPicker() {
     var pickerConfig = PHPickerConfiguration(photoLibrary: .shared())
-    pickerConfig.filter =  PHPickerFilter.any(of: [.livePhotos, .videos])
+    pickerConfig.filter =  PHPickerFilter.any(of: [.videos])
     pickerConfig.selection = .ordered
     pickerConfig.selectionLimit = 0 // ShortnAppProduct.PHPickerSelectionLimit
     pickerConfig.preselectedAssetIdentifiers = composition.assetIdentifiers

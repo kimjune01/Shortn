@@ -46,6 +46,28 @@ enum VideoHelper {
     return .unknown
   }
   
+  static func rotation(basedOn assetTrack: AVAssetTrack) -> CGAffineTransform {
+    print("assetTrack.preferredTransform: ", assetTrack.preferredTransform)
+    return assetTrack.preferredTransform
+    let transform = assetTrack.preferredTransform
+    let orientation = orientation(for: assetTrack)
+    let naturalSize = assetTrack.naturalSize.applying(transform)
+    switch orientation {
+    case .unknown:
+      return transform
+    case .portrait:
+      return CGAffineTransform(a: 0,b: 1,c: -1,d: 0,tx: naturalSize.height,ty: 0);
+    case .portraitUpsideDown:
+      return CGAffineTransform(a: 0,b: -1,c: 1,d: 0,tx: 0,ty: naturalSize.width);
+    case .landscapeLeft:
+      return CGAffineTransform(a: -1,b: 0,c: 0,d: -1,tx: naturalSize.width,ty: naturalSize.height);
+    case .landscapeRight:
+      return CGAffineTransform(a: 1,b: 0,c: 0,d: 1,tx: 0,ty: 0);
+    @unknown default:
+      return transform
+    }
+  }
+  
   static func transform(basedOn assetTrack: AVAssetTrack) -> CGAffineTransform {
     let transform = assetTrack.preferredTransform
     let orientation = orientation(for: assetTrack)
@@ -64,9 +86,8 @@ enum VideoHelper {
     @unknown default:
       return transform
     }
-    
   }
-  
+
   static func exportPreset(for asset: AVAsset) -> String {
     let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
     var preference: [String] = [
