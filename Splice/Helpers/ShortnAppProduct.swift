@@ -27,7 +27,7 @@ public struct ShortnAppProduct {
   public static let store = IAPHelper(productIds: ShortnAppProduct.productIdentifiers)
   
   private static let usageCounterKey = "kim.june.usageCounter"
-  private static let maxUsageCountBeforePurchase = 4
+  private static let maxUsageCountBeforePurchase = 10
   static var usageCount: Int {
     return KeychainWrapper.standard.integer(forKey: usageCounterKey) ?? 0
   }
