@@ -73,13 +73,17 @@ class SpliceComposition {
     }
   }
   
-  func requestAVAssets(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping Completion) {
+  func requestAVAssets(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping BoolCompletion) {
     self.fetchResult = fetchResult
     var identifiersToIndex = [String: Int]()
     for i in 0..<assetIdentifiers.count {
       identifiersToIndex[assetIdentifiers[i]] = i
     }
-    let fetchCount = assetIdentifiers.count
+    let fetchCount = fetchResult.count
+    guard fetchCount == assetIdentifiers.count else {
+      completion(false)
+      return
+    }
     var orderedAssets: [AVAsset?] = []
     let videoOptions = PHVideoRequestOptions()
     videoOptions.isNetworkAccessAllowed = true
@@ -154,7 +158,7 @@ class SpliceComposition {
       }
       self.group.notify(queue: .main) {
         self.assets = orderedAssets.compactMap{$0}
-        completion()
+        completion(true)
         NotificationCenter.default.post(name: SpliceComposition.transformDoneNotification, object: nil)
       }
     }

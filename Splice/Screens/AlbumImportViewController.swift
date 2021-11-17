@@ -95,12 +95,10 @@ class AlbumImportViewController: UIViewController {
   }
   
   func requestAlbumPicker() {
-    guard PHPhotoLibrary.authorizationStatus() == .authorized else {
+    guard PHPhotoLibrary.authorizationStatus() != .denied else {
       askForAlbumPermission() { granted in
         if granted {
           self.requestAlbumPicker()
-        } else {
-          self.showAlbumAccessAlert()
         }
         self.importButton.isEnabled = true
       }
@@ -121,7 +119,14 @@ class AlbumImportViewController: UIViewController {
   func askForAlbumPermission(_ completion: @escaping BoolCompletion) {
     PHPhotoLibrary.requestAuthorization(for: .readWrite, handler: { status in
       DispatchQueue.main.async {
-        completion(status == .authorized)
+        switch status {
+        case .authorized:
+          completion(status == .authorized)
+        case .denied:
+          self.showAlbumAccessAlert()
+        default:
+          break
+        }
       }
     })
     

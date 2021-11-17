@@ -58,8 +58,8 @@ class NavigationCoordinator: NSObject {
   }
   
   func subscribeToPurchaseStatus() {
-    ShortnAppProduct.resetUsageCounter()
-    ShortnAppProduct.store.restorePurchases()
+//    ShortnAppProduct.resetUsageCounter()
+//    ShortnAppProduct.store.restorePurchases()
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(handlePurchaseNotification(_:)),
                                            name: .IAPHelperPurchaseNotification,
@@ -164,7 +164,13 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    composition.requestAVAssets(from: fetchResult) {
+    composition.requestAVAssets(from: fetchResult) { success in
+      guard success else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+          self.handleFullFeatureFlow(identifiers)
+        }
+        return
+      }
       assert(self.composition.assets.count > 0)
       presenter?.stopSpinning()
       self.pushOrStayOnSpliceVC()
@@ -185,7 +191,13 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
 
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    composition.requestAVAssets(from: fetchResult) {
+    composition.requestAVAssets(from: fetchResult) { success in
+      guard success else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+          self.handleRestrictedTierFlow(identifiers)
+        }
+        return
+      }
       assert(self.composition.assets.count > 0)
       presenter?.stopSpinning()
 

@@ -20,13 +20,13 @@ typealias CompositionExportCompletion = (URL?, Error?) -> ()
 
 class CompositionExporter {
   unowned var composition: SpliceComposition
+  static var debugging = false
   init(composition: SpliceComposition) {
     self.composition = composition
   }
 
-  
   func export(_ completion: @escaping CompositionExportCompletion) {
-    composition.cutToTheBeatIfNeeded()
+//    composition.cutToTheBeatIfNeeded()
     DispatchQueue.global().async {
       self.concatAndSplice(completion)
     }
@@ -165,7 +165,7 @@ class CompositionExporter {
         return eachSplice.upperBound > 0 && eachSplice.lowerBound < assetDuration
       }.map { eachSplice -> Splice in
         if eachSplice.lowerBound < 0 {
-          return 0...eachSplice.upperBound
+          return 0...min(assetDuration, eachSplice.upperBound)
         } else if eachSplice.upperBound > assetDuration {
           return eachSplice.lowerBound...assetDuration
         } else {
@@ -176,10 +176,10 @@ class CompositionExporter {
         let endCMTime = eachSplice.upperBound.cmTime
         return CMTimeRange(start: startCMTime, end: endCMTime)
       }
-//      print("for vid starting at \(assetStartTime) with duration \(assetDuration), \n  there are \(ranges.count) ranges")
-//      for r in ranges {
-//        print("__ start: \(r.start.seconds), end: \(r.end.seconds)")
-//      }
+      debugPrint("for vid starting at \(assetStartTime.twoDecimals) with duration \(assetDuration.twoDecimals), \n  there are \(ranges.count) ranges")
+      for r in ranges {
+        debugPrint("__ start: \(r.start.seconds.twoDecimals), end: \(r.end.seconds.twoDecimals)")
+      }
       return ranges
     }
 
@@ -190,9 +190,9 @@ class CompositionExporter {
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
-            let transform = transform(for: sourceVideoTrack,
-                                         isPortraitFrame: isPortraitFrame,
-                                         renderSize: renderSize)
+            let transform = otherTransform(for: sourceVideoTrack,
+                                              isPortraitFrame: isPortraitFrame,
+                                              renderSize: renderSize)
             instructionOutput.setTransform(transform, at: currentDuration)
           }
           if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
@@ -265,6 +265,72 @@ class CompositionExporter {
       }
     }
     return .identity
+  }
+  
+  func otherTransform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
+    
+    let transform = VideoHelper.transform(basedOn: assetTrack)
+    let naturalSize = assetTrack.naturalSize.applying(transform)
+    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    let isPortraitAsset = absoluteSize.width < absoluteSize.height
+    
+    let frameAspect = renderSize.width / renderSize.height
+    let assetAspect = absoluteSize.width / absoluteSize.height
+    // 4 cases total, potrait frame * asset orientation
+    if isPortraitFrame {
+      if isPortraitAsset {
+        if absoluteSize == renderSize {
+          return transform.translatedBy(x: 0, y: absoluteSize.height - absoluteSize.width)
+        }
+        if frameAspect >= assetAspect {
+          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
+          return transform
+            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
+            .translatedBy(x: 0, y: -renderSize.width * boxPortionX / 2)
+        } else {
+          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
+          let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
+          return transform
+            .scaledBy(x: 1-boxPortionY, y: 1-boxPortionY)
+            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
+            .translatedBy(x: 0, y: -renderSize.width * boxPortionX)
+            .translatedBy(x: boxPortionY * renderSize.height, y: 0)
+        }
+      } else {
+        let scaleFactor = absoluteSize.height / renderSize.height
+        let boxPortionY = (renderSize.height - absoluteSize.height * scaleFactor) / renderSize.height
+        // HAX
+        return transform.scaledBy(x: scaleFactor, y: scaleFactor)
+          .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
+      }
+    }
+    if !isPortraitFrame {
+      if isPortraitAsset {
+        let scaleFactor = renderSize.height / absoluteSize.height
+        let boxPortionX = (renderSize.width - absoluteSize.width * scaleFactor) / renderSize.width
+        return transform
+          .scaledBy(x: scaleFactor, y: scaleFactor)
+          .translatedBy(x: 0, y: boxPortionX * renderSize.height * 1.5)
+      } else {
+        let scaleFactor = absoluteSize.width / renderSize.width
+        let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
+        let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
+        if frameAspect >= assetAspect {
+          return transform.scaledBy(x: scaleFactor, y: scaleFactor)
+            .translatedBy(x: boxPortionX * renderSize.width, y: 0)
+        } else {
+          return transform.scaledBy(x: 1/scaleFactor, y: 1/scaleFactor)
+            .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
+        }
+      }
+    }
+    return .identity
+  }
+  
+  func debugPrint(_ str: String) {
+    if CompositionExporter.debugging {
+      print(str)
+    }
   }
 
 }

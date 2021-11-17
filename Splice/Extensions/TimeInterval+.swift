@@ -12,4 +12,7 @@ extension TimeInterval {
   var cmTime: CMTime {
     return CMTime(seconds: self, preferredTimescale: 600)
   }
+  var twoDecimals: String {
+    return self.formatted(.number.precision(.fractionLength(2)))
+  }
 }
