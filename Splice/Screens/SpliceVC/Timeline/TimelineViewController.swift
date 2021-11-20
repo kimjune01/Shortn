@@ -10,22 +10,13 @@ import UIKit
 import Combine
 import AVFoundation
 
-protocol TimelineViewControllerDelegate: AnyObject {
-  func currentTimeForDisplay() -> TimeInterval
-  func displayLinkStepped()
-  func sliderValueDragged(to time: TimeInterval)
-  func timelineVCDidTouchDownScrubber()
-  func timelineVCDidTouchDoneScrubber()
-  func timelineVCDidDeleteSegment()
-}
-
 enum ScrubbingState {
   case scrubbing
   case notScrubbing
 }
 
-class TimelineViewController: UIViewController {
-  weak var delegate: TimelineViewControllerDelegate?
+class TimelineViewController: UIViewController, TimelineControl {
+  weak var delegate: TimelineControlDelegate?
   unowned var composition: SpliceComposition
   
   var scrubbingState: ScrubbingState = .notScrubbing

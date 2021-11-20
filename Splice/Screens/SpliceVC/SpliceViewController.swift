@@ -37,7 +37,7 @@ class SpliceViewController: UIViewController {
   var playButton: UIButton!
   var previewButton: UIButton!
   let spliceButton = UIButton(type: .system)
-  let timelineVC: TimelineViewController
+  let timelineVC: TimelineControl
   let timerLabel = UILabel()
   var bpmBadgeVC: BpmBadgeViewController!
 
@@ -233,8 +233,8 @@ class SpliceViewController: UIViewController {
     timelineVC.view.set(height: TimelineViewController.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
     timelineVC.view.pinBottom(toTopOf: bottomStack, margin: 8)
-    addChild(timelineVC)
-    timelineVC.didMove(toParent: self)
+//    addChild(timelineVC)
+//    timelineVC.didMove(toParent: self)
   }
       
   func observeTimeSubject() {
@@ -348,11 +348,11 @@ class SpliceViewController: UIViewController {
   
   func showTouchDoneTutorialsIfNeeded() {
     if !Tutorial.shared.scrubTimelineDone {
-      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-        self.timelineVC.scrubber.displayTooltip("Move the slider to skip")
-        Tutorial.shared.scrubTimelineDone = true
-        self.showTouchDoneTutorialsIfNeeded()
-      })
+//      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+//        self.timelineVC.scrubber.displayTooltip("Move the slider to skip")
+//        Tutorial.shared.scrubTimelineDone = true
+//        self.showTouchDoneTutorialsIfNeeded()
+//      })
     } else if !Tutorial.shared.deleteSegmentDone,
             let _ = self.timelineVC.firstSegment() {
       touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false, block: { _ in
@@ -433,7 +433,7 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
   }
 }
 
-extension SpliceViewController: TimelineViewControllerDelegate {
+extension SpliceViewController: TimelineControlDelegate {
   func currentTimeForDisplay() -> TimeInterval {
     // currentPlaybackTime is not exact when looping over
     if playerVC.playerAtEnd() {
