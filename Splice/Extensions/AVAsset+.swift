@@ -40,9 +40,11 @@ extension AVAsset {
 
     // from async handbook https://khanlou.com/2016/04/the-GCD-handbook/
     let group = DispatchGroup()
-    let times: [CMTime] = stride(from: 0.0, to: duration.seconds, by: nSeconds).map { seconds in
+    let times: [CMTime] = stride(from: 0, to: duration.seconds, by: nSeconds).map { seconds in
       group.enter()
-      return CMTime(seconds: seconds, preferredTimescale: composition.frameDuration.timescale)
+      // sample the middle of where the thumbnail would point to instead of its beginning
+      let sample = min(seconds + nSeconds / 2, duration.seconds)
+      return CMTime(seconds: sample, preferredTimescale: composition.frameDuration.timescale)
     }
     
     var thumbnails: [Thumbnail] = []

@@ -17,12 +17,13 @@ class IntervalView: UIView {
       }
     }
   }
-  static let normalColor: UIColor = .systemYellow.withAlphaComponent(0.3)
-  static let expandingColor: UIColor = .systemYellow.withAlphaComponent(0.4)
-  static let selectedColor: UIColor = .systemYellow.withAlphaComponent(0.4)
+  static let baseColor: UIColor = .systemBlue
+  static let normalColor: UIColor = baseColor.withAlphaComponent(0.3)
+  static let expandingColor: UIColor = .systemRed.withAlphaComponent(0.4)
+  static let selectedColor: UIColor = baseColor.withAlphaComponent(0.5)
 
   func appearSelected() {
-    animateSwellHorizontal(0.03)
+    animateSwellHorizontal()
     backgroundColor = IntervalView.selectedColor
     doGlowAnimation(withColor: .white, withEffect: .normal)
   }

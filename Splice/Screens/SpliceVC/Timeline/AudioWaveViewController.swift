@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 
 class AudioWaveViewController: UIViewController {
+  static let defaultHeight: CGFloat = 40
   unowned var composition: SpliceComposition
   
   init(composition: SpliceComposition) {
@@ -23,25 +24,20 @@ class AudioWaveViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    addWaveform()
   }
-  
-  func renderFreshAssets() {
+    
+  func addWaveform(width: CGFloat) {
     for subview in view.subviews {
       subview.removeFromSuperview()
     }
-    addWaveform()
-  }
-  
-  func addWaveform() {
-    let targetTotalWidth = UIScreen.main.bounds.width - UIView.defaultEdgeMargin * 2
+    let targetTotalWidth = width
     var runX: CGFloat = 0
     for eachAsset in composition.assets {
       let thisWidth = targetTotalWidth * eachAsset.duration.seconds / composition.totalDuration
       let waveformImageView = UIImageView(frame: CGRect(
         x: runX, y: 0,
         width: thisWidth,
-        height: 50))
+        height: AudioWaveViewController.defaultHeight))
       runX += thisWidth
       
       let waveformImageDrawer = WaveformImageDrawer()

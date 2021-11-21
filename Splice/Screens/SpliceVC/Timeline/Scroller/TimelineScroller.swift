@@ -15,6 +15,8 @@ class TimelineScroller: UIViewController, TimelineControl {
   var scrubbingState: ScrubbingState = .notScrubbing
   var thumbnailsVC: ThumbnailsViewController!
   var intervalsVC: IntervalsViewController!
+  var waveScrollView = UIScrollView()
+  var waveVC: AudioWaveViewController!
   var spliceState: SpliceState = .initial {
     didSet {
       
@@ -39,6 +41,7 @@ class TimelineScroller: UIViewController, TimelineControl {
   override func viewDidLoad() {
     super.viewDidLoad()
     addThumbnailsVC()
+    addAudioWave()
     addIntervalsVC()
     addSeekerBar()
     observeTimer()
@@ -61,6 +64,17 @@ class TimelineScroller: UIViewController, TimelineControl {
     thumbnailsVC.scrollView.addSubview(intervalsVC.view)
     addChild(intervalsVC)
     intervalsVC.didMove(toParent: self)
+  }
+  
+  func addAudioWave() {
+    view.addSubview(waveScrollView)
+    waveScrollView.pinBottom(toTopOf: thumbnailsVC.view, margin: 4)
+    waveScrollView.fillWidthOfParent()
+    waveScrollView.set(height: AudioWaveViewController.defaultHeight)
+    waveVC = AudioWaveViewController(composition: composition)
+    waveScrollView.addSubview(waveVC.view)
+    waveScrollView.isUserInteractionEnabled = false
+
   }
   
   func addSeekerBar() {
@@ -160,6 +174,8 @@ class TimelineScroller: UIViewController, TimelineControl {
 extension TimelineScroller: ThumbnailsViewControllerDelegate {
   func thumbnailsVCDidRefreshThumbnails(contentSize: CGSize) {
     intervalsVC.setFrame(CGRect(origin: .zero, size: contentSize))
+    waveScrollView.contentInset = thumbnailsVC.scrollView.contentInset
+    waveVC.addWaveform(width: contentSize.width)
   }
   
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
@@ -178,6 +194,7 @@ extension TimelineScroller: ThumbnailsViewControllerDelegate {
     if thumbnailsVC.scrollView.isDragging {
       delegate?.scrubberScrubbed(to: time)
     }
+    waveScrollView.contentOffset = thumbnailsVC.scrollView.contentOffset
   }
   
 }

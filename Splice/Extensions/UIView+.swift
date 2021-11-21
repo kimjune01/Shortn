@@ -242,13 +242,15 @@ extension UIView {
     }
   }
   
-  func animateSwellHorizontal(_ percentage: CGFloat = 0.15) {
-    UIView.animate(withDuration: 0.1, delay: 0, options: .beginFromCurrentState) {
-      self.transform = self.transform.scaledBy(x: 1 + percentage, y: 1)
+  func animateSwellHorizontal(_ amount: CGFloat = 2) {
+    let originalFrame = frame
+    UIView.animate(withDuration: 0.1, delay: 0, options: [.autoreverse, .curveEaseOut]) {
+      self.frame = CGRect(x: self.frame.minX - amount / 2,
+                          y: self.frame.minY,
+                          width: self.width + amount,
+                          height: self.height)
     } completion: { _ in
-      UIView.animate(withDuration: 0.25, delay: 0, options: .beginFromCurrentState) {
-        self.transform = .identity
-      }
+      self.frame = originalFrame
     }
   }
     

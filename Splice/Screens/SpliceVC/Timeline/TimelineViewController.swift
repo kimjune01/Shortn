@@ -149,7 +149,7 @@ class TimelineViewController: UIViewController, TimelineControl {
     segmentsVC.renderFreshAssets()
 
     waveVC.composition = composition
-    waveVC.renderFreshAssets()
+//    waveVC.renderFreshAssets()
   }
   
   func deleteSegment(at index: Int) {
