@@ -13,48 +13,19 @@ import AVFoundation
 // responsible for generating the thumbnails and reporting its scrollable position.
 class ThumbnailsViewController: UIViewController {
   static let defaultHeight: CGFloat = 60
-  var collectionView: UICollectionView!
+  var scrollView: UIScrollView!
   weak var scrollDelegate: UIScrollViewDelegate?
   unowned var composition: SpliceComposition
   var clipsThumbnails: [[Thumbnail]] = []
+  var defaultThumbnailSize: CGSize {
+    return CGSize(width: ThumbnailCell.defaultWidth,
+                  height: ThumbnailsViewController.defaultHeight)
+  }
   var estimatedWidth: CGFloat {
     let estimatedWindowWidth = UIScreen.main.bounds.width
     return estimatedWindowWidth - UIView.defaultEdgeMargin * 2
   }
-  fileprivate let cellRegistration = UICollectionView.CellRegistration<ThumbnailCell, Thumbnail>{
-    cell, _, item in
-    cell.image = item.image
-//    cell.constraints.forEach{$0.isActive = false}
-    let width = 0.1 * ThumbnailCell.defaultWidth
-    let widthConstraint = cell.widthAnchor.constraint(equalToConstant: width)
-    widthConstraint.priority = .defaultHigh
-    widthConstraint.isActive = true
-  }
-  fileprivate lazy var dataSource = {
-    return UICollectionViewDiffableDataSource<Int, Thumbnail>(collectionView: collectionView) {
-      collectionView, indexPath, item -> UICollectionViewCell? in
-      return collectionView.dequeueConfiguredReusableCell(
-        using: self.cellRegistration, for: indexPath, item: item)
-    }
-  }()
-  lazy var layout: UICollectionViewCompositionalLayout = {
-    let itemSize = NSCollectionLayoutSize(widthDimension: .estimated(ThumbnailCell.defaultWidth),
-                                          heightDimension: .absolute(ThumbnailsViewController.defaultHeight))
-    let item = NSCollectionLayoutItem(layoutSize: itemSize)
-    item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-    let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                           heightDimension: .absolute(ThumbnailsViewController.defaultHeight))
-    let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
-                                                   subitems: [item])
-    group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
-    let section = NSCollectionLayoutSection(group: group)
-    let config = UICollectionViewCompositionalLayoutConfiguration()
-    config.scrollDirection = .horizontal
-    config.interSectionSpacing = 0
-    let layout = UICollectionViewCompositionalLayout(section: section, configuration: config)
-    return layout
-  }()
-
+  var totalScrollableWidth: CGFloat = 0
   init(composition: SpliceComposition) {
     self.composition = composition
     super.init(nibName: nil, bundle: nil)
@@ -66,23 +37,51 @@ class ThumbnailsViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    addCollectionView()
+    addScrollView()
     generateThumbnails()
-    refreshSnapshot()
   }
   
-  func addCollectionView() {
-    collectionView = UICollectionView(frame: view.frame, collectionViewLayout: layout)
-    collectionView.alwaysBounceVertical = false
-    collectionView.alwaysBounceHorizontal = false
-    collectionView.backgroundColor = .white
-    collectionView.delegate = self
-    view.addSubview(collectionView)
-    collectionView.fillWidthOfParent()
-    collectionView.pinBottomToParent()
-    collectionView.centerXInParent()
-    collectionView.set(height: ThumbnailsViewController.defaultHeight)
-    collectionView.contentInset = UIEdgeInsets(top: 0, left: estimatedWidth / 2, bottom: 0, right: 0)
+  func addScrollView() {
+    scrollView = UIScrollView()
+    scrollView.alwaysBounceVertical = false
+    scrollView.alwaysBounceHorizontal = false
+    scrollView.bounces = false
+    scrollView.backgroundColor = .white
+    scrollView.delegate = self
+    view.addSubview(scrollView)
+    scrollView.fillWidthOfParent()
+    scrollView.pinBottomToParent()
+    scrollView.centerXInParent()
+    scrollView.set(height: ThumbnailsViewController.defaultHeight)
+    scrollView.contentInset = UIEdgeInsets(top: 0, left: estimatedWidth / 2,
+                                           bottom: 0, right: estimatedWidth / 2)
+  }
+  
+  func refreshImageViews() {
+    for eachSubview in scrollView.subviews {
+      eachSubview.removeFromSuperview()
+    }
+    var currentX: CGFloat = 0
+    for thumbnails in clipsThumbnails {
+      for thumb in thumbnails {
+        let width = ThumbnailCell.defaultWidth * thumb.widthPortion
+        let imageView = UIImageView(frame: CGRect(x: currentX, y: 0,
+                                                  width: width,
+                                                  height: ThumbnailsViewController.defaultHeight))
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = thumb.image
+        scrollView.addSubview(imageView)
+        currentX += width
+      }
+    }
+    totalScrollableWidth = currentX
+    scrollView.contentSize = CGSize(width: currentX, height: ThumbnailsViewController.defaultHeight)
+    scrollView.contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
+  }
+  
+  func currentPixelPosition() -> CGFloat {
+    return scrollView.contentOffset.x + scrollView.contentInset.left
   }
   
   func pixelWidth(for asset: AVAsset) -> CGFloat {
@@ -101,21 +100,16 @@ class ThumbnailsViewController: UIViewController {
   func generateThumbnails() {
     func makeThumbnails(for asset: AVAsset) -> [Thumbnail] {
       let sampleInterval = TimelineScrollConfig.secondsPerSpan / thumbnailsPerSpan()
-      return asset.makeThumbnails(every:sampleInterval)
+      return asset.makeThumbnails(every:sampleInterval, size: defaultThumbnailSize)
     }
-    clipsThumbnails = composition.assets.map{makeThumbnails(for:$0)}
-  }
-  
-  func refreshSnapshot() {
-    var snapshot = NSDiffableDataSourceSnapshot<Int, Thumbnail>()
-    snapshot.appendSections(Array(0..<clipsThumbnails.count))
-    for i in 0..<clipsThumbnails.count {
-      let thumbnails = clipsThumbnails[i]
-      snapshot.appendItems(thumbnails, toSection: i)
+    DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+      guard let self = self else { return }
+      self.clipsThumbnails = self.composition.assets.map{makeThumbnails(for:$0)}
+      DispatchQueue.main.async {
+        self.refreshImageViews()
+      }
     }
-    dataSource.apply(snapshot, animatingDifferences: false)
   }
-  
   
   func calculateContentWidth() -> CGFloat {
     // seconds / (seconds / span) * (pixels/span)
@@ -130,27 +124,10 @@ class ThumbnailsViewController: UIViewController {
   }
 }
 
-extension ThumbnailsViewController: UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    let asset = composition.assets[indexPath.section]
-    let sectionWidth = CGFloat(asset.duration.seconds / TimelineScrollConfig.secondsPerSpan * estimatedWidth)
-    let cellsPerSection = sectionWidth / ThumbnailCell.defaultWidth
-    let isFullWidth = indexPath.row <= Int(cellsPerSection.rounded(.down))
-    if isFullWidth {
-      return CGSize(width: ThumbnailCell.defaultWidth, height: collectionView.height)
-    } else {
-      let remainder = cellsPerSection - cellsPerSection.rounded(.down)
-      return CGSize(width: ThumbnailCell.defaultWidth * remainder, height: collectionView.height)
-    }
+extension ThumbnailsViewController: UIScrollViewDelegate {
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    print(currentPixelPosition())
   }
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-    return 0
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-    return 0
-  }
-  
 }
 
 class ThumbnailCell: UICollectionViewCell {
