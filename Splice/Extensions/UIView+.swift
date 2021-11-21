@@ -232,9 +232,9 @@ extension UIView {
     }
   }
   
-  func animateSwell() {
+  func animateSwell(_ percentage: CGFloat = 0.15) {
     UIView.animate(withDuration: 0.1, delay: 0, options: .beginFromCurrentState) {
-      self.transform = self.transform.scaledBy(x: 1.15, y: 1.15)
+      self.transform = self.transform.scaledBy(x: 1 + percentage, y: 1 + percentage)
     } completion: { _ in
       UIView.animate(withDuration: 0.25, delay: 0, options: .beginFromCurrentState) {
         self.transform = .identity
@@ -242,6 +242,16 @@ extension UIView {
     }
   }
   
+  func animateSwellHorizontal(_ percentage: CGFloat = 0.15) {
+    UIView.animate(withDuration: 0.1, delay: 0, options: .beginFromCurrentState) {
+      self.transform = self.transform.scaledBy(x: 1 + percentage, y: 1)
+    } completion: { _ in
+      UIView.animate(withDuration: 0.25, delay: 0, options: .beginFromCurrentState) {
+        self.transform = .identity
+      }
+    }
+  }
+    
   func roundCorner(radius: CGFloat = 4, cornerCurve: CALayerCornerCurve = .continuous) {
     layer.cornerRadius = radius
     layer.cornerCurve = cornerCurve
@@ -329,5 +339,28 @@ extension UIView {
         completion?()
       })
     })
+  }
+  
+  enum GlowEffect: Float {
+    case small = 0.4, normal = 5, big = 15
+  }
+  
+  func doGlowAnimation(withColor color: UIColor, withEffect effect: GlowEffect = .normal) {
+    layer.masksToBounds = false
+    layer.shadowColor = color.cgColor
+    layer.shadowRadius = 0
+    layer.shadowOpacity = 1
+    layer.shadowOffset = .zero
+    
+    let glowAnimation = CABasicAnimation(keyPath: "shadowRadius")
+    glowAnimation.fromValue = 0
+    glowAnimation.toValue = effect.rawValue
+    glowAnimation.beginTime = CACurrentMediaTime()+0.1
+    glowAnimation.duration = CFTimeInterval(0.6)
+    glowAnimation.fillMode = .removed
+    glowAnimation.autoreverses = true
+    glowAnimation.repeatCount = 1000
+    glowAnimation.isRemovedOnCompletion = true
+    layer.add(glowAnimation, forKey: "shadowGlowingAnimation")
   }
 }

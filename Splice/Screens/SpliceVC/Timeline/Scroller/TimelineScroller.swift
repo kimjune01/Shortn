@@ -131,11 +131,10 @@ class TimelineScroller: UIViewController, TimelineControl {
   
   func startExpandingSegment(startTime: TimeInterval) {
     spliceState = .including(startTime)
-//    isCurrentlyExpanding = true
-//    if let delegate = delegate {
-//      segmentsVC.startExpandingSegment(time: delegate.currentTimeForDisplay())
-//    }
-    
+    if let delegate = delegate {
+      intervalsVC.startExpandingInterval(startTime: delegate.currentTimeForDisplay())
+    }
+    intervalsVC.deselectIntervals()
   }
   
   func expandingSegment() -> UIView? {
@@ -148,14 +147,12 @@ class TimelineScroller: UIViewController, TimelineControl {
   
   func stopExpandingSegment() {
     spliceState = .neutral
-
-//    isCurrentlyExpanding = false
-//    segmentsVC.stopExpandingSegment()
+    intervalsVC.stopExpandingInterval()
     
   }
   
   func updateSegmentsForSplices() {
-    intervalsVC.updateSegmentsForSplices()
+    intervalsVC.updateIntervalsForSplices()
   }
   
 }
@@ -168,6 +165,7 @@ extension TimelineScroller: ThumbnailsViewControllerDelegate {
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
     scrubbingState = .scrubbing
     delegate?.timelineVCWillBeginScrubbing()
+    intervalsVC.deselectIntervals()
   }
   
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController) {
@@ -186,11 +184,24 @@ extension TimelineScroller: ThumbnailsViewControllerDelegate {
 
 extension TimelineScroller: IntervalsViewControllerDelegate {
   func intervalsVCDidSelectSegment(at index: Int) {
-    
+    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
+      self.deleteInterval(at: index)
+    }))
+    alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+      
+    }))
+    present(alertController, animated: true, completion: nil)
   }
   
   func intervalsVCDidSwipeUpSegment(at index: Int) {
-    
+    deleteInterval(at: index)
+  }
+  
+  func deleteInterval(at index: Int) {
+    composition.removeSplice(at: index)
+    intervalsVC.updateIntervalsForSplices()
+    delegate?.timelineVCDidDeleteSegment()
   }
   
   
