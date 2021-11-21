@@ -35,6 +35,10 @@
 		0E2511FC272E592A00E425D6 /* CompositionExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FB272E592A00E425D6 /* CompositionExporter.swift */; };
 		0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FD272E59A800E425D6 /* VideoHelper.swift */; };
 		0E7802642748E5BD005772F2 /* TimelineControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802632748E5BD005772F2 /* TimelineControl.swift */; };
+		0E7802662748E945005772F2 /* TimelineScroller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802652748E945005772F2 /* TimelineScroller.swift */; };
+		0E7802682748EB8D005772F2 /* ThumbnailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */; };
+		0E78026A2748F0E3005772F2 /* TimelineScrollConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */; };
+		0E78026C2749C3EC005772F2 /* Thumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E78026B2749C3EC005772F2 /* Thumbnail.swift */; };
 		0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */; };
 		0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24302731731B00A57A40 /* BPMTimer.swift */; };
 		0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */; };
@@ -93,6 +97,10 @@
 		0E2511FB272E592A00E425D6 /* CompositionExporter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositionExporter.swift; sourceTree = "<group>"; };
 		0E2511FD272E59A800E425D6 /* VideoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoHelper.swift; sourceTree = "<group>"; };
 		0E7802632748E5BD005772F2 /* TimelineControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineControl.swift; sourceTree = "<group>"; };
+		0E7802652748E945005772F2 /* TimelineScroller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineScroller.swift; sourceTree = "<group>"; };
+		0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailsViewController.swift; sourceTree = "<group>"; };
+		0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineScrollConfig.swift; sourceTree = "<group>"; };
+		0E78026B2749C3EC005772F2 /* Thumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Thumbnail.swift; sourceTree = "<group>"; };
 		0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmBadgeViewController.swift; sourceTree = "<group>"; };
 		0E7A24302731731B00A57A40 /* BPMTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMTimer.swift; sourceTree = "<group>"; };
 		0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfigViewController.swift; sourceTree = "<group>"; };
@@ -255,6 +263,10 @@
 				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
 				0EC338FE27322108003D9E63 /* SegmentView.swift */,
 				0E7802632748E5BD005772F2 /* TimelineControl.swift */,
+				0E7802652748E945005772F2 /* TimelineScroller.swift */,
+				0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */,
+				0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */,
+				0E78026B2749C3EC005772F2 /* Thumbnail.swift */,
 			);
 			path = Timeline;
 			sourceTree = "<group>";
@@ -439,6 +451,7 @@
 				0EC338FF27322108003D9E63 /* SegmentView.swift in Sources */,
 				0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */,
 				0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */,
+				0E78026C2749C3EC005772F2 /* Thumbnail.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
 				0EC339032732EF62003D9E63 /* UUID+.swift in Sources */,
 				0E7A24422731EC8400A57A40 /* WaveformLiveView.swift in Sources */,
@@ -449,6 +462,7 @@
 				0E2511DE27260CC900E425D6 /* AVAsset+.swift in Sources */,
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
 				0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */,
+				0E7802662748E945005772F2 /* TimelineScroller.swift in Sources */,
 				0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */,
 				0E7A24462731EC8400A57A40 /* TempiFFT.swift in Sources */,
 				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,
@@ -463,6 +477,7 @@
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */,
 				0EC339012732EC72003D9E63 /* String+.swift in Sources */,
+				0E7802682748EB8D005772F2 /* ThumbnailsViewController.swift in Sources */,
 				0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */,
 				0E7A24442731EC8400A57A40 /* WaveformImageDrawer.swift in Sources */,
 				0E2511BE2726066800E425D6 /* SceneDelegate.swift in Sources */,
@@ -481,6 +496,7 @@
 				0E2511FA272E582A00E425D6 /* PreviewViewController.swift in Sources */,
 				0EC3390D273AA6CB003D9E63 /* IAPHelper.swift in Sources */,
 				0EC3390A2739B19C003D9E63 /* CGAffineTransform+.swift in Sources */,
+				0E78026A2748F0E3005772F2 /* TimelineScrollConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

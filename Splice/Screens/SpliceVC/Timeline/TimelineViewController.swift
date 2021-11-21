@@ -10,11 +10,6 @@ import UIKit
 import Combine
 import AVFoundation
 
-enum ScrubbingState {
-  case scrubbing
-  case notScrubbing
-}
-
 class TimelineViewController: UIViewController, TimelineControl {
   weak var delegate: TimelineControlDelegate?
   unowned var composition: SpliceComposition

@@ -65,7 +65,7 @@ class SpliceViewController: UIViewController {
 
   init(composition: SpliceComposition) {
     self.composition = composition
-    timelineVC = TimelineViewController(composition: composition)
+    timelineVC = TimelineScroller(composition: composition)
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -230,11 +230,13 @@ class SpliceViewController: UIViewController {
   func addTimelineVC() {
     timelineVC.delegate = self
     view.addSubview(timelineVC.view)
-    timelineVC.view.set(height: TimelineViewController.defaultHeight)
+    timelineVC.view.set(height: TimelineScroller.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
     timelineVC.view.pinBottom(toTopOf: bottomStack, margin: 8)
-//    addChild(timelineVC)
-//    timelineVC.didMove(toParent: self)
+    if let vc = timelineVC as? UIViewController {
+      addChild(vc)
+      vc.didMove(toParent: self)
+    }
   }
       
   func observeTimeSubject() {

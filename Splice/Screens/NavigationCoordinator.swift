@@ -17,13 +17,13 @@ class NavigationCoordinator: NSObject {
   let composition = SpliceComposition()
   override init() {
     let albumImportVC = AlbumImportViewController(composition: composition)
-    let spliceVC = SpliceViewController(composition: composition)
+//    let spliceVC = SpliceViewController(composition: composition)
     navController = AppNavController(rootViewController: albumImportVC)
 //    navController = AppNavController(rootViewController: BpmConfigViewController())
 //    navController = AppNavController(rootViewController: spliceVC)
     super.init()
     albumImportVC.delegate = self
-    spliceVC.delegate = self
+//    spliceVC.delegate = self
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true

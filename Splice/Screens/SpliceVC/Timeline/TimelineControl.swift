@@ -7,6 +7,11 @@
 
 import UIKit
 
+enum ScrubbingState {
+  case scrubbing
+  case notScrubbing
+}
+
 protocol TimelineControlDelegate: AnyObject {
   func currentTimeForDisplay() -> TimeInterval
   func displayLinkStepped()
@@ -27,7 +32,7 @@ protocol TimelineControl: AnyObject {
   func renderFreshAssets()
   func startExpandingSegment()
   func expandingSegment() -> UIView?
-  func firstSegment() -> UIView?  
+  func firstSegment() -> UIView?
   func stopExpandingSegment()
   func updateSegmentsForSplices()
 
