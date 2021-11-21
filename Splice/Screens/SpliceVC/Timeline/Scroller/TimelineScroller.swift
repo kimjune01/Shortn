@@ -13,8 +13,8 @@ class TimelineScroller: UIViewController, TimelineControl {
   var delegate: TimelineControlDelegate?
   unowned var composition: SpliceComposition
   var scrubbingState: ScrubbingState = .notScrubbing
-  var thumbnailsViewController: ThumbnailsViewController!
-  var intervalsViewController: IntervalsViewController!
+  var thumbnailsVC: ThumbnailsViewController!
+  var intervalsVC: IntervalsViewController!
   var spliceState: SpliceState = .initial {
     didSet {
       
@@ -27,8 +27,8 @@ class TimelineScroller: UIViewController, TimelineControl {
 
   init(composition: SpliceComposition) {
     self.composition = composition
-    self.thumbnailsViewController = ThumbnailsViewController(composition: composition)
-    self.intervalsViewController = IntervalsViewController(composition: composition)
+    self.thumbnailsVC = ThumbnailsViewController(composition: composition)
+    self.intervalsVC = IntervalsViewController(composition: composition)
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -46,27 +46,29 @@ class TimelineScroller: UIViewController, TimelineControl {
   }
   
   func addThumbnailsVC() {
-    thumbnailsViewController.delegate = self
-    addChild(thumbnailsViewController)
-    view.addSubview(thumbnailsViewController.view)
-    thumbnailsViewController.didMove(toParent: self)
-    thumbnailsViewController.view.pinBottomToParent()
-    thumbnailsViewController.view.fillWidthOfParent()
-    thumbnailsViewController.view.set(height: ThumbnailsViewController.defaultHeight)
+    thumbnailsVC.delegate = self
+    addChild(thumbnailsVC)
+    view.addSubview(thumbnailsVC.view)
+    thumbnailsVC.didMove(toParent: self)
+    thumbnailsVC.view.pinBottomToParent()
+    thumbnailsVC.view.fillWidthOfParent()
+    thumbnailsVC.view.set(height: ThumbnailsViewController.defaultHeight)
   }
   
   func addIntervalsVC() {
+    intervalsVC.delegate = self
     // !!
-    thumbnailsViewController.scrollView.addSubview(intervalsViewController.view)
-    addChild(intervalsViewController)
-    intervalsViewController.didMove(toParent: self)
+    thumbnailsVC.scrollView.addSubview(intervalsVC.view)
+    addChild(intervalsVC)
+    intervalsVC.didMove(toParent: self)
   }
   
   func addSeekerBar() {
-    seekerBar.backgroundColor = .white.withAlphaComponent(0.8)
+    seekerBar.backgroundColor = .white
+    seekerBar.alpha = 0.8
     view.addSubview(seekerBar)
     seekerBar.centerXInParent()
-    seekerBar.centerYAnchor.constraint(equalTo: thumbnailsViewController.view.centerYAnchor).isActive = true
+    seekerBar.centerYAnchor.constraint(equalTo: thumbnailsVC.view.centerYAnchor).isActive = true
     seekerBar.set(width: 3)
     seekerBar.set(height: 70)
     seekerBar.roundCorner(radius: 2, cornerCurve: .continuous)
@@ -77,7 +79,7 @@ class TimelineScroller: UIViewController, TimelineControl {
     composition.timeSubject
       .receive(on: DispatchQueue.main)
       .sink { timeInterval in
-        self.thumbnailsViewController.scrollTime(to: timeInterval)
+        self.thumbnailsVC.scrollTime(to: timeInterval)
       }.store(in: &self.subscriptions)
   }
   
@@ -94,23 +96,27 @@ class TimelineScroller: UIViewController, TimelineControl {
       let actualFramesPerSecond = 1 / (displaylink.targetTimestamp - displaylink.timestamp)
 //      currentFps = actualFramesPerSecond.rounded()
 //      intervalsVC.expand(from:  rate: advanceRate)
-      delegate?.synchronizePlaybackTime()
     default: break
+    }
+    if scrubbingState == .notScrubbing {
+      delegate?.synchronizePlaybackTime()
     }
   }
   
   func appearIncluding() {
-//    scrubber.isEnabled = false
-//    scrubber.alpha = 0.6
-
+    view.isUserInteractionEnabled = false
+    seekerBar.alpha = 0.4
   }
   
   func appearNeutral() {
-//    scrubber.isEnabled = true
-//    scrubber.alpha = 1
+    view.isUserInteractionEnabled = true
+    seekerBar.alpha = 0.8
   }
   
   func renderFreshAssets() {
+    thumbnailsVC.renderFreshAssets()
+    intervalsVC.composition = composition
+    intervalsVC.renderFreshAssets()
 //    scrubber.maximumValue = Float(composition.totalDuration)
 //    scrubber.setNeedsLayout()
 //    scrubber.layoutIfNeeded()
@@ -149,17 +155,23 @@ class TimelineScroller: UIViewController, TimelineControl {
   }
   
   func updateSegmentsForSplices() {
-    thumbnailsViewController.updateSegmentsForSplices()
+    intervalsVC.updateSegmentsForSplices()
   }
   
 }
 
 extension TimelineScroller: ThumbnailsViewControllerDelegate {
+  func thumbnailsVCDidRefreshThumbnails(contentSize: CGSize) {
+    intervalsVC.setFrame(CGRect(origin: .zero, size: contentSize))
+  }
+  
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
+    scrubbingState = .scrubbing
     delegate?.timelineVCWillBeginScrubbing()
   }
   
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController) {
+    scrubbingState = .notScrubbing
     delegate?.timelineVCDidFinishScrubbing()
   }
   
@@ -168,6 +180,17 @@ extension TimelineScroller: ThumbnailsViewControllerDelegate {
     if thumbnailsVC.scrollView.isDragging {
       delegate?.scrubberScrubbed(to: time)
     }
+  }
+  
+}
+
+extension TimelineScroller: IntervalsViewControllerDelegate {
+  func intervalsVCDidSelectSegment(at index: Int) {
+    
+  }
+  
+  func intervalsVCDidSwipeUpSegment(at index: Int) {
+    
   }
   
   

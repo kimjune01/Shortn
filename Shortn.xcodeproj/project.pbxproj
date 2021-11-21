@@ -40,6 +40,7 @@
 		0E78026A2748F0E3005772F2 /* TimelineScrollConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */; };
 		0E78026C2749C3EC005772F2 /* Thumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E78026B2749C3EC005772F2 /* Thumbnail.swift */; };
 		0E78026E274AB62D005772F2 /* IntervalsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E78026D274AB62D005772F2 /* IntervalsViewController.swift */; };
+		0E780273274AEB56005772F2 /* IntervalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E780272274AEB56005772F2 /* IntervalView.swift */; };
 		0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */; };
 		0E7A24312731731C00A57A40 /* BPMTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24302731731B00A57A40 /* BPMTimer.swift */; };
 		0E7A24332731788B00A57A40 /* BpmConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */; };
@@ -103,6 +104,7 @@
 		0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineScrollConfig.swift; sourceTree = "<group>"; };
 		0E78026B2749C3EC005772F2 /* Thumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Thumbnail.swift; sourceTree = "<group>"; };
 		0E78026D274AB62D005772F2 /* IntervalsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalsViewController.swift; sourceTree = "<group>"; };
+		0E780272274AEB56005772F2 /* IntervalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalView.swift; sourceTree = "<group>"; };
 		0E7A242E2731704900A57A40 /* BpmBadgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmBadgeViewController.swift; sourceTree = "<group>"; };
 		0E7A24302731731B00A57A40 /* BPMTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPMTimer.swift; sourceTree = "<group>"; };
 		0E7A24322731788B00A57A40 /* BpmConfigViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BpmConfigViewController.swift; sourceTree = "<group>"; };
@@ -247,6 +249,42 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		0E78026F274AEB26005772F2 /* Thumbnails */ = {
+			isa = PBXGroup;
+			children = (
+				0E78026B2749C3EC005772F2 /* Thumbnail.swift */,
+				0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */,
+			);
+			path = Thumbnails;
+			sourceTree = "<group>";
+		};
+		0E780270274AEB34005772F2 /* Intervals */ = {
+			isa = PBXGroup;
+			children = (
+				0E78026D274AB62D005772F2 /* IntervalsViewController.swift */,
+				0E780272274AEB56005772F2 /* IntervalView.swift */,
+			);
+			path = Intervals;
+			sourceTree = "<group>";
+		};
+		0E780271274AEB41005772F2 /* Scroller */ = {
+			isa = PBXGroup;
+			children = (
+				0E7802652748E945005772F2 /* TimelineScroller.swift */,
+				0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */,
+			);
+			path = Scroller;
+			sourceTree = "<group>";
+		};
+		0E780274274AEBCB005772F2 /* Segments */ = {
+			isa = PBXGroup;
+			children = (
+				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
+				0EC338FE27322108003D9E63 /* SegmentView.swift */,
+			);
+			path = Segments;
+			sourceTree = "<group>";
+		};
 		0E7A24342731789300A57A40 /* Bpm */ = {
 			isa = PBXGroup;
 			children = (
@@ -262,14 +300,11 @@
 			children = (
 				0E2511E1272C5F5600E425D6 /* TimelineViewController.swift */,
 				0E7A24492731EF4A00A57A40 /* AudioWaveViewController.swift */,
-				0E2511F7272E3CDD00E425D6 /* SegmentsViewController.swift */,
-				0EC338FE27322108003D9E63 /* SegmentView.swift */,
+				0E780274274AEBCB005772F2 /* Segments */,
 				0E7802632748E5BD005772F2 /* TimelineControl.swift */,
-				0E7802652748E945005772F2 /* TimelineScroller.swift */,
-				0E7802692748F0E3005772F2 /* TimelineScrollConfig.swift */,
-				0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */,
-				0E78026B2749C3EC005772F2 /* Thumbnail.swift */,
-				0E78026D274AB62D005772F2 /* IntervalsViewController.swift */,
+				0E780271274AEB41005772F2 /* Scroller */,
+				0E78026F274AEB26005772F2 /* Thumbnails */,
+				0E780270274AEB34005772F2 /* Intervals */,
 			);
 			path = Timeline;
 			sourceTree = "<group>";
@@ -467,6 +502,7 @@
 				0E2511ED272CA87D00E425D6 /* UIView+.swift in Sources */,
 				0E7A242F2731704900A57A40 /* BpmBadgeViewController.swift in Sources */,
 				0E7802662748E945005772F2 /* TimelineScroller.swift in Sources */,
+				0E780273274AEB56005772F2 /* IntervalView.swift in Sources */,
 				0E7A2437273178E300A57A40 /* BpmConfig.swift in Sources */,
 				0E7A24462731EC8400A57A40 /* TempiFFT.swift in Sources */,
 				0E2511F8272E3CDD00E425D6 /* SegmentsViewController.swift in Sources */,

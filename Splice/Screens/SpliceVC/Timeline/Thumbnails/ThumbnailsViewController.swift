@@ -9,10 +9,10 @@ import UIKit
 import AVFoundation
 
 protocol ThumbnailsViewControllerDelegate: AnyObject {
+  func thumbnailsVCDidRefreshThumbnails(contentSize: CGSize)
   func thumbnailsVCDidScroll(_ thumbnailsVC: ThumbnailsViewController, to time: TimeInterval)
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController)
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController)
-  
 }
 
 // A horizontal thumbnail collection view with un-interactable cells.
@@ -21,6 +21,7 @@ class ThumbnailsViewController: UIViewController {
   static let defaultHeight: CGFloat = 60
   weak var delegate: ThumbnailsViewControllerDelegate?
   var scrollView: UIScrollView!
+  let imageViewsContainer = UIView()
   weak var scrollDelegate: UIScrollViewDelegate?
   unowned var composition: SpliceComposition
   var clipsThumbnails: [[Thumbnail]] = []
@@ -53,7 +54,7 @@ class ThumbnailsViewController: UIViewController {
     scrollView.alwaysBounceVertical = false
     scrollView.alwaysBounceHorizontal = false
     scrollView.bounces = true
-    scrollView.backgroundColor = .white
+    scrollView.backgroundColor = .black.withAlphaComponent(0.3)
     scrollView.delegate = self
     scrollView.decelerationRate = .fast
     scrollView.showsHorizontalScrollIndicator = false
@@ -62,12 +63,14 @@ class ThumbnailsViewController: UIViewController {
     scrollView.pinBottomToParent()
     scrollView.centerXInParent()
     scrollView.set(height: ThumbnailsViewController.defaultHeight)
+    scrollView.roundCorner(radius: 5, cornerCurve: .continuous)
     scrollView.contentInset = UIEdgeInsets(top: 0, left: estimatedWidth / 2,
                                            bottom: 0, right: estimatedWidth / 2)
+    scrollView.addSubview(imageViewsContainer)
   }
   
   func refreshImageViews() {
-    for case let eachImageView as UIImageView in scrollView.subviews {
+    for case let eachImageView as UIImageView in imageViewsContainer.subviews {
       eachImageView.removeFromSuperview()
     }
     var currentX: CGFloat = 0
@@ -80,13 +83,18 @@ class ThumbnailsViewController: UIViewController {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.image = thumb.image
-        scrollView.addSubview(imageView)
+        imageViewsContainer.addSubview(imageView)
         currentX += width
       }
     }
     totalScrollableWidth = currentX
     scrollView.contentSize = CGSize(width: currentX, height: ThumbnailsViewController.defaultHeight)
+    imageViewsContainer.frame = CGRect(origin: .zero, size: scrollView.contentSize)
     scrollView.contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
+    UIView.animate(withDuration: 0.3) {
+      self.scrollView.alpha = 1
+    }
+    delegate?.thumbnailsVCDidRefreshThumbnails(contentSize: scrollView.contentSize)
   }
   
   func pixelPosition(in scrollView: UIScrollView) -> CGFloat {
@@ -111,6 +119,7 @@ class ThumbnailsViewController: UIViewController {
       let sampleInterval = TimelineScrollConfig.secondsPerSpan / thumbnailsPerSpan()
       return asset.makeThumbnails(every:sampleInterval, size: defaultThumbnailSize)
     }
+    scrollView.alpha = 0
     DispatchQueue.global(qos: .userInitiated).async { [weak self] in
       guard let self = self else { return }
       self.clipsThumbnails = self.composition.assets.map{makeThumbnails(for:$0)}
@@ -118,6 +127,10 @@ class ThumbnailsViewController: UIViewController {
         self.refreshImageViews()
       }
     }
+  }
+  
+  func renderFreshAssets() {
+    generateThumbnails()
   }
   
   func calculateContentWidth() -> CGFloat {
@@ -131,11 +144,7 @@ class ThumbnailsViewController: UIViewController {
     let cellsPerSection = sectionWidth / ThumbnailCell.defaultWidth
     return Int(cellsPerSection.rounded(.up))
   }
-  
-  func updateSegmentsForSplices() {
     
-  }
-  
   func currentTimePosition(_ scrollView: UIScrollView) -> TimeInterval {
     let boundedTime = min( max(0, pixelPosition(in: scrollView)), scrollView.contentSize.width)
     return boundedTime / scrollView.contentSize.width * composition.totalDuration
@@ -156,8 +165,16 @@ extension ThumbnailsViewController: UIScrollViewDelegate {
     delegate?.thumbnailsVCWillBeginDragging(self)
   }
   
-  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+  func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     delegate?.thumbnailsVCDidEndDragging(self)
+  }
+  
+  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    if !decelerate {
+      delegate?.thumbnailsVCDidEndDragging(self)
+    } else {
+      // scrollViewDidEndDecelerating will be called.
+    }
   }
 }
 
