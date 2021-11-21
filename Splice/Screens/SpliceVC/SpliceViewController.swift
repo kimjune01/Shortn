@@ -94,6 +94,9 @@ class SpliceViewController: UIViewController {
                                              object: nil)
     }
     updateAppearance()
+    if !composition.assets.isEmpty {
+      stopSpinning()
+    }
   }
   
   func addSpinner() {
@@ -305,7 +308,7 @@ class SpliceViewController: UIViewController {
       playbackTime = 0
     }
     spliceState = .including(playbackTime)
-    timelineVC.startExpandingSegment()
+    timelineVC.startExpandingSegment(startTime: playbackTime)
     touchDoneTimer?.invalidate()
     showTouchDownTutorialsIfNeeded()
   }
@@ -403,7 +406,6 @@ class SpliceViewController: UIViewController {
     guard !composition.assets.isEmpty else { return }
     view.isUserInteractionEnabled = true
     spinner.stopAnimating()
-    NotificationCenter.default.removeObserver(self)
   }
   
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -444,20 +446,20 @@ extension SpliceViewController: TimelineControlDelegate {
     return playerVC.currentPlaybackTime()
   }
 
-  func displayLinkStepped() {
+  func synchronizePlaybackTime() {
     composition.timeSubject.send(playerVC.currentPlaybackTime())
   }
 
-  func sliderValueDragged(to time: TimeInterval) {
+  func scrubberScrubbed(to time: TimeInterval) {
     playerVC.seek(to: time)
   }
   
-  func timelineVCDidTouchDownScrubber() {
+  func timelineVCWillBeginScrubbing() {
     wasPlaying = playerVC.isPlaying
     playerVC.appearScrubbing(playerVC.isPlaying)
   }
 
-  func timelineVCDidTouchDoneScrubber() {
+  func timelineVCDidFinishScrubbing() {
     playerVC.handleStoppedScrubbing(wasPlaying)
   }
   

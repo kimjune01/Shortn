@@ -14,10 +14,10 @@ enum ScrubbingState {
 
 protocol TimelineControlDelegate: AnyObject {
   func currentTimeForDisplay() -> TimeInterval
-  func displayLinkStepped()
-  func sliderValueDragged(to time: TimeInterval)
-  func timelineVCDidTouchDownScrubber()
-  func timelineVCDidTouchDoneScrubber()
+  func synchronizePlaybackTime()
+  func scrubberScrubbed(to time: TimeInterval)
+  func timelineVCWillBeginScrubbing()
+  func timelineVCDidFinishScrubbing()
   func timelineVCDidDeleteSegment()
 }
 
@@ -30,7 +30,7 @@ protocol TimelineControl: AnyObject {
   func appearIncluding()
   func appearNeutral()
   func renderFreshAssets()
-  func startExpandingSegment()
+  func startExpandingSegment(startTime: TimeInterval)
   func expandingSegment() -> UIView?
   func firstSegment() -> UIView?
   func stopExpandingSegment()

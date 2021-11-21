@@ -311,9 +311,13 @@ class LongPlayerViewController: UIViewController {
     let prevIndex = currentlyPlayingIndex()
     if index == prevIndex {
       // current item
-      player.seek(to: localTime.cmTime,
+      guard let item = player.currentItem else {
+        return
+      }
+      let target = max(0, min(item.asset.duration.seconds, localTime))
+      player.seek(to: target.cmTime,
                   toleranceBefore: (0.05).cmTime,
-                  toleranceAfter: (0.05).cmTime)
+                  toleranceAfter: 0.cmTime)
       
     } else {
       // next or previous item.

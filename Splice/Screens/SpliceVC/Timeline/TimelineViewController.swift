@@ -106,7 +106,7 @@ class TimelineViewController: UIViewController, TimelineControl {
       }.store(in: &self.subscriptions)
   }
   
-  func startExpandingSegment() {
+  func startExpandingSegment(startTime: TimeInterval) {
     isCurrentlyExpanding = true
     if let delegate = delegate {
       segmentsVC.startExpandingSegment(time: delegate.currentTimeForDisplay())
@@ -172,22 +172,22 @@ class TimelineViewController: UIViewController, TimelineControl {
       currentFps = actualFramesPerSecond.rounded()
       segmentsVC.expand(rate: advanceRate)
     }
-    delegate?.displayLinkStepped()
+    delegate?.synchronizePlaybackTime()
   }
   
   @objc func didSlideScrubber(_ slider: UISlider) {
-    delegate?.sliderValueDragged(to: Double(slider.value))
+    delegate?.scrubberScrubbed(to: Double(slider.value))
   }
   
   @objc func didTouchDownScrubber(_ slider: UISlider) {
     scrubbingState = .scrubbing
-    delegate?.timelineVCDidTouchDownScrubber()
+    delegate?.timelineVCWillBeginScrubbing()
     segmentsVC.stopGlowing()
   }
   
   @objc func didTouchDoneScrubber(_ slider: UISlider) {
     scrubbingState = .notScrubbing
-    delegate?.timelineVCDidTouchDoneScrubber()
+    delegate?.timelineVCDidFinishScrubbing()
   }
 }
 

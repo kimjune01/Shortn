@@ -10,7 +10,6 @@ import UIKit
 protocol SegmentsViewControllerDelegate: AnyObject {
   func segmentsVCDidSelectSegment(at index: Int)
   func segmentsVCDidSwipeUpSegment(at index: Int)
-  
 }
 
 class SegmentsViewController: UIViewController {

@@ -8,11 +8,18 @@
 import UIKit
 import AVFoundation
 
+protocol ThumbnailsViewControllerDelegate: AnyObject {
+  func thumbnailsVCDidScroll(_ thumbnailsVC: ThumbnailsViewController, to time: TimeInterval)
+  func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController)
+  func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController)
+  
+}
 
 // A horizontal thumbnail collection view with un-interactable cells.
 // responsible for generating the thumbnails and reporting its scrollable position.
 class ThumbnailsViewController: UIViewController {
   static let defaultHeight: CGFloat = 60
+  weak var delegate: ThumbnailsViewControllerDelegate?
   var scrollView: UIScrollView!
   weak var scrollDelegate: UIScrollViewDelegate?
   unowned var composition: SpliceComposition
@@ -45,9 +52,11 @@ class ThumbnailsViewController: UIViewController {
     scrollView = UIScrollView()
     scrollView.alwaysBounceVertical = false
     scrollView.alwaysBounceHorizontal = false
-    scrollView.bounces = false
+    scrollView.bounces = true
     scrollView.backgroundColor = .white
     scrollView.delegate = self
+    scrollView.decelerationRate = .fast
+    scrollView.showsHorizontalScrollIndicator = false
     view.addSubview(scrollView)
     scrollView.fillWidthOfParent()
     scrollView.pinBottomToParent()
@@ -58,8 +67,8 @@ class ThumbnailsViewController: UIViewController {
   }
   
   func refreshImageViews() {
-    for eachSubview in scrollView.subviews {
-      eachSubview.removeFromSuperview()
+    for case let eachImageView as UIImageView in scrollView.subviews {
+      eachImageView.removeFromSuperview()
     }
     var currentX: CGFloat = 0
     for thumbnails in clipsThumbnails {
@@ -80,7 +89,7 @@ class ThumbnailsViewController: UIViewController {
     scrollView.contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
   }
   
-  func currentPixelPosition() -> CGFloat {
+  func pixelPosition(in scrollView: UIScrollView) -> CGFloat {
     return scrollView.contentOffset.x + scrollView.contentInset.left
   }
   
@@ -122,11 +131,33 @@ class ThumbnailsViewController: UIViewController {
     let cellsPerSection = sectionWidth / ThumbnailCell.defaultWidth
     return Int(cellsPerSection.rounded(.up))
   }
+  
+  func updateSegmentsForSplices() {
+    
+  }
+  
+  func currentTimePosition(_ scrollView: UIScrollView) -> TimeInterval {
+    let boundedTime = min( max(0, pixelPosition(in: scrollView)), scrollView.contentSize.width)
+    return boundedTime / scrollView.contentSize.width * composition.totalDuration
+  }
+  
+  func scrollTime(to time: TimeInterval) {
+    let offsetToScrollTo = time / composition.totalDuration * scrollView.contentSize.width -  scrollView.contentInset.left
+    scrollView.setContentOffset(CGPoint(x: offsetToScrollTo, y: 0), animated: false)
+  }
 }
 
 extension ThumbnailsViewController: UIScrollViewDelegate {
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    print(currentPixelPosition())
+    delegate?.thumbnailsVCDidScroll(self, to: currentTimePosition(scrollView))
+  }
+  
+  func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    delegate?.thumbnailsVCWillBeginDragging(self)
+  }
+  
+  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    delegate?.thumbnailsVCDidEndDragging(self)
   }
 }
 
