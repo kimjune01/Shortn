@@ -50,24 +50,8 @@ class PreviewViewController: UIViewController {
     addBottonStack()
     addSpinner()
     addWaitLabel()
-    composition.exportForPreview { [weak self] err in
-      guard let self = self else { return }
-      guard err == nil else {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-          self.delegate?.previewVCDidFailExport(self, err: err)
-        }
-        return
-      }
-      guard let asset = self.composition.previewAsset else {
-        return
-      }
-      self.spinner.stopAnimating()
-      self.waitLabel.isHidden = true
-      self.playerView.isUserInteractionEnabled = true
-      self.currentAsset = asset
-      self.makePlayer(item: self.makePlayerItem(from: asset))
-      self.player.play()
-    }
+    makePreview()
+
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -110,7 +94,7 @@ class PreviewViewController: UIViewController {
     playerView.addSubview(bottomStack)
     bottomStack.set(height: stackHeight)
     bottomStack.fillWidthOfParent(withDefaultMargin: true)
-    bottomStack.pinBottomToParent(margin: 12, insideSafeArea: true)
+    bottomStack.pinBottomToParent(margin: 24, insideSafeArea: true)
     bottomStack.distribution = .equalSpacing
     bottomStack.axis = .horizontal
     bottomStack.alignment = .center
@@ -145,6 +129,33 @@ class PreviewViewController: UIViewController {
       }
     })
     bottomStack.addArrangedSubview(shareButton)
+  }
+  
+  func makePreview() {
+    bottomStack.obscure()
+
+    composition.exportForPreview { [weak self] err in
+      guard let self = self else { return }
+      guard err == nil else {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+          self.delegate?.previewVCDidFailExport(self, err: err)
+        }
+        return
+      }
+      guard let asset = self.composition.previewAsset else {
+        return
+      }
+      guard self.isViewLoaded, self.view.window != nil else {
+        return
+      }
+      self.bottomStack.clarify()
+      self.spinner.stopAnimating()
+      self.waitLabel.isHidden = true
+      self.playerView.isUserInteractionEnabled = true
+      self.currentAsset = asset
+      self.makePlayer(item: self.makePlayerItem(from: asset))
+      self.player.play()
+    }
   }
   
   @objc func didSaveToAlbum() {
