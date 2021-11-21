@@ -173,7 +173,7 @@ class SpliceViewController: UIViewController {
     
     view.addSubview(bottomStack)
     bottomStack.pinBottomToParent(margin: 18, insideSafeArea: true)
-    bottomStack.fillWidthOfParent()
+    bottomStack.fillWidthOfParent(withDefaultMargin: true)
     bottomStack.set(height: stackHeight)
     
     bottomStack.axis = .horizontal
@@ -196,9 +196,12 @@ class SpliceViewController: UIViewController {
     // export button
     var previewConfig = UIButton.Configuration.filled()
     previewConfig.image = UIImage(systemName: "eye")
+    previewConfig.title = "Preview"
     previewConfig.baseForegroundColor = .white
     previewConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
     previewConfig.buttonSize = .medium
+    previewConfig.imagePlacement = .top
+    previewConfig.buttonSize = .small
 
     previewButton = UIButton(configuration: previewConfig, primaryAction: UIAction() {_ in
       self.delegate?.spliceVCDidRequestPreview(self)
