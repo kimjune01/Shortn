@@ -162,7 +162,7 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
 }
 
 extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
-  func thumbnailsVCDieRefreshAThumbnail() {
+  func thumbnailsVCDidRefreshAThumbnail() {
     intervalsVC.setFrame(CGRect(origin: .zero, size: thumbnailsVC.imageViewsContainer.size))
   }
   

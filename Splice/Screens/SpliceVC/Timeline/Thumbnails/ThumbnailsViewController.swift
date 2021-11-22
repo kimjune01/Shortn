@@ -10,7 +10,7 @@ import AVFoundation
 
 protocol ThumbnailsViewControllerDelegate: AnyObject {
   func thumbnailsVCWillRefreshThumbnails(contentSize: CGSize)
-  func thumbnailsVCDieRefreshAThumbnail()
+  func thumbnailsVCDidRefreshAThumbnail()
   func thumbnailsVCDidScroll(_ thumbnailsVC: ThumbnailsViewController, to time: TimeInterval)
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController)
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController)
@@ -38,6 +38,9 @@ class ThumbnailsViewController: UIViewController {
   var contentWidth: CGFloat {
     return scrollView.contentSize.width
   }
+  let thumbnailQueue = DispatchQueue(label: "kim.june.thumbnailQueue", qos: .userInitiated)
+  // manually prevent outdated work items to continue
+  var currentWorkUUID: UUID?
   init(composition: SpliceComposition) {
     self.composition = composition
     super.init(nibName: nil, bundle: nil)
@@ -150,22 +153,28 @@ class ThumbnailsViewController: UIViewController {
   
   // There's a race condition in here somewhere...
   func generateThumbnails() {
+    let workUUID = UUID()
+    currentWorkUUID = workUUID
     delegate?.thumbnailsVCWillRefreshThumbnails(contentSize: scrollView.contentSize)
     func makeThumbnails(for asset: AVAsset, _ progress: @escaping ThumbnailProgress) {
       let sampleInterval = TimelineScrollConfig.sampleInterval(thumbnailsPerSpan: thumbnailsPerSpan())
-      DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+      thumbnailQueue.async { [weak self] in
         guard let self = self else { return }
+        guard self.currentWorkUUID == workUUID else { return }
         asset.makeThumbnails(every:sampleInterval, size: self.defaultThumbnailSize, progress)
       }
     }
     clipsThumbnails = Array<[Thumbnail]>(repeating: [], count: composition.assets.count)
     for (clipIndex, asset) in composition.assets.enumerated() {
-      makeThumbnails(for: asset){ thumb, thumbIndex in
+      makeThumbnails(for: asset){ [weak self] thumb, thumbIndex in
+        guard let self = self else { return }
+        guard self.currentWorkUUID == workUUID else { return }
         guard let thumb = thumb else { return }
         self.clipsThumbnails[clipIndex].append(thumb)
         DispatchQueue.main.async {
+          guard self.currentWorkUUID == workUUID else { return }
           self.fill(thumbnail: thumb, at: self.indexFrom(clipIndex: clipIndex, thumbIndex: thumbIndex))
-          self.delegate?.thumbnailsVCDieRefreshAThumbnail()
+          self.delegate?.thumbnailsVCDidRefreshAThumbnail()
         }
       }
     }
