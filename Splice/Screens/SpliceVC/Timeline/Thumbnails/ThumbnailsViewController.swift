@@ -39,7 +39,7 @@ class ThumbnailsViewController: UIViewController {
     return scrollView.contentSize.width
   }
   let thumbnailQueue = DispatchQueue(label: "kim.june.thumbnailQueue", qos: .userInitiated)
-  // manually prevent outdated work items to continue
+  // manually prevent outdated work items to continue. Should really be using Operations instead.
   var currentWorkUUID: UUID?
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -142,7 +142,7 @@ class ThumbnailsViewController: UIViewController {
     for case let eachImageView as UIImageView in imageViewsContainer.subviews {
       if eachImageView.tag == index {
         eachImageView.image = thumbnail.image
-        eachImageView.transform = CGAffineTransform(scaleX: 0.8, y: 1).translatedBy(x: -6, y: 0)
+        eachImageView.transform = CGAffineTransform(scaleX: 0.8, y: 1).translatedBy(x: -4, y: 0)
         UIView.animate(withDuration: 0.3) {
           eachImageView.isHidden = false
           eachImageView.transform = .identity

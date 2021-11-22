@@ -135,18 +135,19 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
   
   func startExpandingSegment(startTime: TimeInterval) {
     spliceState = .including(startTime)
+    thumbnailsVC.scrollView.stopDecelerating()
     if let delegate = delegate {
       intervalsVC.startExpandingInterval(startTime: delegate.currentTimeForDisplay())
     }
     intervalsVC.deselectIntervals()
   }
   
-  func expandingSegment() -> UIView? {
-    return UIView()
+  func expandingInterval() -> UIView? {
+    return intervalsVC.expandingInterval
   }
   
-  func firstSegment() -> UIView? {
-    return UIView()
+  func firstInterval() -> UIView? {
+    return intervalsVC.intervals.first
   }
   
   func stopExpandingSegment() {

@@ -18,9 +18,9 @@ class IntervalView: UIView {
     }
   }
   static let baseColor: UIColor = .systemBlue
-  static let normalColor: UIColor = baseColor.withAlphaComponent(0.3)
-  static let expandingColor: UIColor = .systemRed.withAlphaComponent(0.4)
-  static let selectedColor: UIColor = baseColor.withAlphaComponent(0.5)
+  static let normalColor: UIColor = baseColor.withAlphaComponent(0.4)
+  static let expandingColor: UIColor = .systemRed.withAlphaComponent(0.6)
+  static let selectedColor: UIColor = baseColor.withAlphaComponent(0.7)
 
   func appearSelected() {
     animateSwellHorizontal()

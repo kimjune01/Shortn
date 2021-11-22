@@ -185,7 +185,7 @@ class SpliceViewController: UIViewController {
     playConfig.image = UIImage(systemName: "play.fill")
     playConfig.baseForegroundColor = .white
     playConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
-    playConfig.buttonSize = .medium
+    playConfig.buttonSize = .large
     
     playButton = UIButton(configuration: playConfig, primaryAction: UIAction() { _ in
       self.playerVC.togglePlayback()
@@ -193,7 +193,7 @@ class SpliceViewController: UIViewController {
 //    playButton.setImageScale(to: 1.2)
     bottomStack.addArrangedSubview(playButton)
     
-    // export button
+    // preview button
     var previewConfig = UIButton.Configuration.filled()
     previewConfig.image = UIImage(systemName: "eye")
     previewConfig.title = "Preview"
@@ -337,7 +337,7 @@ class SpliceViewController: UIViewController {
   func showTouchDownTutorialsIfNeeded() {
     if !Tutorial.shared.tapAndHoldContinueDone {
       touchDownTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-        guard let expandingSegment = self.timelineVC.expandingSegment(), expandingSegment.width > 35 else {
+        guard let expandingSegment = self.timelineVC.expandingInterval(), expandingSegment.width > 35 else {
           self.showTouchDownTutorialsIfNeeded()
           return
         }
@@ -362,9 +362,9 @@ class SpliceViewController: UIViewController {
 //        self.showTouchDoneTutorialsIfNeeded()
 //      })
     } else if !Tutorial.shared.deleteSegmentDone,
-            let _ = self.timelineVC.firstSegment() {
+            let _ = self.timelineVC.firstInterval() {
       touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false, block: { _ in
-        if let segment = self.timelineVC.firstSegment(), segment.width > 35 {
+        if let segment = self.timelineVC.firstInterval(), segment.width > 35 {
           segment.displayTooltip("Tap to delete")
           Tutorial.shared.deleteSegmentDone = true
           self.showTouchDoneTutorialsIfNeeded()

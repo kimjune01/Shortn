@@ -31,8 +31,8 @@ protocol TimelineControl: AnyObject {
   func appearNeutral()
   func renderFreshAssets()
   func startExpandingSegment(startTime: TimeInterval)
-  func expandingSegment() -> UIView?
-  func firstSegment() -> UIView?
+  func expandingInterval() -> UIView?
+  func firstInterval() -> UIView?
   func stopExpandingSegment()
   func updateSegmentsForSplices()
 
