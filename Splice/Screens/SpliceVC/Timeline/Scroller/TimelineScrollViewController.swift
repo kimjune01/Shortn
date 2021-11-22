@@ -52,17 +52,17 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     thumbnailsVC.delegate = self
     addChild(thumbnailsVC)
     view.addSubview(thumbnailsVC.view)
-    thumbnailsVC.didMove(toParent: self)
     thumbnailsVC.view.pinBottomToParent()
     thumbnailsVC.view.fillWidthOfParent()
     thumbnailsVC.view.set(height: ThumbnailsViewController.defaultHeight)
+    thumbnailsVC.didMove(toParent: self)
   }
   
   func addIntervalsVC() {
     intervalsVC.delegate = self
     // !!
-    thumbnailsVC.scrollView.addSubview(intervalsVC.view)
     addChild(intervalsVC)
+    thumbnailsVC.scrollView.addSubview(intervalsVC.view)
     intervalsVC.didMove(toParent: self)
   }
   
@@ -162,10 +162,14 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
 }
 
 extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
+  func thumbnailsVCDieRefreshAThumbnail() {
+    intervalsVC.setFrame(CGRect(origin: .zero, size: thumbnailsVC.imageViewsContainer.size))
+  }
+  
   func thumbnailsVCWillRefreshThumbnails(contentSize: CGSize) {
     waveScrollView.contentInset = thumbnailsVC.scrollView.contentInset
 //    waveVC.addWaveform(width: thumbnailsVC.contentWidth)
-    intervalsVC.setFrame(CGRect(origin: .zero, size: thumbnailsVC.scrollView.contentSize))
+    intervalsVC.setFrame(CGRect(origin: .zero, size: contentSize))
   }
   
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
@@ -190,6 +194,10 @@ extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
 }
 
 extension TimelineScrollViewController: IntervalsViewControllerDelegate {
+  func timelineSize() -> CGSize {
+    return CGSize(width: thumbnailsVC.contentWidth, height: ThumbnailsViewController.defaultHeight)
+  }
+  
   func intervalsVCDidSelectSegment(at index: Int) {
     let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
     alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in

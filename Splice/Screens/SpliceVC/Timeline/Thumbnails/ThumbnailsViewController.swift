@@ -10,6 +10,7 @@ import AVFoundation
 
 protocol ThumbnailsViewControllerDelegate: AnyObject {
   func thumbnailsVCWillRefreshThumbnails(contentSize: CGSize)
+  func thumbnailsVCDieRefreshAThumbnail()
   func thumbnailsVCDidScroll(_ thumbnailsVC: ThumbnailsViewController, to time: TimeInterval)
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController)
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController)
@@ -70,6 +71,7 @@ class ThumbnailsViewController: UIViewController {
     scrollView.roundCorner(radius: 5, cornerCurve: .continuous)
     scrollView.contentInset = UIEdgeInsets(top: 0, left: estimatedWidth / 2,
                                            bottom: 0, right: estimatedWidth / 2)
+    
     scrollView.addSubview(imageViewsContainer)
   }
   
@@ -163,6 +165,7 @@ class ThumbnailsViewController: UIViewController {
         self.clipsThumbnails[clipIndex].append(thumb)
         DispatchQueue.main.async {
           self.fill(thumbnail: thumb, at: self.indexFrom(clipIndex: clipIndex, thumbIndex: thumbIndex))
+          self.delegate?.thumbnailsVCDieRefreshAThumbnail()
         }
       }
     }

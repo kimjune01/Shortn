@@ -9,6 +9,7 @@ import UIKit
 import QuartzCore
 
 protocol IntervalsViewControllerDelegate: AnyObject {
+  func timelineSize() -> CGSize
   func intervalsVCDidSelectSegment(at index: Int)
   func intervalsVCDidSwipeUpSegment(at index: Int)
 }
@@ -31,6 +32,7 @@ class IntervalsViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+//    view.backgroundColor = .systemPurple
     addExpandingInterval()
   }
   
@@ -40,6 +42,7 @@ class IntervalsViewController: UIViewController {
   
   override func didMove(toParent parent: UIViewController?) {
     super.didMove(toParent: parent)
+    view.frame = CGRect(origin: .zero, size: delegate!.timelineSize())
   }
   
   func setFrame(_ frame: CGRect) {
@@ -54,7 +57,7 @@ class IntervalsViewController: UIViewController {
   }
   
   func renderFreshAssets() {
-    
+    updateIntervalsForSplices()
   }
   
   func updateIntervalsForSplices() {
