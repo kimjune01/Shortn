@@ -10,8 +10,8 @@ import QuartzCore
 
 protocol IntervalsViewControllerDelegate: AnyObject {
   func timelineSize() -> CGSize
-  func intervalsVCDidSelectSegment(at index: Int)
-  func intervalsVCDidSwipeUpSegment(at index: Int)
+  func intervalsVCDidSelectInterval(at index: Int)
+  func intervalsVCDidSwipeUpInterval(at index: Int)
 }
 
 // Lives inside a scrollview, dynamically displays intervals
@@ -20,6 +20,7 @@ class IntervalsViewController: UIViewController {
   weak var delegate: IntervalsViewControllerDelegate?
   var intervals: [IntervalView] = []
   let expandingInterval = UIView()
+  var currentlySelectedIndex: Int? = nil
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -103,29 +104,36 @@ class IntervalsViewController: UIViewController {
   
   func deselectIntervals() {
     intervals.forEach{$0.isSelected = false}
+    currentlySelectedIndex = nil
+  }
+  
+  func setSelected(intervalIndex: Int?) {
+    guard intervalIndex != currentlySelectedIndex else { return }
+    currentlySelectedIndex = intervalIndex
+    for (idx, eachInterval) in intervals.enumerated() {
+      if idx == intervalIndex {
+        eachInterval.appearSelected()
+        eachInterval.isSelected = true
+      } else {
+        eachInterval.appearUnselected()
+        eachInterval.isSelected = false
+      }
+    }
   }
   
   @objc func tappedInterval(_ recognizer: UIGestureRecognizer) {
     guard let interval = recognizer.view as? IntervalView else { return }
     let maybeIndex = intervals.map{$0.minX}.sorted().firstIndex(of: interval.minX)
     guard let index = maybeIndex else { return }
-    if interval.isSelected {
-      delegate?.intervalsVCDidSelectSegment(at: index)
-      return
-    }
-    for otherSegments in intervals {
-      otherSegments.appearUnselected()
-      otherSegments.isSelected = false
-    }
-    interval.appearSelected()
-    interval.isSelected = true
+    setSelected(intervalIndex: index)
+    delegate?.intervalsVCDidSelectInterval(at: index)
   }
   
   @objc func swipedUpInterval(_ recognizer: UIGestureRecognizer) {
     guard let interval = recognizer.view as? IntervalView else { return }
     let maybeIndex = intervals.map{$0.minX}.sorted().firstIndex(of: interval.minX)
     guard let index = maybeIndex else { return }
-    delegate?.intervalsVCDidSwipeUpSegment(at: index)
+    delegate?.intervalsVCDidSwipeUpInterval(at: index)
 
   }
 }

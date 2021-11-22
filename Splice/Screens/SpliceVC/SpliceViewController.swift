@@ -438,9 +438,35 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
   func longPlayerVCDidFinishPlaying(_ playerVC: LongPlayerViewController) {
     finishSplicing()
   }
+  
+  func showPopover() {
+    
+  }
+  
+  func hidePopover() {
+    
+  }
+  
 }
 
 extension SpliceViewController: TimelineControlDelegate {
+  func scrubbingStateChanged(_ scrubbingState: ScrubbingState) {
+    switch scrubbingState {
+    case .scrubbing(let selectingIndex):
+      if let spliceIndex = selectingIndex,
+          let currentlySelected = timelineVC.currentlySelectedIndex {
+        if spliceIndex != currentlySelected {
+          showPopover()
+        }
+      } else {
+        hidePopover()
+      }
+    case .notScrubbing:
+      // nop.
+      break
+    }
+  }
+  
   func currentTimeForDisplay() -> TimeInterval {
     // currentPlaybackTime is not exact when looping over
     if playerVC.playerAtEnd() {

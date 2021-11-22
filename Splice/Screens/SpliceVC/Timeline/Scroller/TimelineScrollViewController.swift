@@ -12,9 +12,18 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
   static let defaultHeight: CGFloat = 80
   var delegate: TimelineControlDelegate?
   unowned var composition: SpliceComposition
-  var scrubbingState: ScrubbingState = .notScrubbing
+  var scrubbingState: ScrubbingState = .notScrubbing {
+    didSet {
+      if scrubbingState != oldValue {
+        delegate?.scrubbingStateChanged(scrubbingState)
+      }
+    }
+  }
   var thumbnailsVC: ThumbnailsViewController!
   var intervalsVC: IntervalsViewController!
+  var currentlySelectedIndex: Int? {
+    return intervalsVC.currentlySelectedIndex
+  }
   var waveScrollView = UIScrollView()
   var waveVC: AudioWaveViewController!
   var spliceState: SpliceState = .initial {
@@ -94,7 +103,9 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     composition.timeSubject
       .receive(on: DispatchQueue.main)
       .sink { timeInterval in
-        self.thumbnailsVC.scrollTime(to: timeInterval)
+        if self.scrubbingState == .notScrubbing {
+          self.thumbnailsVC.scrollTime(to: timeInterval)
+        }
       }.store(in: &self.subscriptions)
   }
   
@@ -160,6 +171,23 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     intervalsVC.updateIntervalsForSplices()
   }
   
+  func scrubbingIntervalIndex() -> Int? {
+    let timePosition = thumbnailsVC.currentTimePosition(thumbnailsVC.scrollView)
+    return composition.splices.firstIndex { splice in
+      return splice.lowerBound < timePosition && splice.upperBound > timePosition
+    }
+  }
+  
+  func showDeleteAlert(for index: Int) {
+    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
+      self.deleteInterval(at: index)
+    }))
+    alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+      
+    }))
+    present(alertController, animated: true, completion: nil)
+  }
 }
 
 extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
@@ -174,7 +202,7 @@ extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
   }
   
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
-    scrubbingState = .scrubbing
+    scrubbingState = .scrubbing(scrubbingIntervalIndex())
     delegate?.timelineVCWillBeginScrubbing()
     intervalsVC.deselectIntervals()
   }
@@ -188,6 +216,8 @@ extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
     // send scrub event only if user initiated.
     if thumbnailsVC.scrollView.isDragging {
       delegate?.scrubberScrubbed(to: time)
+      scrubbingState = .scrubbing(scrubbingIntervalIndex())
+      intervalsVC.setSelected(intervalIndex: scrubbingIntervalIndex())
     }
     waveScrollView.contentOffset = thumbnailsVC.scrollView.contentOffset
   }
@@ -199,18 +229,16 @@ extension TimelineScrollViewController: IntervalsViewControllerDelegate {
     return CGSize(width: thumbnailsVC.contentWidth, height: ThumbnailsViewController.defaultHeight)
   }
   
-  func intervalsVCDidSelectSegment(at index: Int) {
-    let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
-    alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in
-      self.deleteInterval(at: index)
-    }))
-    alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
-      
-    }))
-    present(alertController, animated: true, completion: nil)
+  func intervalsVCDidSelectInterval(at index: Int) {
+    // midpoint
+    let targetTime = (composition.splices[index].upperBound - composition.splices[index].lowerBound) / 2 + composition.splices[index].lowerBound
+    thumbnailsVC.scrollTime(to: targetTime, animated: true)
+    // simulate instant scrolling to the target time
+    delegate?.scrubberScrubbed(to: targetTime)
+    scrubbingState = .scrubbing(index)
   }
   
-  func intervalsVCDidSwipeUpSegment(at index: Int) {
+  func intervalsVCDidSwipeUpInterval(at index: Int) {
     deleteInterval(at: index)
   }
   

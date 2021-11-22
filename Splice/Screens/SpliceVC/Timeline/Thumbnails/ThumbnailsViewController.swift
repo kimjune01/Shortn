@@ -106,7 +106,8 @@ class ThumbnailsViewController: UIViewController {
     scrollView.contentSize = CGSize(width: currentX, height: ThumbnailsViewController.defaultHeight)
     imageViewsContainer.frame = CGRect(origin: .zero, size: scrollView.contentSize)
     scrollView.contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
-    scrollView.backgroundColor = .black.withAlphaComponent(0.5)
+    scrollView.backgroundColor = .black.withAlphaComponent(0.4)
+    // TODO: clip bounds should allow for glowing effect that spills over
     scrollView.alpha = 0
     UIView.animate(withDuration: 0.3) {
       self.scrollView.alpha = 1
@@ -202,9 +203,17 @@ class ThumbnailsViewController: UIViewController {
     return boundedTime / scrollView.contentSize.width * composition.totalDuration
   }
   
-  func scrollTime(to time: TimeInterval) {
+  func scrollTime(to time: TimeInterval, animated: Bool = false, showPopover: Bool = false) {
     let offsetToScrollTo = time / composition.totalDuration * scrollView.contentSize.width -  scrollView.contentInset.left
-    scrollView.setContentOffset(CGPoint(x: offsetToScrollTo, y: 0), animated: false)
+    // only scroll if different than before
+    if abs(scrollView.contentOffset.x - offsetToScrollTo.rounded()) >= 1 {
+      scrollView.setContentOffset(CGPoint(x: offsetToScrollTo, y: 0), animated: animated)
+      if animated {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+          self.delegate?.thumbnailsVCDidEndDragging(self)
+        }
+      }
+    }
   }
 }
 
