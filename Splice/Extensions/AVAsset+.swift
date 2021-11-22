@@ -9,6 +9,7 @@ import AVFoundation
 import UIKit
 
 fileprivate var cache = [URL:AVAsset]()
+typealias ThumbnailProgress = (Thumbnail?, Int) -> ()
 
 extension AVAsset {
   static func cacheAsset(for url: URL) -> AVAsset {
@@ -28,7 +29,17 @@ extension AVAsset {
     
   }
   
-  func makeThumbnails(every nSeconds: TimeInterval, size: CGSize) -> [Thumbnail] {
+  func widthPortionOfInterval(startTime: TimeInterval, intervalSize: TimeInterval) -> CGFloat {
+    return min(intervalSize, duration.seconds - startTime) / intervalSize
+  }
+  
+  func makePortionsArray(nSeconds: TimeInterval) -> [CGFloat] {
+    return stride(from: 0, to: duration.seconds, by: nSeconds).map { seconds in
+      return widthPortionOfInterval(startTime: seconds, intervalSize: nSeconds)
+    }
+  }
+  
+  func makeThumbnails(every nSeconds: TimeInterval, size: CGSize, _ progress: @escaping ThumbnailProgress) {
     let composition = AVVideoComposition(propertiesOf: self)
     let generator = AVAssetImageGenerator(asset: self)
     generator.apertureMode = .cleanAperture
@@ -38,28 +49,32 @@ extension AVAsset {
     generator.requestedTimeToleranceBefore = .init(seconds: 0.1, preferredTimescale: 600)
     generator.requestedTimeToleranceAfter = .init(seconds: 0.1, preferredTimescale: 600)
 
-    // from async handbook https://khanlou.com/2016/04/the-GCD-handbook/
-    let group = DispatchGroup()
+    let portions = makePortionsArray(nSeconds: nSeconds)
+
     let times: [CMTime] = stride(from: 0, to: duration.seconds, by: nSeconds).map { seconds in
-      group.enter()
       // sample the middle of where the thumbnail would point to instead of its beginning
       let sample = min(seconds + nSeconds / 2, duration.seconds)
       return CMTime(seconds: sample, preferredTimescale: composition.frameDuration.timescale)
     }
-    
-    var thumbnails: [Thumbnail] = []
-    
-    generator.generateCGImagesAsynchronously(forTimes: times.map{NSValue(time: $0)}) { [weak self]
-      requestedTime, cgImage, actualTime, result, error in
-      defer { group.leave() }
-      guard let self = self, let cgImage = cgImage else {return}
-      let image = UIImage(cgImage: cgImage)
-      let portion = min(nSeconds, self.duration.seconds - requestedTime.seconds) / nSeconds
-      thumbnails.append(Thumbnail(image, widthPortion: portion))
+
+    // undo offset by sampling the middle
+    func indexFor(requestedTime: TimeInterval) -> Int {
+      return Int(((requestedTime - nSeconds / 2) / nSeconds).rounded(.towardZero))
     }
+
+    var counter = 0
     
-    group.wait()
-    
-    return thumbnails
+    generator.generateCGImagesAsynchronously(forTimes: times.map{NSValue(time: $0)}) {
+      requestedTime, cgImage, actualTime, result, error in
+      defer { counter += 1 }
+      guard let cgImage = cgImage else {
+        progress(nil, counter)
+        return
+      }
+      let image = UIImage(cgImage: cgImage)
+      let portion = portions[indexFor(requestedTime: requestedTime.seconds)]
+      let thumb = Thumbnail(image, widthPortion: portion)
+      progress(thumb, counter)
+    }
   }
 }

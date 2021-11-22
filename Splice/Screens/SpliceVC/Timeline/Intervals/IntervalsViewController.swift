@@ -90,10 +90,7 @@ class IntervalsViewController: UIViewController {
       self.expandingInterval.frame = CGRect(x: expandingIntervalMinX, y: 0,
                                             width: self.view.width - expandingIntervalMinX,
                                             height: self.view.height)
-    } completion: { completed in
-      print("animation complete? ", completed)
     }
-
   }
   
   func stopExpandingInterval() {

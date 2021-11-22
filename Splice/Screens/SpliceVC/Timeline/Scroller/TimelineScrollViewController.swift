@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class TimelineScroller: UIViewController, TimelineControl {
+class TimelineScrollViewController: UIViewController, TimelineControl {
   static let defaultHeight: CGFloat = 80
   var delegate: TimelineControlDelegate?
   unowned var composition: SpliceComposition
@@ -74,7 +74,8 @@ class TimelineScroller: UIViewController, TimelineControl {
     waveVC = AudioWaveViewController(composition: composition)
     waveScrollView.addSubview(waveVC.view)
     waveScrollView.isUserInteractionEnabled = false
-
+    waveScrollView.showsHorizontalScrollIndicator = false
+    waveVC.addWaveform(width: thumbnailsVC.contentWidth)
   }
   
   func addSeekerBar() {
@@ -106,10 +107,7 @@ class TimelineScroller: UIViewController, TimelineControl {
   
   @objc func displayStep(_ displaylink: CADisplayLink) {
     switch spliceState {
-    case .including:
-      let actualFramesPerSecond = 1 / (displaylink.targetTimestamp - displaylink.timestamp)
-//      currentFps = actualFramesPerSecond.rounded()
-//      intervalsVC.expand(from:  rate: advanceRate)
+    case .including: break
     default: break
     }
     if scrubbingState == .notScrubbing {
@@ -131,16 +129,8 @@ class TimelineScroller: UIViewController, TimelineControl {
     thumbnailsVC.renderFreshAssets()
     intervalsVC.composition = composition
     intervalsVC.renderFreshAssets()
-//    scrubber.maximumValue = Float(composition.totalDuration)
-//    scrubber.setNeedsLayout()
-//    scrubber.layoutIfNeeded()
-//
-//    segmentsVC.composition = composition
-//    segmentsVC.renderFreshAssets()
-//
-//    waveVC.composition = composition
-//    waveVC.renderFreshAssets()
-
+    waveVC.composition = composition
+    waveVC.addWaveform(width: thumbnailsVC.contentWidth)
   }
   
   func startExpandingSegment(startTime: TimeInterval) {
@@ -171,11 +161,11 @@ class TimelineScroller: UIViewController, TimelineControl {
   
 }
 
-extension TimelineScroller: ThumbnailsViewControllerDelegate {
-  func thumbnailsVCDidRefreshThumbnails(contentSize: CGSize) {
-    intervalsVC.setFrame(CGRect(origin: .zero, size: contentSize))
+extension TimelineScrollViewController: ThumbnailsViewControllerDelegate {
+  func thumbnailsVCWillRefreshThumbnails(contentSize: CGSize) {
     waveScrollView.contentInset = thumbnailsVC.scrollView.contentInset
-    waveVC.addWaveform(width: contentSize.width)
+//    waveVC.addWaveform(width: thumbnailsVC.contentWidth)
+    intervalsVC.setFrame(CGRect(origin: .zero, size: thumbnailsVC.scrollView.contentSize))
   }
   
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController) {
@@ -199,7 +189,7 @@ extension TimelineScroller: ThumbnailsViewControllerDelegate {
   
 }
 
-extension TimelineScroller: IntervalsViewControllerDelegate {
+extension TimelineScrollViewController: IntervalsViewControllerDelegate {
   func intervalsVCDidSelectSegment(at index: Int) {
     let alertController = UIAlertController(title: "Remove Splice?", message: "Don't worry, you can just add it again. To remove splices faster, swipe up on the segment.", preferredStyle: .alert)
     alertController.addAction(UIAlertAction(title: "Remove", style: .destructive, handler: { _ in

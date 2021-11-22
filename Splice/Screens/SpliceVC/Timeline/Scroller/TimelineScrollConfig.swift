@@ -14,4 +14,8 @@ struct TimelineScrollConfig {
   static func clipWidthPortion(duration: TimeInterval) -> CGFloat {
     return CGFloat(duration / secondsPerSpan)
   }
+  
+  static func sampleInterval(thumbnailsPerSpan: CGFloat) -> TimeInterval{
+    return TimelineScrollConfig.secondsPerSpan / thumbnailsPerSpan
+  }
 }

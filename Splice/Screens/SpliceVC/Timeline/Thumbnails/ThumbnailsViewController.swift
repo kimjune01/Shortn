@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 
 protocol ThumbnailsViewControllerDelegate: AnyObject {
-  func thumbnailsVCDidRefreshThumbnails(contentSize: CGSize)
+  func thumbnailsVCWillRefreshThumbnails(contentSize: CGSize)
   func thumbnailsVCDidScroll(_ thumbnailsVC: ThumbnailsViewController, to time: TimeInterval)
   func thumbnailsVCWillBeginDragging(_ thumbnailsVC: ThumbnailsViewController)
   func thumbnailsVCDidEndDragging(_ thumbnailsVC: ThumbnailsViewController)
@@ -34,6 +34,9 @@ class ThumbnailsViewController: UIViewController {
     return estimatedWindowWidth - UIView.defaultEdgeMargin * 2
   }
   var totalScrollableWidth: CGFloat = 0
+  var contentWidth: CGFloat {
+    return scrollView.contentSize.width
+  }
   init(composition: SpliceComposition) {
     self.composition = composition
     super.init(nibName: nil, bundle: nil)
@@ -46,6 +49,7 @@ class ThumbnailsViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     addScrollView()
+    placeholdImageViews()
     generateThumbnails()
   }
   
@@ -69,32 +73,39 @@ class ThumbnailsViewController: UIViewController {
     scrollView.addSubview(imageViewsContainer)
   }
   
-  func refreshImageViews() {
+  func placeholdImageViews() {
     for case let eachImageView as UIImageView in imageViewsContainer.subviews {
       eachImageView.removeFromSuperview()
     }
     var currentX: CGFloat = 0
-    for thumbnails in clipsThumbnails {
-      for thumb in thumbnails {
-        let width = ThumbnailCell.defaultWidth * thumb.widthPortion
+    var tagCounter = 0
+    for asset in composition.assets {
+      let sampleInterval = TimelineScrollConfig.sampleInterval(thumbnailsPerSpan: thumbnailsPerSpan())
+      let portions = asset.makePortionsArray(nSeconds: sampleInterval)
+      for portion in portions {
+        let width = ThumbnailCell.defaultWidth * portion
         let imageView = UIImageView(frame: CGRect(x: currentX, y: 0,
                                                   width: width,
                                                   height: ThumbnailsViewController.defaultHeight))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.image = thumb.image
+        imageView.image = nil
+        imageView.tag = tagCounter
+        imageView.isHidden = true
         imageViewsContainer.addSubview(imageView)
         currentX += width
+        tagCounter += 1
       }
     }
     totalScrollableWidth = currentX
     scrollView.contentSize = CGSize(width: currentX, height: ThumbnailsViewController.defaultHeight)
     imageViewsContainer.frame = CGRect(origin: .zero, size: scrollView.contentSize)
     scrollView.contentOffset = CGPoint(x: -scrollView.contentInset.left, y: 0)
+    scrollView.backgroundColor = .black.withAlphaComponent(0.5)
+    scrollView.alpha = 0
     UIView.animate(withDuration: 0.3) {
       self.scrollView.alpha = 1
     }
-    delegate?.thumbnailsVCDidRefreshThumbnails(contentSize: scrollView.contentSize)
   }
   
   func pixelPosition(in scrollView: UIScrollView) -> CGFloat {
@@ -114,26 +125,55 @@ class ThumbnailsViewController: UIViewController {
     return estimatedWidth / ThumbnailCell.defaultWidth
   }
   
-  func generateThumbnails() {
-    func makeThumbnails(for asset: AVAsset) -> [Thumbnail] {
-      let sampleInterval = TimelineScrollConfig.secondsPerSpan / thumbnailsPerSpan()
-      return asset.makeThumbnails(every:sampleInterval, size: defaultThumbnailSize)
+  func indexFrom(clipIndex: Int, thumbIndex: Int) -> Int {
+    var counter = 0
+    for i in 0..<clipIndex {
+      counter += numberOfCells(for: composition.assets[i])
     }
-    scrollView.alpha = 0
-    DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-      guard let self = self else { return }
-      self.clipsThumbnails = self.composition.assets.map{makeThumbnails(for:$0)}
-      DispatchQueue.main.async {
-        self.refreshImageViews()
+    return counter + thumbIndex
+  }
+  
+  func fill(thumbnail: Thumbnail, at index: Int) {
+    for case let eachImageView as UIImageView in imageViewsContainer.subviews {
+      if eachImageView.tag == index {
+        eachImageView.image = thumbnail.image
+        eachImageView.transform = CGAffineTransform(scaleX: 0.8, y: 1).translatedBy(x: -6, y: 0)
+        UIView.animate(withDuration: 0.3) {
+          eachImageView.isHidden = false
+          eachImageView.transform = .identity
+        }
+      }
+    }
+  }
+  
+  // There's a race condition in here somewhere...
+  func generateThumbnails() {
+    delegate?.thumbnailsVCWillRefreshThumbnails(contentSize: scrollView.contentSize)
+    func makeThumbnails(for asset: AVAsset, _ progress: @escaping ThumbnailProgress) {
+      let sampleInterval = TimelineScrollConfig.sampleInterval(thumbnailsPerSpan: thumbnailsPerSpan())
+      DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        guard let self = self else { return }
+        asset.makeThumbnails(every:sampleInterval, size: self.defaultThumbnailSize, progress)
+      }
+    }
+    clipsThumbnails = Array<[Thumbnail]>(repeating: [], count: composition.assets.count)
+    for (clipIndex, asset) in composition.assets.enumerated() {
+      makeThumbnails(for: asset){ thumb, thumbIndex in
+        guard let thumb = thumb else { return }
+        self.clipsThumbnails[clipIndex].append(thumb)
+        DispatchQueue.main.async {
+          self.fill(thumbnail: thumb, at: self.indexFrom(clipIndex: clipIndex, thumbIndex: thumbIndex))
+        }
       }
     }
   }
   
   func renderFreshAssets() {
+    placeholdImageViews()
     generateThumbnails()
   }
   
-  func calculateContentWidth() -> CGFloat {
+  func estimatedContentWidth() -> CGFloat {
     // seconds / (seconds / span) * (pixels/span)
     return CGFloat(composition.totalDuration) / TimelineScrollConfig.secondsPerSpan * estimatedWidth
   }

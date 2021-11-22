@@ -9,7 +9,7 @@ import UIKit
 
 class Thumbnail: NSObject {
   let uuid = UUID()
-  let image: UIImage
+  let image: UIImage?
   let widthPortion: CGFloat // from 0 to 1, indicating the width
   
   init(_ img: UIImage, widthPortion: CGFloat) {
