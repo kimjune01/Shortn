@@ -254,6 +254,10 @@ extension TimelineScrollViewController: IntervalsViewControllerDelegate {
     intervalsVC.updateIntervalsForSplices()
     delegate?.timelineVCDidDeleteSegment()
   }
-  
-  
+
+  func intervalsVCDidModifyInterval(at index: Int, newSplice: Splice) {
+    composition.replaceSplice(at: index, with: newSplice)
+    intervalsVC.updateIntervalsForSplices()
+    intervalsVC.setSelected(intervalIndex: scrubbingIntervalIndex())
+  }
 }

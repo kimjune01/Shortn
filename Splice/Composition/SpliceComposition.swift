@@ -245,6 +245,12 @@ class SpliceComposition {
     splices.remove(at: index)
   }
   
+  func replaceSplice(at index: Int, with newSplice: Splice) {
+    guard index < splices.count else { return }
+    splices[index] = newSplice
+    merge(intervals: &splices)
+  }
+  
   func cutToTheBeatIfNeeded() {
     guard let bpm = bpm else { return }
     let unitTime: TimeInterval = 60.0 / Double(bpm)

@@ -230,9 +230,9 @@ class SpliceViewController: UIViewController {
     spliceButton.centerXInParent()
     spliceButton.centerYInParent()
     
-    spliceButton.addTarget(self, action: #selector(touchedDownSliceButton), for: .touchDown)
-    spliceButton.addTarget(self, action: #selector(touchDoneSliceButton), for: .touchUpInside)
-    spliceButton.addTarget(self, action: #selector(touchDoneSliceButton), for: .touchDragExit)
+    spliceButton.addTarget(self, action: #selector(touchedDownSpliceButton), for: .touchDown)
+    spliceButton.addTarget(self, action: #selector(touchDoneSpliceButton), for: .touchUpInside)
+    spliceButton.addTarget(self, action: #selector(touchDoneSpliceButton), for: .touchDragExit)
     
   }
   
@@ -329,7 +329,7 @@ class SpliceViewController: UIViewController {
     spliceState = .neutral
   }
   
-  @objc func touchedDownSliceButton() {
+  @objc func touchedDownSpliceButton() {
     setSpliceMode()
     if !playerVC.isPlaying {
       playerVC.play()
@@ -353,7 +353,7 @@ class SpliceViewController: UIViewController {
     spliceStartTime = playerVC.currentPlaybackTime()
   }
   
-  @objc func touchDoneSliceButton() {
+  @objc func touchDoneSpliceButton() {
     if spliceMode == .pauseSplice {
       playerVC.pause()
     }

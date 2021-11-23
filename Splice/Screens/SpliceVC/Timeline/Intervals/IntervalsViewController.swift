@@ -12,6 +12,7 @@ protocol IntervalsViewControllerDelegate: AnyObject {
   func timelineSize() -> CGSize
   func intervalsVCDidSelectInterval(at index: Int)
   func intervalsVCDidSwipeUpInterval(at index: Int)
+  func intervalsVCDidModifyInterval(at index: Int, newSplice: Splice)
 }
 
 // Lives inside a scrollview, dynamically displays intervals
@@ -21,6 +22,9 @@ class IntervalsViewController: UIViewController {
   var intervals: [IntervalView] = []
   let expandingInterval = UIView()
   var currentlySelectedIndex: Int? = nil
+  var pixelsPerSecond: CGFloat {
+    return view.width / composition.totalDuration
+  }
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -68,13 +72,14 @@ class IntervalsViewController: UIViewController {
     intervals = []
     let totalDuration = composition.totalDuration
     composition.splices.forEach { splice in
-      let minX = splice.lowerBound * view.width / totalDuration
-      let maxX = splice.upperBound * view.width / totalDuration
+      let minX = splice.lowerBound * self.pixelsPerSecond
+      let maxX = splice.upperBound * self.pixelsPerSecond
       let intervalView = IntervalView(frame: CGRect(x: minX.rounded(.down),
                                                   y: 0,
                                                   width: (maxX - minX).rounded(.up),
                                                   height: view.height))
-      intervalView.addColor()
+      intervalView.assignedSplice = splice
+      intervalView.delegate = self
       intervalView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedInterval)))
       let swipeUpRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(swipedUpInterval))
       swipeUpRecognizer.direction = .up
@@ -85,7 +90,7 @@ class IntervalsViewController: UIViewController {
   }
   
   func startExpandingInterval(startTime: TimeInterval) {
-    let expandingIntervalMinX =  startTime * view.width / composition.totalDuration
+    let expandingIntervalMinX =  startTime * pixelsPerSecond
     expandingInterval.frame = CGRect(x: expandingIntervalMinX, y: 0, width: 0, height: view.height)
     
     UIView.animate(withDuration: composition.totalDuration - startTime,
@@ -135,5 +140,25 @@ class IntervalsViewController: UIViewController {
     guard let index = maybeIndex else { return }
     delegate?.intervalsVCDidSwipeUpInterval(at: index)
 
+  }
+}
+
+extension IntervalsViewController: IntervalViewDelegate {
+  func didFinishPanningLeftHandle(_ intervalView: IntervalView, leftPan: CGFloat) {
+    let leftTimeDiff = leftPan / pixelsPerSecond
+    if let oldSplice = intervalView.assignedSplice,
+    let index = currentlySelectedIndex {
+      let newSplice = (oldSplice.lowerBound + leftTimeDiff)...oldSplice.upperBound
+      delegate?.intervalsVCDidModifyInterval(at: index, newSplice: newSplice)
+    }
+  }
+  func didFinishPanningRightHandle(_ intervalView: IntervalView, rightPan: CGFloat) {
+    let rightTimeDiff = rightPan / pixelsPerSecond
+    print("rightTimeDiff: ", rightTimeDiff)
+    if let oldSplice = intervalView.assignedSplice,
+        let index = currentlySelectedIndex {
+      let newSplice = oldSplice.lowerBound...(oldSplice.upperBound + rightTimeDiff)
+      delegate?.intervalsVCDidModifyInterval(at: index, newSplice: newSplice)
+    }
   }
 }
