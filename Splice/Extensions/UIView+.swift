@@ -359,4 +359,14 @@ extension UIView {
     glowAnimation.isRemovedOnCompletion = true
     layer.add(glowAnimation, forKey: "shadowGlowingAnimation")
   }
+  
+  func roundClipLeftCorners(_ radius: CGFloat) {
+    layer.cornerRadius = radius
+    layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+  }
+  
+  func roundClipRightCorners(_ radius: CGFloat) {
+    layer.cornerRadius = radius
+    layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+  }
 }

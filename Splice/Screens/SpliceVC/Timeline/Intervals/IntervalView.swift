@@ -21,20 +21,104 @@ class IntervalView: UIView {
   static let normalColor: UIColor = baseColor.withAlphaComponent(0.4)
   static let expandingColor: UIColor = .systemRed.withAlphaComponent(0.6)
   static let selectedColor: UIColor = baseColor.withAlphaComponent(0.7)
+  
+  let handleWidth: CGFloat = 10
 
+  var leftHandle = UIView()
+  var rightHandle = UIView()
+  
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    makeHandles()
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  func makeHandles() {
+    let boldConfig = UIImage.SymbolConfiguration(weight: .heavy)
+    leftHandle.frame = CGRect(x: -handleWidth,
+                              y: 0,
+                              width: handleWidth,
+                              height: bounds.height)
+    leftHandle.backgroundColor = .systemYellow
+    leftHandle.isHidden = true
+    leftHandle.roundClipLeftCorners(handleWidth)
+
+    let leftArrow = UIImageView(frame: CGRect(x: 0, y: 0,
+                                              width: leftHandle.width, height: leftHandle.width))
+    leftArrow.image = UIImage(systemName: "chevron.left", withConfiguration: boldConfig)
+    leftArrow.center = CGPoint(x: leftHandle.width / 2, y: leftHandle.height / 2)
+    leftArrow.tintColor = IntervalView.baseColor
+    leftHandle.addSubview(leftArrow)
+    addSubview(leftHandle)
+
+    let leftPan = UIPanGestureRecognizer(target: self, action: #selector(didPanLeftHandle))
+    leftHandle.addGestureRecognizer(leftPan)
+    
+    //
+
+    rightHandle.frame = CGRect(x: bounds.maxX,
+                               y: 0,
+                               width: handleWidth,
+                               height: bounds.height)
+    rightHandle.backgroundColor = .systemYellow
+    rightHandle.isHidden = true
+    rightHandle.roundClipRightCorners(handleWidth)
+
+    let rightArrow = UIImageView(frame: CGRect(x: 0, y: 0,
+                                               width: rightHandle.width, height: rightHandle.width))
+    rightArrow.image = UIImage(systemName: "chevron.right", withConfiguration: boldConfig)
+    rightArrow.center = CGPoint(x: rightHandle.width / 2, y: rightHandle.height / 2)
+    rightArrow.tintColor = IntervalView.baseColor
+    rightHandle.addSubview(rightArrow)
+    addSubview(rightHandle)
+
+    let rightPan = UIPanGestureRecognizer(target: self, action: #selector(didPanRightHandle))
+    rightHandle.addGestureRecognizer(rightPan)
+  }
+  
+  @objc func didPanLeftHandle(_ panRecognizer: UIPanGestureRecognizer) {
+    
+  }
+  
+  @objc func didPanRightHandle(_ panRecognizer: UIPanGestureRecognizer) {
+    
+  }
+  
   func appearSelected() {
-    animateSwellHorizontal()
+//    animateSwellHorizontal()
     backgroundColor = IntervalView.selectedColor
     doGlowAnimation(withColor: .white, withEffect: .normal)
+    showHandles()
   }
 
   func appearUnselected() {
     layer.removeAllAnimations()
     backgroundColor = IntervalView.normalColor
+    hideHandles()
   }
   
   func addColor() {
     backgroundColor = IntervalView.normalColor
     roundCorner(radius: 3, cornerCurve: .continuous)
+  }
+  
+  func showHandles() {
+    leftHandle.isHidden = false
+    rightHandle.isHidden = false
+    
+    leftHandle.transform = .identity.translatedBy(x: handleWidth / 2, y: 0).scaledBy(x: 0.1, y: 1)
+    rightHandle.transform = .identity.translatedBy(x: -handleWidth / 2, y: 0).scaledBy(x: 0.1, y: 1)
+    UIView.animate(withDuration: 0.2) {
+      self.leftHandle.transform = .identity
+      self.rightHandle.transform = .identity
+    }
+  }
+  
+  func hideHandles() {
+    leftHandle.isHidden = true
+    rightHandle.isHidden = true
   }
 }
