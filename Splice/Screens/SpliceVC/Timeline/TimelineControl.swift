@@ -32,6 +32,7 @@ protocol TimelineControl: AnyObject {
 
   func appearIncluding()
   func appearNeutral()
+  func appearLooping(at index: Int)
   func renderFreshAssets()
   func startExpandingSegment(startTime: TimeInterval)
   func expandingInterval() -> UIView?

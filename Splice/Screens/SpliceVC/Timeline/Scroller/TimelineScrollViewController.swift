@@ -136,6 +136,10 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     seekerBar.alpha = 0.8
   }
   
+  func appearLooping(at index: Int) {
+    // TODO
+  }
+  
   func renderFreshAssets() {
     thumbnailsVC.renderFreshAssets()
     intervalsVC.composition = composition

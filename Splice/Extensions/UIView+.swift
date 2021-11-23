@@ -350,8 +350,9 @@ extension UIView {
     let glowAnimation = CABasicAnimation(keyPath: "shadowRadius")
     glowAnimation.fromValue = 0
     glowAnimation.toValue = effect.rawValue
-    glowAnimation.beginTime = CACurrentMediaTime()+0.1
+    glowAnimation.beginTime = CACurrentMediaTime()
     glowAnimation.duration = CFTimeInterval(0.6)
+    glowAnimation.timingFunction = CAMediaTimingFunction(name: .easeIn)
     glowAnimation.fillMode = .removed
     glowAnimation.autoreverses = true
     glowAnimation.repeatCount = 1000

@@ -16,8 +16,9 @@ enum SpliceMode {
 
 enum SpliceState {
   case initial
-  case including(TimeInterval)
+  case including(TimeInterval) // start time
   case neutral
+  case looping(Int) // looping splice index
 }
 
 protocol SpliceViewControllerDelegate: AnyObject {
@@ -249,6 +250,7 @@ class SpliceViewController: UIViewController {
   
   func makePopoverVC() {
     popoverMenuVC = PopoverMenuViewController()
+    popoverMenuVC.delegate = self
     popoverMenuVC.preferredContentSize = PopoverMenuViewController.preferredSize
     popoverMenuVC.modalPresentationStyle = .popover
     if let presentation = popoverMenuVC.presentationController {
@@ -264,6 +266,18 @@ class SpliceViewController: UIViewController {
         let upper = max(0, max(self.spliceStartTime, timeInterval))
         let cumulative = self.composition.cumulativeDuration(currentRange: lower...upper)
         self.updateTimerLabel(cumulative)
+      case .looping(let spliceIndex):
+        guard spliceIndex < self.composition.splices.count else { return }
+        let splice = self.composition.splices[spliceIndex]
+        // TODO:
+        let lower = splice.lowerBound
+        let upper = splice.upperBound
+        if timeInterval >= upper {
+          // reached the end of looping segment. Seek to lower bound
+          self.playerVC.seek(to: lower)
+        }
+        
+        break
       default: break
       }
     }.store(in: &self.subscriptions)
@@ -292,6 +306,9 @@ class SpliceViewController: UIViewController {
       }
       playButton.isEnabled = timelineVC.scrubbingState == .notScrubbing
       previewButton.isEnabled = composition.splices.count > 0
+    case .looping(let spliceIndex):
+      playerVC.view.isUserInteractionEnabled = true
+      timelineVC.appearLooping(at: spliceIndex)
     }
     self.updateTimerLabel(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
@@ -404,7 +421,7 @@ class SpliceViewController: UIViewController {
       }
       composition.append(beginTime...endTime)
       spliceState = .neutral
-    case .neutral:
+    case .neutral, .looping:
       updateAppearance()
       return
     }
@@ -466,6 +483,19 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
     popoverMenuVC.dismiss(animated: true)
   }
   
+  func startLooping(at index: Int) {
+    playerVC.seek(to: composition.splices[index].lowerBound)
+    playerVC.play()
+  }
+  
+  func stopLoopingIfNeeded() {
+    switch spliceState {
+    case .looping:
+      spliceState = .neutral
+      playerVC.pause()
+    default: break
+    }
+  }
 }
 
 extension SpliceViewController: TimelineControlDelegate {
@@ -528,8 +558,30 @@ extension SpliceViewController: Spinnable {
   }
 }
 
-extension SpliceViewController: UIPopoverPresentationControllerDelegate {
+extension SpliceViewController: UIPopoverPresentationControllerDelegate, PopoverMenuViewControllerDelegate {
   func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
     return .none
   }
+  
+  func popoverVCDidTapLoopButton(_ popoverVC: PopoverMenuViewController) {
+    guard let selected = timelineVC.currentlySelectedIndex,
+          selected < composition.splices.count else { return }
+    popoverVC.highlightLoopButton()
+    spliceState = .looping(selected)
+    startLooping(at: selected)
+  }
+  
+  func popoverVCDidTapTrashButton(_ popoverVC: PopoverMenuViewController) {
+    guard let currentIndex = timelineVC.currentlySelectedIndex else { return }
+    composition.removeSplice(at: currentIndex)
+    timelineVC.updateSegmentsForSplices()
+    updateAppearance()
+    popoverVC.dismiss(animated: true)
+    stopLoopingIfNeeded()
+  }
+  
+  func popoverVCDidDisappear(_ popoverVC: PopoverMenuViewController) {
+    stopLoopingIfNeeded()
+  }
+  
 }
