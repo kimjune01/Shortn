@@ -235,7 +235,10 @@ extension TimelineScrollViewController: IntervalsViewControllerDelegate {
     thumbnailsVC.scrollTime(to: targetTime, animated: true)
     // simulate instant scrolling to the target time
     delegate?.scrubberScrubbed(to: targetTime)
-    scrubbingState = .scrubbing(index)
+
+    // TODO: find out if needed
+    //    scrubbingState = .scrubbing(index)
+    delegate?.timelineVCDidTapSelectInterval(at: index)
   }
   
   func intervalsVCDidSwipeUpInterval(at index: Int) {

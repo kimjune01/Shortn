@@ -20,6 +20,7 @@ protocol TimelineControlDelegate: AnyObject {
   func timelineVCWillBeginScrubbing()
   func timelineVCDidFinishScrubbing()
   func timelineVCDidDeleteSegment()
+  func timelineVCDidTapSelectInterval(at index: Int)
 }
 
 protocol TimelineControl: AnyObject {

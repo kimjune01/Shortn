@@ -108,14 +108,11 @@ class IntervalsViewController: UIViewController {
   }
   
   func setSelected(intervalIndex: Int?) {
-    guard intervalIndex != currentlySelectedIndex else { return }
     currentlySelectedIndex = intervalIndex
     for (idx, eachInterval) in intervals.enumerated() {
       if idx == intervalIndex {
-        eachInterval.appearSelected()
         eachInterval.isSelected = true
       } else {
-        eachInterval.appearUnselected()
         eachInterval.isSelected = false
       }
     }
@@ -125,8 +122,11 @@ class IntervalsViewController: UIViewController {
     guard let interval = recognizer.view as? IntervalView else { return }
     let maybeIndex = intervals.map{$0.minX}.sorted().firstIndex(of: interval.minX)
     guard let index = maybeIndex else { return }
-    setSelected(intervalIndex: index)
+    
+    // cannot deselect
+    // order matters
     delegate?.intervalsVCDidSelectInterval(at: index)
+    setSelected(intervalIndex: index)
   }
   
   @objc func swipedUpInterval(_ recognizer: UIGestureRecognizer) {

@@ -40,6 +40,7 @@ class SpliceViewController: UIViewController {
   let timelineVC: TimelineControl
   let timerLabel = UILabel()
   var bpmBadgeVC: BpmBadgeViewController!
+  var popoverMenuVC: PopoverMenuViewController!
 
   var spliceMode: SpliceMode = .pauseSplice
   var spliceStartTime: TimeInterval = 0
@@ -82,6 +83,7 @@ class SpliceViewController: UIViewController {
     addBottomStackView()
     addSpliceButton()
     addTimelineVC()
+    makePopoverVC()
     observeTimeSubject()
   }
   
@@ -244,6 +246,15 @@ class SpliceViewController: UIViewController {
       vc.didMove(toParent: self)
     }
   }
+  
+  func makePopoverVC() {
+    popoverMenuVC = PopoverMenuViewController()
+    popoverMenuVC.preferredContentSize = PopoverMenuViewController.preferredSize
+    popoverMenuVC.modalPresentationStyle = .popover
+    if let presentation = popoverMenuVC.presentationController {
+      presentation.delegate = self
+    }
+  }
       
   func observeTimeSubject() {
     composition.timeSubject.receive(on: DispatchQueue.main).sink { timeInterval in
@@ -356,11 +367,11 @@ class SpliceViewController: UIViewController {
   
   func showTouchDoneTutorialsIfNeeded() {
     if !Tutorial.shared.scrubTimelineDone {
-//      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-//        self.timelineVC.scrubber.displayTooltip("Move the slider to skip")
-//        Tutorial.shared.scrubTimelineDone = true
-//        self.showTouchDoneTutorialsIfNeeded()
-//      })
+      touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+        self.timelineVC.view.displayTooltip("Move the slider to skip")
+        Tutorial.shared.scrubTimelineDone = true
+        self.showTouchDoneTutorialsIfNeeded()
+      })
     } else if !Tutorial.shared.deleteSegmentDone,
             let _ = self.timelineVC.firstInterval() {
       touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false, block: { _ in
@@ -440,11 +451,19 @@ extension SpliceViewController: LongPlayerViewControllerDelegate {
   }
   
   func showPopover() {
-    
+    guard popoverMenuVC.parent == nil else { return }
+    if let popover = popoverMenuVC.popoverPresentationController {
+      popover.delegate = self
+      popover.sourceView = timelineVC.view
+      popover.sourceRect = timelineVC.view.bounds
+      popover.permittedArrowDirections = .down
+    }
+    guard popoverMenuVC.isPresentable else { return }
+    present(popoverMenuVC, animated: true)
   }
   
   func hidePopover() {
-    
+    popoverMenuVC.dismiss(animated: true)
   }
   
 }
@@ -453,9 +472,8 @@ extension SpliceViewController: TimelineControlDelegate {
   func scrubbingStateChanged(_ scrubbingState: ScrubbingState) {
     switch scrubbingState {
     case .scrubbing(let selectingIndex):
-      if let spliceIndex = selectingIndex,
-          let currentlySelected = timelineVC.currentlySelectedIndex {
-        if spliceIndex != currentlySelected {
+      if let spliceIndex = selectingIndex {
+        if spliceIndex != timelineVC.currentlySelectedIndex {
           showPopover()
         }
       } else {
@@ -495,6 +513,10 @@ extension SpliceViewController: TimelineControlDelegate {
   func timelineVCDidDeleteSegment() {
     updateAppearance()
   }
+  func timelineVCDidTapSelectInterval(at index: Int) {
+    showPopover()
+  }
+  
 }
 
 extension SpliceViewController: Spinnable {
@@ -503,5 +525,11 @@ extension SpliceViewController: Spinnable {
   }
   func stopSpinning() {
     spinner.stopAnimating()
+  }
+}
+
+extension SpliceViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    return .none
   }
 }

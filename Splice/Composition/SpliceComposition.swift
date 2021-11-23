@@ -53,7 +53,7 @@ class SpliceComposition {
     }
     var i = 0
     // check for overlaps
-    if intervals.count > 2 {
+    if intervals.count > 1 {
       var runningSplice = intervals.first!
       while i + 1 < intervals.count {
         runningSplice = intervals[i]
