@@ -90,7 +90,7 @@ class BpmBadgeViewController: UIViewController {
     stoppedLabel.centerYInParent()
     stoppedLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .medium)
     stoppedLabel.textColor = .white
-    stoppedLabel.text = "BPM"
+    stoppedLabel.text = " "
     stoppedLabel.textAlignment = .center
   }
   

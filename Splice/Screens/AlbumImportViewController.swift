@@ -18,6 +18,7 @@ protocol AlbumImportViewControllerDelegate: AnyObject {
 class AlbumImportViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: AlbumImportViewControllerDelegate?
+  let contentView = UIView()
   var importButton: UIButton!
   let spinner = UIActivityIndicatorView(style: .large)
   
@@ -32,31 +33,90 @@ class AlbumImportViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .systemBackground
-    addIntroLabel()
+    view.backgroundColor = .clear
+    addContentView()
+    addIntroStack()
     addSpinner()
     addImportButton()
     addSecretGesture()
   }
   
+  func addContentView() {
+    let sideMargin: CGFloat = 30
+    let verticalMargin: CGFloat = 50
+    view.addSubview(contentView)
+    contentView.pinLeadingToParent(margin: sideMargin)
+    contentView.pinTrailingToParent(margin: sideMargin)
+    contentView.pinTopToParent(margin: verticalMargin)
+    contentView.pinBottomToParent(margin: verticalMargin)
+    contentView.backgroundColor = .systemBackground
+    contentView.roundCorner(radius: 16, cornerCurve: .continuous)
+  }
+  
   func addSpinner() {
     spinner.center = CGPoint(x: view.bounds.width / 2, y: view.bounds.height / 2)
     spinner.hidesWhenStopped = true
-    view.addSubview(spinner)
+    contentView.addSubview(spinner)
   }
   
-  func addIntroLabel() {
-    let introLabel = UILabel()
-    view.addSubview(introLabel)
-    introLabel.text = "This app shortens your live photos & videos\n\nTap & hold the ✂ button to include that portion of video \n\nPlease send feature requests to june@june.kim ♡"
-    introLabel.numberOfLines = 0
-    introLabel.textAlignment = .center
-    introLabel.font = UIFont.systemFont(ofSize: 18, weight: .light)
-    
-    introLabel.centerXInParent()
-    introLabel.centerYInParent(offset: -24)
-    introLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85).isActive = true
+  func addIntroStack() {
+    let introStack = UIStackView()
+    contentView.addSubview(introStack)
+    introStack.axis = .vertical
+    introStack.alignment = .leading
+    introStack.distribution = .fillEqually
+    introStack.centerXInParent()
+    introStack.centerYInParent(offset: -12)
+    introStack.set(height: 300)
+    introStack.set(width: 280)
 
+    introStack.addArrangedSubview(makeStepView(image: UIImage(systemName: "film"),
+                                               text: "Select Videos",
+                                               subtext: "in order"))
+    introStack.addArrangedSubview(makeStepView(image: UIImage(systemName: "scissors.circle.fill"),
+                                               text: "Tap & Hold",
+                                               subtext: "to include"))
+    introStack.addArrangedSubview(makeStepView(image: UIImage(named: "photos-app-icon"),
+                                               text: "Preview & Save",
+                                               subtext: "to share"))
+  }
+  
+  func makeStepView(image: UIImage?, text: String, subtext: String) -> UIView {
+    let stepView = UIView()
+    
+    let padding: CGFloat = 8
+    
+    let imageView = UIImageView(image: image)
+    imageView.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+    imageView.contentMode = .scaleAspectFit
+    stepView.addSubview(imageView)
+    
+    let stepLabel = UILabel()
+    stepLabel.numberOfLines = 1
+    stepLabel.textAlignment = .left
+    stepLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+    stepLabel.text = text
+    stepLabel.sizeToFit()
+    stepLabel.frame = CGRect(x: imageView.maxX + padding,
+                             y: 0,
+                             width: stepLabel.width,
+                             height: imageView.height)
+    stepView.addSubview(stepLabel)
+    
+    let subLabel = UILabel()
+    subLabel.numberOfLines = 1
+    subLabel.textAlignment = .left
+    subLabel.font = UIFont.systemFont(ofSize: 18, weight: .light)
+    subLabel.text = subtext
+    subLabel.sizeToFit()
+    subLabel.frame = CGRect(x: stepLabel.maxX + padding,
+                            y: 0,
+                            width: subLabel.width,
+                            height: imageView.height)
+    stepView.addSubview(subLabel)
+    
+    stepView.sizeToFit()
+    return stepView
   }
   
   func addPermissionButton() {
@@ -72,13 +132,13 @@ class AlbumImportViewController: UIViewController {
       self.requestAlbumPicker()
     })
     var config = UIButton.Configuration.gray()
-    config.title = "Import Videos from Album"
+    config.title = "Let's go"
     config.image = UIImage(systemName: "photo.on.rectangle")
     config.imagePlacement = .top
     config.imagePadding = 8
     config.buttonSize = .large
     importButton.configuration = config
-    view.addSubview(importButton)
+    contentView.addSubview(importButton)
     importButton.centerXInParent()
     importButton.pinBottomToParent(margin: 36, insideSafeArea: true)
   }
@@ -87,7 +147,7 @@ class AlbumImportViewController: UIViewController {
     let secretGesture = UILongPressGestureRecognizer(target: self, action: #selector(secretGestureRecognized))
     secretGesture.numberOfTouchesRequired = 2
     secretGesture.minimumPressDuration = 2.0
-    view.addGestureRecognizer(secretGesture)
+    contentView.addGestureRecognizer(secretGesture)
   }
 
   override func viewDidAppear(_ animated: Bool) {

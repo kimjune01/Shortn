@@ -16,14 +16,14 @@ class NavigationCoordinator: NSObject {
   }
   let composition = SpliceComposition()
   override init() {
-    let albumImportVC = AlbumImportViewController(composition: composition)
-//    let spliceVC = SpliceViewController(composition: composition)
-    navController = AppNavController(rootViewController: albumImportVC)
+//    let albumImportVC = AlbumImportViewController(composition: composition)
+    let spliceVC = SpliceViewController(composition: composition)
+//    navController = AppNavController(rootViewController: albumImportVC)
 //    navController = AppNavController(rootViewController: BpmConfigViewController())
-//    navController = AppNavController(rootViewController: spliceVC)
+    navController = AppNavController(rootViewController: spliceVC)
     super.init()
-    albumImportVC.delegate = self
-//    spliceVC.delegate = self
+//    albumImportVC.delegate = self
+    spliceVC.delegate = self
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true
@@ -83,7 +83,10 @@ extension NavigationCoordinator: UINavigationControllerDelegate {
 extension NavigationCoordinator: AlbumImportViewControllerDelegate {
   
   func albumImportVCDidRequestAlbumPicker(_ importVC: AlbumImportViewController) {
-    showAlbumPicker()
+    // assume that importVC is presented modally
+    importVC.dismiss(animated: true) {
+      self.showAlbumPicker()
+    }
   }
   
 }
@@ -117,6 +120,12 @@ extension NavigationCoordinator: SpliceViewControllerDelegate {
   
   func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController) {
     showAlbumPicker()
+  }
+  func presentAlbumImportVC() {
+    let albumImportVC = AlbumImportViewController(composition: composition)
+    albumImportVC.delegate = self
+    navController.modalPresentationStyle = .overCurrentContext
+    navController.present(albumImportVC, animated: true)
   }
 }
 

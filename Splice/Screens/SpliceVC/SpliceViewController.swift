@@ -24,6 +24,7 @@ enum SpliceState {
 protocol SpliceViewControllerDelegate: AnyObject {
   func spliceVCDidRequestAlbumPicker(_ spliceVC: SpliceViewController)
   func spliceVCDidRequestPreview(_ spliceVC: SpliceViewController)
+  func presentAlbumImportVC()
 }
 
 // A full-screen VC that contains the progress bar, the player, and control buttons.
@@ -99,6 +100,13 @@ class SpliceViewController: UIViewController {
     updateAppearance()
     if !composition.assets.isEmpty {
       stopSpinning()
+    }
+  }
+  
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    if composition.assets.isEmpty {
+      delegate?.presentAlbumImportVC()
     }
   }
   
