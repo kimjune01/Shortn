@@ -175,13 +175,13 @@ class LongPlayerViewController: UIViewController {
     let panelScreenPortion = view.width * 0.29
 
     doubleTapLeftLabel = fastLabel()
-    doubleTapLeftLabel.text = "◀◀\nDouble tap"
+    doubleTapLeftLabel.text = "◀◀"
     doubleTapLeftLabel.textAlignment = .center
     doubleTapLeftLabel.center = CGPoint(x: 50 - panelScreenPortion, y: centerPanel.height / 2)
     centerPanel.addSubview(doubleTapLeftLabel)
     
     doubleTapRightLabel = fastLabel()
-    doubleTapRightLabel.text = "▶▶\nDouble tap"
+    doubleTapRightLabel.text = "▶▶"
     doubleTapRightLabel.textAlignment = .center
     doubleTapRightLabel.center = CGPoint(x: centerPanel.width + panelScreenPortion - 50, y: centerPanel.height / 2)
     centerPanel.addSubview(doubleTapRightLabel)

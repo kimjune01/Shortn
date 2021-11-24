@@ -249,7 +249,7 @@ class SpliceViewController: UIViewController {
     view.addSubview(timelineVC.view)
     timelineVC.view.set(height: TimelineScrollViewController.defaultHeight)
     timelineVC.view.fillWidthOfParent(withDefaultMargin: true)
-    timelineVC.view.pinBottom(toTopOf: bottomStack, margin: 8)
+    timelineVC.view.pinBottom(toTopOf: bottomStack, margin: 12)
     if let vc = timelineVC as? UIViewController {
       addChild(vc)
       vc.didMove(toParent: self)
@@ -423,7 +423,7 @@ class SpliceViewController: UIViewController {
     case .including(let beginTime):
       let endTime = playerVC.currentPlaybackTime()
       guard endTime - beginTime > 0.05 else {
-        spliceButton.displayTooltip("Tap & Hold")
+        timelineVC.view.displayTooltip("Tap & Hold")
         spliceState = .neutral
         break
       }

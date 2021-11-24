@@ -189,7 +189,6 @@ class AlbumImportViewController: UIViewController {
         }
       }
     })
-    
   }
   
   // reset state to first fresh install

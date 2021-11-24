@@ -46,8 +46,8 @@ extension AVAsset {
     generator.videoComposition = composition
     generator.appliesPreferredTrackTransform = true
     generator.maximumSize = size
-    generator.requestedTimeToleranceBefore = .init(seconds: 0.1, preferredTimescale: 600)
-    generator.requestedTimeToleranceAfter = .init(seconds: 0.1, preferredTimescale: 600)
+    generator.requestedTimeToleranceBefore = .zero
+    generator.requestedTimeToleranceAfter = .zero
 
     let portions = makePortionsArray(nSeconds: nSeconds)
 
@@ -68,6 +68,7 @@ extension AVAsset {
       requestedTime, cgImage, actualTime, result, error in
       defer { counter += 1 }
       guard let cgImage = cgImage else {
+        if let e = error { print("thumbnail generator error: ", e.localizedDescription)}
         progress(nil, counter)
         return
       }
