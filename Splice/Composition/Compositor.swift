@@ -149,6 +149,7 @@ class Compositor {
     spliceComposition.instructions = [spliceInstruction]
     spliceComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
     spliceComposition.renderSize = absoluteSize
+    
     return mixComposition
   }
   

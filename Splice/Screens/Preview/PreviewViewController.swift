@@ -50,7 +50,8 @@ class PreviewViewController: UIViewController {
     addBottonStack()
     addSpinner()
     addWaitLabel()
-    makePreview()
+    exportInBackground()
+    //    makePreview()
 
   }
   
@@ -59,7 +60,6 @@ class PreviewViewController: UIViewController {
     if player != nil {
       player.play()
     }
-    exportInBackground()
   }
   
   override func viewWillDisappear(_ animated: Bool) {
@@ -132,9 +132,11 @@ class PreviewViewController: UIViewController {
     bottomStack.addArrangedSubview(shareButton)
   }
   
+  // for reference only. do not call
   func makePreview() {
+    assert(false, "must export for now..")
     bottomStack.obscure()
-    if let asset = composition.composeForPreview() {
+    if let asset = composition.composeForPreviewAndExport() {
       spinner.stopAnimating()
       waitLabel.isHidden = true
       playerView.isUserInteractionEnabled = true
@@ -195,15 +197,37 @@ class PreviewViewController: UIViewController {
   }
   
   func exportInBackground() {
-    if let assetForExport = previewAsset {
-      composition.export(assetForExport) { error in
-        guard error == nil else {
-          print("error! ", error!)
-          return
-        }
-        self.bottomStack.clarify()
-      }
+    guard let asset = composition.composeForPreviewAndExport() else {
+      return
     }
+    composition.export(asset) { error in
+      guard error == nil else {
+        print("error! ", error!)
+        self.alertExportFail()
+        return
+      }
+      self.previewAsset = asset
+      self.makePlayer(item: self.makePlayerItem(from: asset))
+      self.appearLoaded()
+      self.player.play()
+    }
+  }
+  
+  func alertExportFail() {
+    let alert = UIAlertController(title: "Oops!", message: "The video could not be processed. Please try with another video. Sorry!", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: { action in
+      self.dismiss(animated: true, completion: nil)
+    }))
+    present(alert, animated: true) {
+      self.appearLoaded()
+    }
+  }
+  
+  func appearLoaded() {
+    spinner.stopAnimating()
+    waitLabel.isHidden = true
+    playerView.isUserInteractionEnabled = true
+    bottomStack.clarify()
   }
   
   @objc func didTapPlayerView() {

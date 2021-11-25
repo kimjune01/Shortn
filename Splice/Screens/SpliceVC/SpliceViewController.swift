@@ -575,6 +575,7 @@ extension SpliceViewController: Spinnable {
     timelineVC.view.obscure()
     spliceButton.obscure()
     bottomStack.obscure()
+    topBar.obscure()
   }
 
   func stopSpinning() {
@@ -586,6 +587,7 @@ extension SpliceViewController: Spinnable {
     timelineVC.view.clarify()
     spliceButton.clarify()
     bottomStack.clarify()
+    topBar.clarify()
   }
 }
 

@@ -165,7 +165,7 @@ class SpliceComposition {
     }
   }
   
-  func composeForPreview() -> AVAsset? {
+  func composeForPreviewAndExport() -> AVAsset? {
     compositor = Compositor(composition: self)
     return compositor!.concatAndSplice()
   }
