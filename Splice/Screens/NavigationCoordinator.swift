@@ -173,7 +173,7 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    composition.requestAVAssets(from: fetchResult) { success in
+    composition.saveAssetsToTempDirectory(from: fetchResult) { success in
       guard success else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
           self.handleFullFeatureFlow(identifiers)
@@ -200,7 +200,7 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
 
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    composition.requestAVAssets(from: fetchResult) { success in
+    composition.saveAssetsToTempDirectory(from: fetchResult) { success in
       guard success else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
           self.handleRestrictedTierFlow(identifiers)

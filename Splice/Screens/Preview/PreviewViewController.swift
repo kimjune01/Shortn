@@ -21,7 +21,7 @@ class PreviewViewController: UIViewController {
   
   private var player: AVPlayer!
   let playerView = PlayerView()
-  var currentAsset: AVAsset?
+  var previewAsset: AVAsset?
   let spinner = UIActivityIndicatorView(style: .large)
   let waitLabel = UILabel()
   var shareButton: UIButton!
@@ -59,6 +59,7 @@ class PreviewViewController: UIViewController {
     if player != nil {
       player.play()
     }
+    exportInBackground()
   }
   
   override func viewWillDisappear(_ animated: Bool) {
@@ -133,28 +134,15 @@ class PreviewViewController: UIViewController {
   
   func makePreview() {
     bottomStack.obscure()
-
-    composition.exportForPreview { [weak self] err in
-      guard let self = self else { return }
-      guard err == nil else {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-          self.delegate?.previewVCDidFailExport(self, err: err)
-        }
-        return
-      }
-      guard let asset = self.composition.previewAsset else {
-        return
-      }
-      guard self.isViewLoaded, self.view.window != nil else {
-        return
-      }
-      self.bottomStack.clarify()
-      self.spinner.stopAnimating()
-      self.waitLabel.isHidden = true
-      self.playerView.isUserInteractionEnabled = true
-      self.currentAsset = asset
-      self.makePlayer(item: self.makePlayerItem(from: asset))
-      self.player.play()
+    if let asset = composition.composeForPreview() {
+      spinner.stopAnimating()
+      waitLabel.isHidden = true
+      playerView.isUserInteractionEnabled = true
+      previewAsset = asset
+      makePlayer(item: self.makePlayerItem(from: asset))
+    } else {
+      // FIXME
+      delegate?.previewVCDidFailExport(self, err: CompositorError.avFoundation)
     }
   }
   
@@ -163,7 +151,7 @@ class PreviewViewController: UIViewController {
   }
   
   func showShareActivity() {
-    guard let assetToShare = composition.previewAsset else { return }
+    guard let assetToShare = composition.exportAsset else { return }
     let activityVC = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
     activityVC.title = "Save to album"
     activityVC.excludedActivityTypes = []
@@ -204,6 +192,18 @@ class PreviewViewController: UIViewController {
                                            name: .AVPlayerItemDidPlayToEndTime,
                                            object: item)
     return item
+  }
+  
+  func exportInBackground() {
+    if let assetForExport = previewAsset {
+      composition.export(assetForExport) { error in
+        guard error == nil else {
+          print("error! ", error!)
+          return
+        }
+        self.bottomStack.clarify()
+      }
+    }
   }
   
   @objc func didTapPlayerView() {

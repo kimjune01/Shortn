@@ -52,7 +52,7 @@ class SaveButtonViewController: UIViewController {
   }
   
   func saveToPhotosAlbum() {
-    guard let asset = composition.previewAsset else { return }
+    guard let asset = composition.exportAsset else { return }
     saveVideoToAlbum(asset.url) { [weak self] err in
       guard let self = self else { return }
       guard err == nil else {

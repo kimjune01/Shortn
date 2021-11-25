@@ -26,7 +26,6 @@ extension AVAsset {
     }
     let transformedVideoSize = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
     return abs(transformedVideoSize.width) < abs(transformedVideoSize.height)
-    
   }
   
   func widthPortionOfInterval(startTime: TimeInterval, intervalSize: TimeInterval) -> CGFloat {
@@ -39,30 +38,47 @@ extension AVAsset {
     }
   }
   
-  func makeThumbnails(every nSeconds: TimeInterval, size: CGSize, _ progress: @escaping ThumbnailProgress) {
+  // return the generator instance to keep it in memory
+  func makeThumbnails(every nSeconds: TimeInterval, size: CGSize, _ progress: @escaping ThumbnailProgress) -> AVAssetImageGenerator {
     let composition = AVVideoComposition(propertiesOf: self)
     let generator = AVAssetImageGenerator(asset: self)
     generator.apertureMode = .cleanAperture
     generator.videoComposition = composition
     generator.appliesPreferredTrackTransform = true
     generator.maximumSize = size
-    generator.requestedTimeToleranceBefore = .zero
-    generator.requestedTimeToleranceAfter = .zero
-
+    generator.requestedTimeToleranceBefore = .init(seconds: 0.5, preferredTimescale: 600)
+    generator.requestedTimeToleranceAfter = .init(seconds: 0.1, preferredTimescale: 600)
+    
     let portions = makePortionsArray(nSeconds: nSeconds)
-
+    
     let times: [CMTime] = stride(from: 0, to: duration.seconds, by: nSeconds).map { seconds in
       // sample the middle of where the thumbnail would point to instead of its beginning
-      let sample = min(seconds + nSeconds / 2, duration.seconds)
-      return CMTime(seconds: sample, preferredTimescale: composition.frameDuration.timescale)
+      let sample = min(seconds + nSeconds / 2, duration.seconds - nSeconds / 2)
+      return CMTime(seconds: sample, preferredTimescale: duration.timescale)
     }
-
+    
     // undo offset by sampling the middle
     func indexFor(requestedTime: TimeInterval) -> Int {
       return Int(((requestedTime - nSeconds / 2) / nSeconds).rounded(.towardZero))
     }
-
+    
     var counter = 0
+    
+    times.forEach { time in
+      do {
+        let cgImage = try generator.copyCGImage(at: time, actualTime: nil)
+        let image = UIImage(cgImage: cgImage)
+        let portion = portions[indexFor(requestedTime: time.seconds)]
+        let thumb = Thumbnail(image, widthPortion: portion)
+        progress(thumb, counter)
+        counter += 1
+      } catch let error {
+        progress(nil, counter)
+        counter += 1
+        print(error)
+      }
+    }
+    return generator;
     
     generator.generateCGImagesAsynchronously(forTimes: times.map{NSValue(time: $0)}) {
       requestedTime, cgImage, actualTime, result, error in
@@ -77,5 +93,34 @@ extension AVAsset {
       let thumb = Thumbnail(image, widthPortion: portion)
       progress(thumb, counter)
     }
+    return generator
   }
+  
+  func soloVideoOnlyComposition() -> AVComposition? {
+    let mixComposition = AVMutableComposition()
+    guard let videoTrack = mixComposition.addMutableTrack(
+      withMediaType: .video,
+      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+    else {
+      //      completion(nil, CompositionExporterError.avFoundation)
+      return nil
+    }
+    guard let sourceVideoTrack = self.tracks(withMediaType: .video).first else {
+      //      completion(nil, CompositionExporterError.badVideoInput)
+      return nil
+    }
+    do {
+      let range = CMTimeRange(start: .zero, duration: duration)
+      try videoTrack.insertTimeRange(range, of: sourceVideoTrack, at: .zero)
+    } catch {
+      print("soloVideoOnlyCompositionerror: ", error)
+    }
+    
+    let naturalSize = sourceVideoTrack.naturalSize.applying(sourceVideoTrack.preferredTransform)
+    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    mixComposition.naturalSize = absoluteSize
+
+    return mixComposition
+  }
+  
 }

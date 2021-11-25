@@ -39,6 +39,7 @@ class ThumbnailsViewController: UIViewController {
     return scrollView.contentSize.width
   }
   let thumbnailQueue = DispatchQueue(label: "kim.june.thumbnailQueue", qos: .userInitiated)
+  var generators = [AVAssetImageGenerator]()
   // manually prevent outdated work items to continue. Should really be using Operations instead.
   var currentWorkUUID: UUID?
   init(composition: SpliceComposition) {
@@ -156,13 +157,15 @@ class ThumbnailsViewController: UIViewController {
   func generateThumbnails() {
     let workUUID = UUID()
     currentWorkUUID = workUUID
+    generators = []
     delegate?.thumbnailsVCWillRefreshThumbnails(contentSize: scrollView.contentSize)
     func makeThumbnails(for asset: AVAsset, _ progress: @escaping ThumbnailProgress) {
       let sampleInterval = TimelineScrollConfig.sampleInterval(thumbnailsPerSpan: thumbnailsPerSpan())
       thumbnailQueue.async { [weak self] in
         guard let self = self else { return }
         guard self.currentWorkUUID == workUUID else { return }
-        asset.makeThumbnails(every:sampleInterval, size: self.defaultThumbnailSize, progress)
+        let generator = asset.makeThumbnails(every:sampleInterval, size: self.defaultThumbnailSize, progress)
+        self.generators.append(generator)
       }
     }
     clipsThumbnails = Array<[Thumbnail]>(repeating: [], count: composition.assets.count)

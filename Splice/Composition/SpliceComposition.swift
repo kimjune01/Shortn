@@ -24,8 +24,9 @@ class SpliceComposition {
   static let transformDoneNotification = Notification.Name("june.kim.SpliceComposition.transformDoneNotification")
 
   let timeSubject = CurrentValueSubject<TimeInterval, Never>(0)
-  var exporter: CompositionExporter?
-  var previewAsset: AVURLAsset?
+  var compositor: Compositor?
+  var previewAsset: AVAsset?
+  var exportAsset: AVURLAsset?
   
   var totalDuration: TimeInterval {
     return assets.reduce(0.0) { partialResult, asset in
@@ -164,11 +165,21 @@ class SpliceComposition {
     }
   }
   
-  func exportForPreview(_ completion: @escaping ErrorCompletion) {
-    exporter = CompositionExporter(composition: self)
-    exporter!.export { url, err in
+  // FIXME: return error tuple
+  func concatenateSourceAssets() -> AVAsset? {
+    compositor = Compositor(composition: self)
+    return compositor!.concat(cutSplices: false)
+  }
+  
+  func composeForPreview() -> AVAsset? {
+    compositor = Compositor(composition: self)
+    return compositor!.concat(cutSplices: true)
+  }
+
+  func export(_ asset: AVAsset, _ completion: @escaping ErrorCompletion) {
+    compositor!.export(asset) { url, err in
       if let url = url {
-        self.previewAsset = AVURLAsset(url: url)
+        self.exportAsset = AVURLAsset(url: url)
         completion(nil)
       } else {
         completion(err)
@@ -181,11 +192,7 @@ class SpliceComposition {
     return tempDirectory.appendingPathComponent("\(UUID()).mp4")
   }
   
-  func saveAssetsToTempDirectory() {
-    guard let fetchResult = fetchResult else {
-      return
-    }
-
+  func saveAssetsToTempDirectory(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping BoolCompletion) {
     var identifiersToIndex = [String: Int]()
     for i in 0..<assetIdentifiers.count {
       identifiersToIndex[assetIdentifiers[i]] = i
@@ -194,7 +201,10 @@ class SpliceComposition {
     let options = PHVideoRequestOptions()
     options.isNetworkAccessAllowed = true
     assetTransformQueue.async {
+      let tempGroup = DispatchGroup()
+      var tempAssets: [AVAsset?] = Array(repeating: nil, count: fetchCount)
       for i in 0..<fetchCount {
+        tempGroup.enter()
         let eachVideoAsset = fetchResult.object(at: i)
         PHImageManager
           .default()
@@ -211,7 +221,7 @@ class SpliceComposition {
               switch session.status {
               case .completed:
                 print("asset export completed!")
-                self.assets[i] = AVURLAsset(url: tempDir)
+                tempAssets[i] = AVURLAsset(url: tempDir)
               case .failed:
                 print("export failed \(session.error?.localizedDescription ?? "error nil")")
               case .cancelled:
@@ -219,10 +229,13 @@ class SpliceComposition {
               default:
                 print("fail..")
               }
+              tempGroup.leave()
             }
           }
       }
-      self.group.notify(queue: .main) {
+      tempGroup.notify(queue: .main) {
+        self.assets = tempAssets.compactMap{$0}
+        completion(true)
       }
     }
   }

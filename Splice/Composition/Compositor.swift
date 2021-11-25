@@ -8,7 +8,7 @@
 import AVFoundation
 import UIKit
 
-enum CompositionExporterError: Error {
+enum CompositorError: Error {
   case badVideoInput
   case badVideoAudio
   case badVoiceInput
@@ -16,93 +16,19 @@ enum CompositionExporterError: Error {
   case avFoundation
 }
 
-typealias CompositionExportCompletion = (URL?, Error?) -> ()
+typealias CompositorCompletion = (URL?, Error?) -> ()
 
-class CompositionExporter {
+class Compositor {
   unowned var composition: SpliceComposition
+  let spliceInstruction = AVMutableVideoCompositionInstruction()
+  let spliceComposition = AVMutableVideoComposition()
   static var debugging = false
   init(composition: SpliceComposition) {
     self.composition = composition
   }
-
-  func export(_ completion: @escaping CompositionExportCompletion) {
-//    composition.cutToTheBeatIfNeeded()
-    DispatchQueue.global().async {
-      self.concatAndSplice(completion)
-    }
-  }
   
-  /*
-   exporter                   AVAssetExportSession
-   | mixComposition           AVMutableComposition
-   | | videoTrack             AVMutableCompositionTrack.video
-   | | audioTrack        AVMutableCompositionTrack.audio
-   | mainComposition          AVMutableVideoComposition
-   | | mainInstruction        AVMutableVideoCompositionInstruction
-   | | | layerInstruction        AVMutableVideoCompositionLayerInstruction
-   */
-  func concatAndSplice(_ completion: @escaping CompositionExportCompletion) {
-    assert(composition.assets.count > 0, "empty clips cannot be exported")
-    let videoAssets: [AVAsset] = composition.assets
-    
-    let mixComposition = AVMutableComposition()
-    guard var videoTrack = mixComposition.addMutableTrack(
-      withMediaType: .video,
-      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
-    else {
-      completion(nil, CompositionExporterError.avFoundation)
-      return
-    }
-    guard var audioTrack = mixComposition.addMutableTrack(
-      withMediaType: .audio,
-      preferredTrackID: kCMPersistentTrackID_Invalid)
-    else {
-      completion(nil, CompositionExporterError.avFoundation)
-      return
-    }
-    
-    guard let firstAsset = videoAssets.first,
-          let firstClipVideoTrack = firstAsset.tracks(withMediaType: .video).first else {
-      completion(nil, CompositionExporterError.badVideoInput)
-      return
-    }
-    var isPortraitFrame = false
-    let firstTransform = firstClipVideoTrack.preferredTransform
-    if (firstTransform.a == 0 && firstTransform.d == 0 &&
-        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
-        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
-      isPortraitFrame = true
-    }
-    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
-    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    mixComposition.naturalSize = absoluteSize
-    
-    // 1 instruction per layer!
-    // use videoTrack instead of firstClipVideoTrack
-    // https://www.ostack.cn/?qa=908888/
-    var layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-    
-    let (totalDuration, error) = fillTracks(from: videoAssets,
-                                            splices: composition.splices,
-                                            isPortraitFrame: isPortraitFrame,
-                                            renderSize: mixComposition.naturalSize,
-                                            videoTrackOutput: &videoTrack,
-                                            audioTrackOutput: &audioTrack,
-                                            instructionOutput: &layerInstruction)
-    if error != nil {
-      completion(nil, error)
-    }
-
-    let mainInstruction = AVMutableVideoCompositionInstruction()
-    mainInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
-    mainInstruction.layerInstructions = [layerInstruction]
-    
-    let mainComposition = AVMutableVideoComposition()
-    mainComposition.instructions = [mainInstruction]
-    mainComposition.frameDuration = CMTimeMake(value: 1,
-                                               timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
-    mainComposition.renderSize = absoluteSize
-    
+  // to be called only after concatAndSplice
+  func export(_ asset: AVAsset, _ completion: @escaping CompositorCompletion) {
     let tempDirectory = FileManager.default.temporaryDirectory
     let dateFormatter = DateFormatter()
     dateFormatter.dateStyle = .long
@@ -110,15 +36,31 @@ class CompositionExporter {
     let url = tempDirectory.appendingPathComponent("temp\(UUID().shortened()).mp4")
     
     guard let exporter = AVAssetExportSession(
-      asset: mixComposition,
-      presetName: VideoHelper.exportPreset(for: mixComposition))
-    else { return }
+      asset: asset,
+      presetName: VideoHelper.exportPreset(for: asset))
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
     
     exporter.outputURL = url
-    exporter.outputFileType = AVFileType.mp4
     exporter.shouldOptimizeForNetworkUse = true
-    exporter.videoComposition = mainComposition
-    
+    exporter.videoComposition = spliceComposition
+    let group = DispatchGroup()
+    group.enter()
+    exporter.determineCompatibleFileTypes { types in
+      if types.isEmpty {
+        print("Compositor.export(): No supported file types found!")
+      }
+      if types.contains(.m4v) {
+        exporter.outputFileType = .mp4
+      } else {
+        exporter.outputFileType = .mov
+      }
+      group.leave()
+    }
+    group.wait()
+
     exporter.exportAsynchronously {
       DispatchQueue.main.async {
         switch exporter.status {
@@ -137,7 +79,78 @@ class CompositionExporter {
         }
       }
     }
+  }
+  
+  /*
+   Concatenates and splices, returns the composition for preview before exporting.
+   mixComposition           AVMutableComposition
+   | videoTrack             AVMutableCompositionTrack.video
+   | audioTrack        AVMutableCompositionTrack.audio
+   spliceComposition          AVMutableVideoComposition
+   | spliceInstruction        AVMutableVideoCompositionInstruction
+   | | layerInstruction        AVMutableVideoCompositionLayerInstruction
+   */
+  func concat(cutSplices: Bool) -> AVAsset? {
+    assert(composition.assets.count > 0, "empty clips cannot be exported")
+    //    composition.cutToTheBeatIfNeeded()
+    let videoAssets: [AVAsset] = composition.assets
+    
+    let mixComposition = AVMutableComposition()
+    guard var videoTrack = mixComposition.addMutableTrack(
+      withMediaType: .video,
+      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+    else {
+//      completion(nil, CompositionExporterError.avFoundation)
+      return nil
+    }
+    guard var audioTrack = mixComposition.addMutableTrack(
+      withMediaType: .audio,
+      preferredTrackID: kCMPersistentTrackID_Invalid)
+    else {
+//      completion(nil, CompositionExporterError.avFoundation)
+      return nil
+    }
+    
+    guard let firstAsset = videoAssets.first,
+          let firstClipVideoTrack = firstAsset.tracks(withMediaType: .video).first else {
+//      completion(nil, CompositionExporterError.badVideoInput)
+      return nil
+    }
+    var isPortraitFrame = false
+    let firstTransform = firstClipVideoTrack.preferredTransform
+    if (firstTransform.a == 0 && firstTransform.d == 0 &&
+        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
+        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
+      isPortraitFrame = true
+    }
+    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
+    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
+    mixComposition.naturalSize = absoluteSize
+    
+    // 1 instruction per layer!
+    // use videoTrack instead of firstClipVideoTrack
+    // https://www.ostack.cn/?qa=908888/
+    var layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+    let splices = cutSplices ? composition.splices : [0...composition.totalDuration]
+    let (totalDuration, error) = fillTracks(from: videoAssets,
+                                            splices: splices,
+                                            isPortraitFrame: isPortraitFrame,
+                                            renderSize: mixComposition.naturalSize,
+                                            videoTrackOutput: &videoTrack,
+                                            audioTrackOutput: &audioTrack,
+                                            instructionOutput: &layerInstruction)
+    if error != nil {
+      return nil
+//      completion(nil, error)
+    }
 
+    spliceInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
+    spliceInstruction.layerInstructions = [layerInstruction]
+    
+    spliceComposition.instructions = [spliceInstruction]
+    spliceComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
+    spliceComposition.renderSize = absoluteSize
+    return mixComposition
   }
   
   func fillTracks(from sourceVideoAssets: [AVAsset],
@@ -147,7 +160,7 @@ class CompositionExporter {
                   videoTrackOutput: inout AVMutableCompositionTrack,
                   audioTrackOutput: inout AVMutableCompositionTrack,
                   instructionOutput: inout AVMutableVideoCompositionLayerInstruction)
-  -> (CMTime, CompositionExporterError?) {
+  -> (CMTime, CompositorError?) {
     guard sourceVideoAssets.count > 0 else { return (.zero, .badVideoInput) }
 //    print("splices: ", splices)
 //    print("sum of splices: ", splices.reduce(0.0, { partialResult, sp in
@@ -268,7 +281,7 @@ class CompositionExporter {
   }
   
   func debugPrint(_ str: String) {
-    if CompositionExporter.debugging {
+    if Compositor.debugging {
       print(str)
     }
   }
