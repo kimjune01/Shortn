@@ -90,7 +90,7 @@ class Compositor {
    | spliceInstruction        AVMutableVideoCompositionInstruction
    | | layerInstruction        AVMutableVideoCompositionLayerInstruction
    */
-  func concat(cutSplices: Bool) -> AVAsset? {
+  func concatAndSplice() -> AVAsset? {
     assert(composition.assets.count > 0, "empty clips cannot be exported")
     //    composition.cutToTheBeatIfNeeded()
     let videoAssets: [AVAsset] = composition.assets
@@ -126,12 +126,11 @@ class Compositor {
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
     let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
     mixComposition.naturalSize = absoluteSize
-    
     // 1 instruction per layer!
     // use videoTrack instead of firstClipVideoTrack
     // https://www.ostack.cn/?qa=908888/
     var layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-    let splices = cutSplices ? composition.splices : [0...composition.totalDuration]
+    let splices = composition.splices
     let (totalDuration, error) = fillTracks(from: videoAssets,
                                             splices: splices,
                                             isPortraitFrame: isPortraitFrame,

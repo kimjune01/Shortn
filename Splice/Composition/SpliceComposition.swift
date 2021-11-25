@@ -165,15 +165,9 @@ class SpliceComposition {
     }
   }
   
-  // FIXME: return error tuple
-  func concatenateSourceAssets() -> AVAsset? {
-    compositor = Compositor(composition: self)
-    return compositor!.concat(cutSplices: false)
-  }
-  
   func composeForPreview() -> AVAsset? {
     compositor = Compositor(composition: self)
-    return compositor!.concat(cutSplices: true)
+    return compositor!.concatAndSplice()
   }
 
   func export(_ asset: AVAsset, _ completion: @escaping ErrorCompletion) {
