@@ -157,10 +157,6 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     intervalsVC.deselectIntervals()
   }
   
-  func expandingInterval() -> UIView? {
-    return intervalsVC.expandingInterval
-  }
-  
   func firstInterval() -> UIView? {
     return intervalsVC.intervals.first
   }

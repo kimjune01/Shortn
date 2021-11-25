@@ -189,7 +189,12 @@ class SpliceComposition {
   
   func makeTempDirectoryName(identifier: String) -> URL {
     let tempDirectory = FileManager.default.temporaryDirectory
-    return tempDirectory.appendingPathComponent("\(UUID()).mp4")
+    if let lastComponent = identifier.components(separatedBy: "-").last?
+        .components(separatedBy: "/").first {
+      return tempDirectory.appendingPathComponent("\(lastComponent).mp4")
+    } else {
+      return tempDirectory.appendingPathComponent("\(UUID()).mp4")
+    }
   }
   
   func saveAssetsToTempDirectory(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping BoolCompletion) {
@@ -201,22 +206,27 @@ class SpliceComposition {
     let options = PHVideoRequestOptions()
     options.isNetworkAccessAllowed = true
     assetTransformQueue.async {
-      let tempGroup = DispatchGroup()
       var tempAssets: [AVAsset?] = Array(repeating: nil, count: fetchCount)
       for i in 0..<fetchCount {
-        tempGroup.enter()
+        self.group.enter()
         let eachVideoAsset = fetchResult.object(at: i)
+        let identifier = self.assetIdentifiers[i]
+        let tempDir = self.makeTempDirectoryName(identifier: identifier)
+        guard !FileManager.default.fileExists(atPath: tempDir.path) else {
+          // file exists, get it from file instead of exporting.
+          tempAssets[i] = AVURLAsset(url: tempDir)
+          self.group.leave()
+          continue
+        }
         PHImageManager
           .default()
           .requestExportSession(forVideo: eachVideoAsset,
                                 options: options,
                                 exportPreset: AVAssetExportPresetPassthrough) { exportSession, info in
             guard let session = exportSession else { return }
-            let tempDir = self.makeTempDirectoryName(identifier: self.assetIdentifiers[i])
             session.outputURL = tempDir
             session.outputFileType = AVFileType.mov
             session.shouldOptimizeForNetworkUse = true
-
             session.exportAsynchronously {
               switch session.status {
               case .completed:
@@ -229,13 +239,13 @@ class SpliceComposition {
               default:
                 print("fail..")
               }
-              tempGroup.leave()
+              self.group.leave()
             }
           }
       }
-      tempGroup.notify(queue: .main) {
+      self.group.notify(queue: .main) {
         self.assets = tempAssets.compactMap{$0}
-        completion(true)
+        completion(self.assets.count == self.assetIdentifiers.count)
       }
     }
   }

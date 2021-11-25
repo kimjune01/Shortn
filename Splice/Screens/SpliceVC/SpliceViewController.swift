@@ -33,6 +33,7 @@ class SpliceViewController: UIViewController {
   weak var delegate: SpliceViewControllerDelegate?
   
   let spinner = UIActivityIndicatorView(style:.large)
+  let loadingLabel = UILabel()
   let topBar = UIView()
   var playerVC: LongPlayerViewController!
   let bottomStack = UIStackView()
@@ -116,6 +117,15 @@ class SpliceViewController: UIViewController {
     spinner.centerXInParent()
     spinner.centerYInParent(offset: -40)
     spinner.startAnimating()
+    
+    view.addSubview(loadingLabel)
+    loadingLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+    loadingLabel.text = "Loading clips from album...\nPlease wait."
+    loadingLabel.numberOfLines = 0
+    loadingLabel.textAlignment = .center
+    loadingLabel.centerXInParent()
+    loadingLabel.pinTop(toBottomOf: spinner, margin: 32)
+    loadingLabel.isHidden = false
   }
   
   func addTopBar() {
@@ -373,17 +383,13 @@ class SpliceViewController: UIViewController {
   func showTouchDownTutorialsIfNeeded() {
     if !Tutorial.shared.tapAndHoldContinueDone {
       touchDownTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
-        guard let expandingSegment = self.timelineVC.expandingInterval(), expandingSegment.width > 35 else {
-          self.showTouchDownTutorialsIfNeeded()
-          return
-        }
-        expandingSegment.displayTooltip("Including")
+        self.timelineVC.seekerBar.displayTooltip("Including")
         Tutorial.shared.tapAndHoldContinueDone = true
         self.showTouchDownTutorialsIfNeeded()
       })
     } else if !Tutorial.shared.tapAndHoldStopDone {
       touchDownTimer = Timer.scheduledTimer(withTimeInterval: 3.5, repeats: false, block: { _ in
-        self.spliceButton.displayTooltip("Touch up to stop")
+        self.timelineVC.seekerBar.displayTooltip("Touch up to stop")
         Tutorial.shared.tapAndHoldStopDone = true
         self.showTouchDownTutorialsIfNeeded()
       })
@@ -393,16 +399,18 @@ class SpliceViewController: UIViewController {
   func showTouchDoneTutorialsIfNeeded() {
     if !Tutorial.shared.scrubTimelineDone {
       touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { _ in
+        self.hidePopover()
         self.timelineVC.view.displayTooltip("Move the slider to skip")
         Tutorial.shared.scrubTimelineDone = true
         self.showTouchDoneTutorialsIfNeeded()
       })
-    } else if !Tutorial.shared.deleteSegmentDone,
-            let _ = self.timelineVC.firstInterval() {
+    } else if !Tutorial.shared.selectSegmentDone {
+      // FIXME: the tooltip gets clipped :(
       touchDoneTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false, block: { _ in
-        if let segment = self.timelineVC.firstInterval(), segment.width > 35 {
-          segment.displayTooltip("Tap to delete")
-          Tutorial.shared.deleteSegmentDone = true
+        if let segment = self.timelineVC.firstInterval(), segment.width > 35,
+           self.popoverMenuVC.isPresentable {
+          segment.displayTooltip("Tap to select")
+          Tutorial.shared.selectSegmentDone = true
           self.showTouchDoneTutorialsIfNeeded()
         }
       })
@@ -410,7 +418,7 @@ class SpliceViewController: UIViewController {
   }
   
   func showPlaybackAtEndTutorialIfNeeded() {
-    if composition.splices.count > 1, !Tutorial.shared.previewButtonTapDone {
+    if composition.splices.count >= 1, !Tutorial.shared.previewButtonTapDone {
       previewButton.displayTooltip("Preview")
       Tutorial.shared.previewButtonTapDone = true
     }
@@ -560,9 +568,24 @@ extension SpliceViewController: TimelineControlDelegate {
 extension SpliceViewController: Spinnable {
   func spin() {
     spinner.startAnimating()
+    loadingLabel.isHidden = false
+    if playerVC != nil {
+      playerVC.view.isHidden = true
+    }
+    timelineVC.view.obscure()
+    spliceButton.obscure()
+    bottomStack.obscure()
   }
+
   func stopSpinning() {
     spinner.stopAnimating()
+    loadingLabel.isHidden = true
+    if playerVC != nil {
+      playerVC.view.isHidden = false
+    }
+    timelineVC.view.clarify()
+    spliceButton.clarify()
+    bottomStack.clarify()
   }
 }
 

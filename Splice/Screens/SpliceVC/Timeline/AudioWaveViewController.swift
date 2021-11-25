@@ -53,7 +53,13 @@ class AudioWaveViewController: UIViewController {
       waveformImageDrawer.waveformImage(fromAudioAt: (eachAsset as! AVURLAsset).url,
                                         with: waveConfig) { waveformImage in
         DispatchQueue.main.async {
-          waveformImageView.image = waveformImage
+          UIView.transition(with: waveformImageView,
+                            duration: 1.2,
+                            options: .transitionCrossDissolve) {
+            waveformImageView.image = waveformImage
+          }
+
+
         }
       }
       view.addSubview(waveformImageView)

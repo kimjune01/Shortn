@@ -27,6 +27,7 @@ protocol TimelineControl: AnyObject {
   var delegate: TimelineControlDelegate? { get set }
   var composition: SpliceComposition { get set }
   var view: UIView! { get set }
+  var seekerBar: UIView { get }
   var scrubbingState: ScrubbingState { get }
   var currentlySelectedIndex: Int? { get }
 
@@ -35,7 +36,6 @@ protocol TimelineControl: AnyObject {
   func appearLooping(at index: Int)
   func renderFreshAssets()
   func startExpandingSegment(startTime: TimeInterval)
-  func expandingInterval() -> UIView?
   func firstInterval() -> UIView?
   func stopExpandingSegment()
   func updateSegmentsForSplices()

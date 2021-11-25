@@ -14,7 +14,7 @@ class Tutorial {
   private let tapAndHoldContinueDoneKey = "kim.june.tapAndHoldContinueDoneKey"
   private let tapAndHoldStopDoneKey = "kim.june.tapAndHoldStopDoneKey"
   private let scrubTimelineDoneKey = "kim.june.scrubTimelineDoneKey"
-  private let deleteSegmentDoneKey = "kim.june.deleteSegmentDoneKey"
+  private let selectSegmentDoneKey = "kim.june.selectSegmentDoneKey"
   private let previewButtonTapDoneKey = "kim.june.previewButtonTapDoneKey"
 
   private func allKeys() -> [String] {
@@ -23,7 +23,7 @@ class Tutorial {
       tapAndHoldContinueDoneKey,
       tapAndHoldStopDoneKey,
       scrubTimelineDoneKey,
-      deleteSegmentDoneKey,
+      selectSegmentDoneKey,
       previewButtonTapDoneKey
     ]
   }
@@ -54,9 +54,9 @@ class Tutorial {
     set { UserDefaults.standard.set(newValue, forKey: scrubTimelineDoneKey) }
   }
   
-  var deleteSegmentDone: Bool {
-    get { return UserDefaults.standard.bool(forKey: deleteSegmentDoneKey) }
-    set { UserDefaults.standard.set(newValue, forKey: deleteSegmentDoneKey) }
+  var selectSegmentDone: Bool {
+    get { return UserDefaults.standard.bool(forKey: selectSegmentDoneKey) }
+    set { UserDefaults.standard.set(newValue, forKey: selectSegmentDoneKey) }
   }
   
   var previewButtonTapDone: Bool {
