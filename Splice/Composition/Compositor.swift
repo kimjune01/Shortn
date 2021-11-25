@@ -20,8 +20,8 @@ typealias CompositorCompletion = (URL?, Error?) -> ()
 
 class Compositor {
   unowned var composition: SpliceComposition
-  let spliceInstruction = AVMutableVideoCompositionInstruction()
-  let spliceComposition = AVMutableVideoComposition()
+  var spliceInstruction = AVMutableVideoCompositionInstruction()
+  var spliceComposition = AVMutableVideoComposition()
   static var debugging = false
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -121,6 +121,7 @@ class Compositor {
       isPortraitFrame = true
     }
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
+    videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
     let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
     mixComposition.naturalSize = absoluteSize
     // 1 instruction per layer!
@@ -146,12 +147,14 @@ class Compositor {
       mixComposition.removeTrack(audioTrack)
     }
 
+    spliceInstruction = AVMutableVideoCompositionInstruction()
     spliceInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
     spliceInstruction.layerInstructions = [layerInstruction]
     
+    spliceComposition = AVMutableVideoComposition()
+    spliceComposition.renderSize = absoluteSize
     spliceComposition.instructions = [spliceInstruction]
     spliceComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
-    spliceComposition.renderSize = absoluteSize
     
     return mixComposition
   }
