@@ -30,9 +30,6 @@ class Compositor {
   // to be called only after concatAndSplice
   func export(_ asset: AVAsset, _ completion: @escaping CompositorCompletion) {
     let tempDirectory = FileManager.default.temporaryDirectory
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateStyle = .long
-    dateFormatter.timeStyle = .short
     let url = tempDirectory.appendingPathComponent("temp\(UUID().shortened()).mp4")
     
     guard let exporter = AVAssetExportSession(
@@ -141,6 +138,12 @@ class Compositor {
     if error != nil {
       return nil
 //      completion(nil, error)
+    }
+    
+    // for when there is no audio, remove the audio track. For downloaded videos!
+    if let audioTrack = mixComposition.tracks(withMediaType: .audio).first,
+       audioTrack.segments.isEmpty {
+      mixComposition.removeTrack(audioTrack)
     }
 
     spliceInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
