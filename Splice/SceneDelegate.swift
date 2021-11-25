@@ -19,6 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window = window
     window.makeKeyAndVisible()
     ShortnAppProduct.updatePHPickerSelectionLimit()
+    FileManager.default.cleanUpOldTempFiles()
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {

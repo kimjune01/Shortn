@@ -70,4 +70,28 @@ extension FileManager {
       return fileDirectory
     }
   }
+  
+  func cleanUpOldTempFiles() {
+    let temporaryUrl =  temporaryDirectory
+    
+    do {
+      // Get the directory contents urls (including subfolders urls)
+      let temporaryContents = try contentsOfDirectory(at: temporaryUrl, includingPropertiesForKeys: nil)
+      print(temporaryContents)
+      
+      for contentUrl in temporaryContents {
+        guard fileExists(atPath: contentUrl.path) else { continue }
+        let attr = try attributesOfItem(atPath: contentUrl.path)
+        let creationDate = attr[.creationDate] as? Date
+        if let created = creationDate, abs(created.timeIntervalSinceNow / 3600) > 24  {
+          // stale. delete!
+          try removeItem(at: contentUrl)
+        }
+      }
+      
+    } catch {
+      print(error)
+    }
+  }
+  
 }
