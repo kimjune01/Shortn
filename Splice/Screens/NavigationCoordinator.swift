@@ -36,9 +36,8 @@ class NavigationCoordinator: NSObject {
     previewVC.delegate = self
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    navController.present(previewVC, animated: true) {
-      presenter?.stopSpinning()
-    }
+    navController.pushViewController(previewVC, animated: true)
+    presenter?.stopSpinning()
   }
   
   func showAlbumPicker() {
@@ -88,12 +87,12 @@ extension NavigationCoordinator: AlbumImportViewControllerDelegate {
       self.showAlbumPicker()
     }
   }
-  
 }
 
 extension NavigationCoordinator: PreviewViewControllerDelegate {
   func previewVCDidCancel(_ previewVC: PreviewViewController) {
-    previewVC.dismiss(animated: true, completion: nil)
+    navController.popViewController(animated: true)
+//    previewVC.dismiss(animated: true, completion: nil)
   }
   
   func previewVCDidFailExport(_ previewVC: PreviewViewController, err: Error?) {

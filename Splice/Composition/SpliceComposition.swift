@@ -183,12 +183,7 @@ class SpliceComposition {
   
   func makeTempDirectoryName(identifier: String) -> URL {
     let tempDirectory = FileManager.default.temporaryDirectory
-    if let lastComponent = identifier.components(separatedBy: "-").last?
-        .components(separatedBy: "/").first {
-      return tempDirectory.appendingPathComponent("\(lastComponent).mp4")
-    } else {
-      return tempDirectory.appendingPathComponent("\(UUID()).mp4")
-    }
+    return tempDirectory.appendingPathComponent("\(identifier.md5()).mp4")
   }
   
   func saveAssetsToTempDirectory(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping BoolCompletion) {
