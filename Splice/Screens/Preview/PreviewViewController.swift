@@ -24,8 +24,9 @@ class PreviewViewController: UIViewController {
   var previewAsset: AVAsset?
   let spinner = UIActivityIndicatorView(style: .large)
   let waitLabel = UILabel()
-  var shareButton: UIButton!
+  var micButton: UIButton!
   let bottomStack = UIStackView()
+  var voiceoverVC: VoiceoverViewController!
   
   private var playbackState: AVPlayer.TimeControlStatus {
     return player.timeControlStatus
@@ -36,7 +37,9 @@ class PreviewViewController: UIViewController {
   
   init(composition: SpliceComposition) {
     self.composition = composition
+    voiceoverVC = VoiceoverViewController(composition: composition)
     super.init(nibName: nil, bundle: nil)
+    voiceoverVC.delegate = self
   }
   
   required init?(coder: NSCoder) {
@@ -48,9 +51,12 @@ class PreviewViewController: UIViewController {
     view.backgroundColor = .systemGray
     addPlayer()
     addBottonStack()
-    addSpinner()
-    addWaitLabel()
-    exportInBackground()
+//    addSpinner()
+//    addWaitLabel()
+    addVoiceoverVC()
+    if !composition.assets.isEmpty {
+      exportInBackground()
+    }
     //    makePreview()
 
   }
@@ -90,20 +96,24 @@ class PreviewViewController: UIViewController {
   }
   
   func addBottonStack() {
-    let stackHeight: CGFloat = 50
     
-    playerView.addSubview(bottomStack)
-    bottomStack.set(height: stackHeight)
+    view.addSubview(bottomStack)
+    bottomStack.set(height: UIStackView.bottomHeight)
     bottomStack.fillWidthOfParent(withDefaultMargin: true)
+    // animating anchor
     bottomStack.pinBottomToParent(margin: 24, insideSafeArea: true)
     bottomStack.distribution = .equalSpacing
     bottomStack.axis = .horizontal
     bottomStack.alignment = .center
     
-    var backConfig = UIButton.Configuration.plain()
-    backConfig.image = UIImage(systemName: "arrowshape.turn.up.backward")
+    var backConfig = UIButton.Configuration.filled()
+    backConfig.baseForegroundColor = .white
+    backConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
+    backConfig.buttonSize = .large
+    backConfig.image = UIImage(systemName: "chevron.left")
     backConfig.baseForegroundColor = .white
     let backButton = UIButton(configuration: backConfig, primaryAction: UIAction(){ _ in
+      guard self.player != nil else { return }
       NotificationCenter.default.removeObserver(self)
       self.player.pause()
       self.delegate?.previewVCDidCancel(self)
@@ -111,69 +121,84 @@ class PreviewViewController: UIViewController {
     bottomStack.addArrangedSubview(backButton)
     
     let saveButtonVC = SaveButtonViewController(composition: composition)
-    view.addSubview(saveButtonVC.view)
     addChild(saveButtonVC)
     saveButtonVC.didMove(toParent: self)
     saveButtonVC.view.set(width: 110)
     saveButtonVC.view.set(height: 47)
     bottomStack.addArrangedSubview(saveButtonVC.view)
     
-    var shareConfig = UIButton.Configuration.plain()
-    shareConfig.image = UIImage(systemName: "square.and.arrow.up")
-    shareConfig.baseForegroundColor = .white
-    shareButton = UIButton(configuration: shareConfig, primaryAction: UIAction(){ _ in
-      if saveButtonVC.shouldSaveUninterrupted {
-        saveButtonVC.incrementUsageCounterIfNeeded()
-        self.showShareActivity()
-      } else {
-        saveButtonVC.offerPurchase()
-      }
+    var micConfig = UIButton.Configuration.filled()
+    micConfig.baseForegroundColor = .white
+    micConfig.baseBackgroundColor = .black.withAlphaComponent(0.2)
+    micConfig.buttonSize = .large
+    micConfig.image = UIImage(systemName: "mic.fill")
+    micButton = UIButton(configuration: micConfig, primaryAction: UIAction(){ _ in
+      self.presentVoiceoverVC()
     })
-    bottomStack.addArrangedSubview(shareButton)
+    bottomStack.addArrangedSubview(micButton)
   }
   
-  // for reference only. do not call
-  func makePreview() {
-    assert(false, "must export for now..")
-    bottomStack.obscure()
-    if let asset = composition.composeForPreviewAndExport() {
-      spinner.stopAnimating()
-      waitLabel.isHidden = true
-      playerView.isUserInteractionEnabled = true
-      previewAsset = asset
-      makePlayer(item: self.makePlayerItem(from: asset))
-    } else {
-      // FIXME
-      delegate?.previewVCDidFailExport(self, err: CompositorError.avFoundation)
-    }
+  func addVoiceoverVC() {
+    view.addSubview(voiceoverVC.view)
+    voiceoverVC.view.fillParent()
+    addChild(voiceoverVC)
+    voiceoverVC.didMove(toParent: self)
+    voiceoverVC.view.isUserInteractionEnabled = false
   }
+  
+  func presentVoiceoverVC() {
+    let playerView = self.playerView
+    playerView.isUserInteractionEnabled = false
+    UIView.animate(withDuration: voiceoverVC.transitionDuration) {
+      self.bottomStack.transform = .identity.translatedBy(x: 0, y: 100)
+      let scaleFactor = 0.5
+      playerView.transform = .identity
+        .scaledBy(x: scaleFactor, y: scaleFactor)
+        .translatedBy(x: -playerView.frame.width / 2 + 8, y: -50)
+    } completion: { _ in
+      self.voiceoverVC.view.isUserInteractionEnabled = true
+    }
+    voiceoverVC.animateIn()
+  }
+  func presentVoiceoverVCOut() {
+    voiceoverVC.view.isUserInteractionEnabled = false
+    voiceoverVC.animateOut()
+    let playerView = self.playerView
+    UIView.animate(withDuration: voiceoverVC.transitionDuration) {
+      self.bottomStack.transform = .identity
+      playerView.isUserInteractionEnabled = true
+      playerView.transform = .identity
+    }
+
+  }
+  
+  // for reference only, when making preview without instructions.
+//  func makePreview() {
+//    assert(false, "must export for now..")
+//    bottomStack.obscure()
+//    if let asset = composition.composeForPreviewAndExport() {
+//      spinner.stopAnimating()
+//      waitLabel.isHidden = true
+//      playerView.isUserInteractionEnabled = true
+//      previewAsset = asset
+//      makePlayer(item: self.makePlayerItem(from: asset))
+//    } else {
+//      // FIXME
+//      delegate?.previewVCDidFailExport(self, err: CompositorError.avFoundation)
+//    }
+//  }
   
   @objc func didSaveToAlbum() {
     print("didSaveToAlbum")
   }
   
-  func showShareActivity() {
-    guard let assetToShare = composition.exportAsset else { return }
-    let activityVC = UIActivityViewController(activityItems: [assetToShare.url], applicationActivities: nil)
-    activityVC.title = "Save to album"
-    activityVC.excludedActivityTypes = []
-    // for ipads
-    if let popover = activityVC.popoverPresentationController {
-      popover.sourceView = bottomStack
-      popover.sourceRect = shareButton.frame
-      popover.permittedArrowDirections = .down
-    }
-    
-    self.present(activityVC, animated: true, completion: nil)
-  }
-  
   func addPlayer() {
     view.addSubview(playerView)
+    playerView.backgroundColor = .black
     playerView.fillParent(withDefaultMargin: false, insideSafeArea: false)
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
     playerView.addGestureRecognizer(singleTapRecognizer)
-    playerView.isUserInteractionEnabled = false
   }
   
   func makePlayer(item: AVPlayerItem) {
@@ -200,13 +225,17 @@ class PreviewViewController: UIViewController {
     guard let asset = composition.composeForPreviewAndExport() else {
       return
     }
+    playerView.isUserInteractionEnabled = false
+    bottomStack.obscure()
     composition.export(asset) { error in
       guard error == nil else {
         print("error! ", error!)
         self.alertExportFail()
         return
       }
+      self.bottomStack.clarify()
       self.previewAsset = asset
+      self.playerView.isUserInteractionEnabled = true
       self.makePlayer(item: self.makePlayerItem(from: asset))
       self.appearLoaded()
       self.player.play()
@@ -235,6 +264,10 @@ class PreviewViewController: UIViewController {
   }
   
   func togglePlayback() {
+    guard player != nil else {
+      print("Tried to togglePlayback without a player!!!")
+      return
+    }
     if player.timeControlStatus == .playing {
       player.pause()
     } else if player.status == .readyToPlay {
@@ -261,4 +294,21 @@ class PreviewViewController: UIViewController {
   deinit {
     NotificationCenter.default.removeObserver(self)
   }
+}
+
+extension PreviewViewController: VoiceoverViewControllerDelegate {
+  func playerFrame() -> CGRect {
+    return playerView.frame 
+  }
+  
+  func voiceoverVCDidFinish() {
+    presentVoiceoverVCOut()
+    
+  }
+  
+  func voiceoverVCDidCancel() {
+    print("didCancel")
+    presentVoiceoverVCOut()
+  }
+  
 }

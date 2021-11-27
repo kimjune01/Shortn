@@ -17,6 +17,7 @@ class SpliceComposition {
   var assetIdentifiers: [String] = []
   var assets: [AVAsset] = []
   var splices: [Splice] = []
+  var voiceSegments: [AVAsset] = []
   var bpm: Int?
   
   var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)
@@ -31,6 +32,11 @@ class SpliceComposition {
   var totalDuration: TimeInterval {
     return assets.reduce(0.0) { partialResult, asset in
       return partialResult + asset.duration.seconds
+    }
+  }
+  var voiceSegmentsDuration: TimeInterval {
+    return voiceSegments.reduce(0.0) { partialResult, voice in
+      return partialResult + voice.duration.seconds
     }
   }
   
