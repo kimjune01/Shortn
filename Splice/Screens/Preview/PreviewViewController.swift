@@ -48,7 +48,7 @@ class PreviewViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .systemGray
+    view.backgroundColor = .black
     addPlayer()
     addBottonStack()
     addSpinner()

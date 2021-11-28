@@ -70,6 +70,8 @@ class VoiceoverViewController: UIViewController {
   var loopingRange: ClosedRange<TimeInterval>?
   var displayLink: CADisplayLink!
   var lookAheadTimer: Timer!
+  let currentLabel = UILabel()
+  let futureLabel = UILabel()
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -87,6 +89,8 @@ class VoiceoverViewController: UIViewController {
     addBottomStack()
     addStateBorder()
     addLookAheadThumbnail()
+    addCurrentLabel()
+    addFutureLabel()
     addPlayerControlStack()
     addSegmentsVC()
     addDebugButton()
@@ -191,7 +195,7 @@ class VoiceoverViewController: UIViewController {
   func addStateBorder() {
     view.addSubview(stateBorder)
     stateBorder.alpha = 0
-    stateBorder.layer.borderWidth = 1
+    stateBorder.layer.borderWidth = 2
   }
   
   func addLookAheadThumbnail() {
@@ -200,6 +204,26 @@ class VoiceoverViewController: UIViewController {
     lookAheadThumbnail.alpha = 0
     lookAheadThumbnail.frame = CGRect(x: view.width, y: view.height / 2, width: .zero, height: .zero)
     lookAheadThumbnail.roundCorner(radius: 12, cornerCurve: .continuous)
+  }
+  
+  func addFutureLabel() {
+    futureLabel.text = "2 seconds ahead"
+    futureLabel.textAlignment = .center
+    futureLabel.textColor = .white
+    futureLabel.font = .systemFont(ofSize: 12, weight: .light)
+    futureLabel.sizeToFit()
+    view.addSubview(futureLabel)
+    futureLabel.alpha = 0
+  }
+  
+  func addCurrentLabel() {
+    currentLabel.text = "Now"
+    currentLabel.textAlignment = .center
+    currentLabel.textColor = .white
+    currentLabel.font = .systemFont(ofSize: 12, weight: .light)
+    currentLabel.sizeToFit()
+    view.addSubview(currentLabel)
+    currentLabel.alpha = 0
   }
   
   func addPlayerControlStack() {
@@ -252,6 +276,8 @@ class VoiceoverViewController: UIViewController {
                                    y: playerControlStack.maxY + 24,
                                    width: view.width - UIView.defaultEdgeMargin * 2,
                                    height: SegmentsViewController.segmentHeight)
+    currentLabel.center = CGPoint(x: playerFrame.midX, y: playerFrame.maxY + 12)
+
     UIView.animate(withDuration: transitionDuration + 0.01) {
       self.bottomStack.transform = .identity
       self.lookAheadThumbnail.alpha = 1
@@ -267,9 +293,13 @@ class VoiceoverViewController: UIViewController {
                                           height: SegmentsViewController.segmentHeight)
       
     } completion: { _ in
+      self.futureLabel.center = CGPoint(x: self.lookAheadThumbnail.midX,
+                                        y: self.lookAheadThumbnail.maxY + 12)
       UIView.animate(withDuration: 0.2) {
         self.stateBorder.alpha = 1
         self.playerControlStack.alpha = 1
+        self.futureLabel.alpha = 1
+        self.currentLabel.alpha = 1
       }
     }
   }
@@ -277,6 +307,8 @@ class VoiceoverViewController: UIViewController {
   func animateOut() {
     stateBorder.alpha = 0
     playerControlStack.alpha = 0
+    futureLabel.alpha = 0
+    currentLabel.alpha = 0
     UIView.animate(withDuration: transitionDuration) {
       self.bottomStack.transform = .identity.translatedBy(x: 0, y: 100)
       self.stateBorder.alpha = 0
@@ -389,8 +421,9 @@ class VoiceoverViewController: UIViewController {
     let asset = delegate.assetForThumbnail() else {
       return
     }
-    let thumbnail = asset.makethumbnail(at: delegate.currentPlaybackTime() + 2, size: lookAheadThumbnail.size)
-    UIView.transition(with: lookAheadThumbnail, duration: 1, options: .transitionCrossDissolve) {
+    let targetTime = min(delegate.currentPlaybackTime() + 2, composition.totalDuration)
+    let thumbnail = asset.makethumbnail(at: targetTime, size: lookAheadThumbnail.size)
+    UIView.transition(with: lookAheadThumbnail, duration: 1.5, options: .transitionCrossDissolve) {
       self.lookAheadThumbnail.image = thumbnail
     } completion: { finished in
       //
