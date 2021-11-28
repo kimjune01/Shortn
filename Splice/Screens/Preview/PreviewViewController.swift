@@ -147,6 +147,8 @@ class PreviewViewController: UIViewController {
   func presentVoiceoverVC() {
     let playerView = self.playerView
     playerView.isUserInteractionEnabled = false
+    player.pause()
+    player.seek(to: .zero)
     UIView.animate(withDuration: voiceoverVC.transitionDuration) {
       self.bottomStack.transform = .identity.translatedBy(x: 0, y: 100)
       let scaleFactor = 0.5
@@ -231,13 +233,18 @@ class PreviewViewController: UIViewController {
         self.alertExportFail()
         return
       }
-      self.bottomStack.clarify()
       self.previewAsset = asset
-      self.playerView.isUserInteractionEnabled = true
       self.makePlayer(item: self.makePlayerItem(from: asset))
-      self.appearLoaded()
-      self.player.play()
+      self.renderFreshAssets()
     }
+  }
+  
+  func renderFreshAssets() {
+    voiceoverVC.renderFreshAssets()
+    bottomStack.clarify()
+    playerView.isUserInteractionEnabled = true
+    appearLoaded()
+    player.play()
   }
   
   func alertExportFail() {
@@ -295,6 +302,27 @@ class PreviewViewController: UIViewController {
 }
 
 extension PreviewViewController: VoiceoverViewControllerDelegate {
+  
+  func voiceoverVCDidStartRecording() {
+    player.play()
+  }
+
+  func voiceoverVCDidStopRecording() {
+    player.pause()
+  }
+
+  func seekPlayer(to time: TimeInterval) {
+    player.seek(to: time.cmTime)
+  }
+  
+  func assetForThumbnail() -> AVAsset? {
+    return previewAsset
+  }
+  
+  func currentPlaybackTime() -> TimeInterval {
+    return player.currentTime().seconds
+  }
+  
   func playerFrame() -> CGRect {
     return playerView.frame 
   }

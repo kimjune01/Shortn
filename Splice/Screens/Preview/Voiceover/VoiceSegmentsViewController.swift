@@ -16,7 +16,7 @@ class VoiceSegmentsViewController: UIViewController {
   var expandingRate: CGFloat = 0
   var displayLink: CADisplayLink!
   var runningPortion: CGFloat = 0
-  var expanding = false {
+  private var expanding = false {
     didSet {
       if expanding {
         expandingStartTime = Date()
@@ -39,12 +39,26 @@ class VoiceSegmentsViewController: UIViewController {
     view.backgroundColor = .black.withAlphaComponent(0.2)
     view.layer.cornerRadius = 3
     addExpandingSegment()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     subscribeToDisplayLink()
+  }
+  
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    displayLink?.invalidate()
   }
   
   func addExpandingSegment() {
     view.addSubview(expandingSegment)
-    expandingSegment.backgroundColor = .systemRed
+    expandingSegment.backgroundColor = .systemRed.withAlphaComponent(0.7)
+  }
+  
+  func renderFreshAssets() {
+    guard composition.assets.count > 0 else { return }
+    expandingRate =  view.width / composition.totalDuration
   }
   
   func renderSegments() {
@@ -59,9 +73,6 @@ class VoiceSegmentsViewController: UIViewController {
       view.addSubview(newSegment)
       runningPortion += thisPortion
     }
-    if composition.totalDuration > 0 {
-      expandingRate = view.width / composition.totalDuration
-    }
   }
   
   func makeNewSegment(start: CGFloat, portion: CGFloat) -> UIView{
@@ -74,7 +85,16 @@ class VoiceSegmentsViewController: UIViewController {
     return segment
   }
   
+  func startExpanding() {
+    expanding = true
+  }
+  
+  func stopExpanding() {
+    expanding = false
+  }
+  
   func subscribeToDisplayLink() {
+    displayLink?.invalidate()
     displayLink = CADisplayLink(target: self, selector: #selector(displayStep))
     displayLink.isPaused = false
     displayLink.add(to: .main, forMode: .common)
@@ -89,7 +109,7 @@ class VoiceSegmentsViewController: UIViewController {
     let timeSince: CGFloat = abs(Date().timeIntervalSinceReferenceDate - expandingStartTime.timeIntervalSinceReferenceDate)
     expandingSegment.frame = CGRect(x: runningPortion * view.width,
                                     y: 0,
-                                    width: timeSince * view.width,
+                                    width: timeSince * expandingRate,
                                     height: view.height)
   }
 }

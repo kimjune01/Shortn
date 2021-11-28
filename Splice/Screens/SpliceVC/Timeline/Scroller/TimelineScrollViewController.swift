@@ -54,7 +54,16 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
     addIntervalsVC()
     addSeekerBar()
     observeTimer()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     subscribeToDisplayLink()
+  }
+  
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    unsubscribeFromDisplayLink()
   }
   
   func addThumbnailsVC() {
@@ -110,10 +119,15 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
   }
   
   func subscribeToDisplayLink() {
+    displayLink?.invalidate()
     displayLink = CADisplayLink(target: self, selector: #selector(displayStep))
     displayLink.isPaused = false
     displayLink.add(to: .main, forMode: .common)
     spliceState = .neutral
+  }
+  
+  func unsubscribeFromDisplayLink() {
+    displayLink.invalidate()
   }
   
   @objc func displayStep(_ displaylink: CADisplayLink) {

@@ -6,11 +6,17 @@
 //
 
 import UIKit
+import AVFoundation
 
 protocol VoiceoverViewControllerDelegate: AnyObject {
   func playerFrame() -> CGRect
+  func voiceoverVCDidStartRecording()
+  func voiceoverVCDidStopRecording()
   func voiceoverVCDidCancel()
   func voiceoverVCDidFinish()
+  func seekPlayer(to time: TimeInterval)
+  func currentPlaybackTime() -> TimeInterval
+  func assetForThumbnail() -> AVAsset?
 }
 
 enum VoiceoverState: Int, CaseIterable, CustomDebugStringConvertible {
@@ -60,6 +66,10 @@ class VoiceoverViewController: UIViewController {
   let playerControlStack = UIStackView()
   let debugButton = UIButton()
   var segmentsVC: VoiceSegmentsViewController!
+  var recordingStartTime: TimeInterval = 0
+  var loopingRange: ClosedRange<TimeInterval>?
+  var displayLink: CADisplayLink!
+  var lookAheadTimer: Timer!
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -79,10 +89,39 @@ class VoiceoverViewController: UIViewController {
     addLookAheadThumbnail()
     addPlayerControlStack()
     addSegmentsVC()
-    if composition.totalDuration > 0 {
-      state = .standby
-    }
     addDebugButton()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    subscribeToDisplayLink()
+    lookAheadTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { timer in
+      self.refreshLookaheadThumbnail()
+    })
+  }
+  
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    unsubscribeFromDisplayLink()
+    lookAheadTimer?.invalidate()
+  }
+  
+  func subscribeToDisplayLink() {
+    displayLink?.invalidate()
+    displayLink = CADisplayLink(target: self, selector: #selector(displayStep))
+    displayLink.isPaused = false
+    displayLink.add(to: .main, forMode: .common)
+  }
+  
+  @objc func displayStep() {
+    guard let loop = loopingRange, let delegate = delegate else { return }
+    let playTime = delegate.currentPlaybackTime()
+    if loop.contains(playTime) { return }
+    delegate.seekPlayer(to: loop.lowerBound)
+  }
+  
+  func unsubscribeFromDisplayLink() {
+    displayLink?.invalidate()
   }
   
   func addBottomStack() {
@@ -152,7 +191,7 @@ class VoiceoverViewController: UIViewController {
   func addStateBorder() {
     view.addSubview(stateBorder)
     stateBorder.alpha = 0
-    stateBorder.layer.borderWidth = 3
+    stateBorder.layer.borderWidth = 1
   }
   
   func addLookAheadThumbnail() {
@@ -160,6 +199,7 @@ class VoiceoverViewController: UIViewController {
     lookAheadThumbnail.backgroundColor = .black
     lookAheadThumbnail.alpha = 0
     lookAheadThumbnail.frame = CGRect(x: view.width, y: view.height / 2, width: .zero, height: .zero)
+    lookAheadThumbnail.roundCorner(radius: 12, cornerCurve: .continuous)
   }
   
   func addPlayerControlStack() {
@@ -169,13 +209,13 @@ class VoiceoverViewController: UIViewController {
     playerControlStack.alignment = .center
     playerControlStack.distribution = .equalSpacing
    
-    var rewindConfig = UIButton.Configuration.plain()
-    rewindConfig.baseForegroundColor = .white
-    rewindConfig.buttonSize = .medium
-    rewindConfig.image = UIImage(systemName: "arrow.uturn.backward")
-    rewindButton = UIButton(configuration: rewindConfig, primaryAction: UIAction(){ _ in
-      self.rewind()
-    })
+//    var rewindConfig = UIButton.Configuration.plain()
+//    rewindConfig.baseForegroundColor = .white
+//    rewindConfig.buttonSize = .medium
+//    rewindConfig.image = UIImage(systemName: "arrow.uturn.backward")
+//    rewindButton = UIButton(configuration: rewindConfig, primaryAction: UIAction(){ _ in
+//      self.rewind()
+//    })
 //    playerControlStack.addArrangedSubview(rewindButton)
     
 //    var forwardConfig = UIButton.Configuration.plain()
@@ -203,7 +243,6 @@ class VoiceoverViewController: UIViewController {
   }
   
   func animateIn() {
-    state = .initial
     stateBorder.frame = playerFrame
     playerControlStack.frame = CGRect(x: playerFrame.minX,
                                       y: playerFrame.maxY,
@@ -251,68 +290,126 @@ class VoiceoverViewController: UIViewController {
                                           height: SegmentsViewController.segmentHeight)
     }
   }
-  
+
+  func renderFreshAssets() {
+    guard composition.assets.count > 0 else { return }
+    segmentsVC.renderFreshAssets()
+    state = .standby
+  }
+
   func updateAppearance() {
     undoButton.configuration?.image = UIImage(systemName: "delete.left")
+    confirmButton.configuration?.baseForegroundColor = .white
+    confirmButton.configuration?.image = UIImage(systemName: "checkmark")
     switch state {
     case .initial:
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
       micButton.isEnabled = false
       undoButton.isEnabled = composition.voiceSegments.count > 0
-      rewindButton.obscure()
     case .recording:
       stateBorder.layer.borderColor = UIColor.systemRed.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = true
       undoButton.isEnabled = false
-      rewindButton.obscure()
     case .playback:
       micButton.isEnabled = false
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
       undoButton.isEnabled = false
-      rewindButton.clarify()
     case .paused:
       micButton.isEnabled = false
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
       undoButton.isEnabled = true
-      rewindButton.clarify()
     case .standby:
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = true
       undoButton.isEnabled = composition.voiceSegments.count > 0
-      rewindButton.clarify()
     case .complete:
       stateBorder.layer.borderColor = UIColor.systemGreen.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = false
       undoButton.isEnabled = true
-      rewindButton.clarify()
+      confirmButton.configuration?.baseForegroundColor = .systemGreen
+      let checkConfig = UIImage.SymbolConfiguration(weight: .bold)
+      confirmButton.configuration?.image = UIImage(systemName: "checkmark", withConfiguration: checkConfig)
     case .selecting:
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
       micButton.isEnabled = true
       undoButton.isEnabled = true
       undoButton.configuration?.image = UIImage(systemName: "delete.left.fill")
-      rewindButton.obscure()
     }
-  }
-  
-  func rewind() {
-    
-  }
-  
-  func forward() {
-    
+    debugButton.setTitle(state.debugDescription, for: .normal)
   }
   
   func tappedUndoButton() {
+    if state == .standby {
+      loopLatestSegment()
+      state = .selecting
+    } else if state == .selecting {
+      loopingRange = nil
+      state = .standby
+      delegate?.seekPlayer(to: composition.voiceSegmentsDuration)
+      // TODO: handle deletion in a popover...
+//      deleteLatestSegment()
+    }
+  }
+  
+  func loopLatestSegment() {
+    guard let segment = composition.voiceSegments.last else {
+      return
+    }
+    // sync player with segment.
+    let segmentStart = composition.voiceSegments.filter{$0 != segment}.reduce(0) { partialResult, asset in
+      return partialResult + asset.duration.seconds
+    }
+    let segmentEnd = segmentStart + segment.duration.seconds
+    loopingRange = segmentStart...segmentEnd
+    delegate?.seekPlayer(to: segmentStart)
+  }
+  
+  func deleteLatestSegment() {
+    guard !composition.voiceSegments.isEmpty else {
+      return
+    }
+    composition.voiceSegments.removeLast()
+  }
+  
+  func startRecording() {
+    // should not need starting time because the duration of the previous segments should sum up to start time.
+    // may be out of sync, but that's ok for this level of precision.
+//    if let delegate = delegate {
+//      recordingStartTime = delegate.currentPlaybackTime()
+//    }
     
   }
   
+  func stopRecording() {
+    
+  }
+  
+  func refreshLookaheadThumbnail() {
+    guard let delegate = delegate,
+    let asset = delegate.assetForThumbnail() else {
+      return
+    }
+    let thumbnail = asset.makethumbnail(at: delegate.currentPlaybackTime() + 2, size: lookAheadThumbnail.size)
+    UIView.transition(with: lookAheadThumbnail, duration: 1, options: .transitionCrossDissolve) {
+      self.lookAheadThumbnail.image = thumbnail
+    } completion: { finished in
+      //
+    }
+
+  }
+
   @objc func touchDownMicButton() {
     state = .recording
+    segmentsVC.startExpanding()
+    startRecording()
+    delegate?.voiceoverVCDidStartRecording()
   }
   
   @objc func touchDoneMicButton() {
     state = .standby
-
+    segmentsVC.stopExpanding()
+    stopRecording()
+    delegate?.voiceoverVCDidStopRecording()
   }
   
   @objc func tappedDebugButton() {
