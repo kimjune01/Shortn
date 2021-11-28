@@ -135,6 +135,8 @@ class VoiceoverViewController: UIViewController {
     let playTime = player.currentTime()
     if loop.contains(playTime.seconds) { return }
     player.seek(to: loop.lowerBound.cmTime)
+    // synchronized loop
+    voiceRecorder.play(at: loop.lowerBound)
   }
   
   func unsubscribeFromDisplayLink() {
@@ -337,6 +339,7 @@ class VoiceoverViewController: UIViewController {
                                    y: playerControlStack.maxY + 24,
                                    width: view.width - UIView.defaultEdgeMargin * 2,
                                    height: SegmentsViewController.segmentHeight)
+    segmentsVC.adjustExpandingRate()
     currentLabel.center = CGPoint(x: playerFrame.midX, y: playerFrame.maxY + 12)
     topBar.frame = CGRect(x: 0, y: -50, width: view.width, height: 50)
     UIView.animate(withDuration: transitionDuration + 0.01) {
@@ -363,6 +366,9 @@ class VoiceoverViewController: UIViewController {
         self.playerControlStack.alpha = 1
         self.futureLabel.alpha = 1
         self.currentLabel.alpha = 1
+      }
+      self.voiceRecorder.requestRecordingPermissionIfNeeded() { granted in
+        // TODO:
       }
     }
   }
@@ -450,18 +456,22 @@ class VoiceoverViewController: UIViewController {
   }
   
   func tappedUndoButton() {
-    if state == .standby {
-      loopLatestSegment()
+    switch state {
+    case .standby, .playback, .paused:
+      loopLastSegment()
       state = .selecting
-    } else if state == .selecting {
+    case .selecting:
       loopingRange = nil
       state = .standby
       delegate?.getPlayer().seek(to: composition.voiceSegmentsDuration.cmTime)
+    default:
+      assert(false)
     }
   }
   
-  func loopLatestSegment() {
-    guard let segment = composition.voiceSegments.last else {
+  func loopLastSegment() {
+    guard let segment = composition.voiceSegments.last,
+    let player = delegate?.getPlayer() else {
       return
     }
     // sync player with segment.
@@ -470,7 +480,12 @@ class VoiceoverViewController: UIViewController {
     }
     let segmentEnd = segmentStart + segment.duration.seconds
     loopingRange = segmentStart...segmentEnd
-    delegate?.getPlayer().seek(to: segmentStart.cmTime)
+    player.seek(to: segmentStart.cmTime)
+    player.play()
+    // synchronized playback
+    voiceRecorder.play(at: segmentStart)
+
+    // loops back at func displayStep
   }
   
   func deleteLatestSegment() {
@@ -481,8 +496,9 @@ class VoiceoverViewController: UIViewController {
   }
   
   func seekToTip() {
+    guard let player = delegate?.getPlayer() else { return }
     let seekTo = min(composition.voiceSegmentsDuration, composition.totalDuration)
-    delegate?.getPlayer().seek(to: seekTo.cmTime)
+    player.seek(to: seekTo.cmTime)
   }
   
   func showTrashPopover() {
@@ -571,6 +587,9 @@ class VoiceoverViewController: UIViewController {
     case .playback, .paused:
       delegate?.getPlayer().pause()
       seekToTip()
+    case .selecting:
+      delegate?.getPlayer().pause()
+      seekToTip()
       state = .standby
     default:
       assert(false)
@@ -626,6 +645,6 @@ extension VoiceoverViewController: VoiceRecorderDelegate {
     let voiceAsset = AVURLAsset(url: url)
     composition.voiceSegments.append(voiceAsset)
     segmentsVC.renderFreshAssets()
-    // TODO
+    state = .standby
   }
 }

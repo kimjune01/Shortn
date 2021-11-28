@@ -23,6 +23,33 @@ class VoiceRecorder: NSObject {
   init(composition: SpliceComposition) {
     self.composition = composition
     super.init()
+    recordingSession = AVAudioSession.sharedInstance()
+  }
+
+  private func configureAudioSession() {
+    do {
+      // this breaks speech recognition.
+      try recordingSession.setCategory(.playAndRecord, mode: .default)
+      try recordingSession.setActive(true)
+    } catch {
+      // failed to record!
+    }
+  }
+
+  // should be called before trying to record audio session
+  func requestRecordingPermissionIfNeeded(_ completion: @escaping BoolCompletion = {_ in}) {
+    recordingSession.requestRecordPermission() { [unowned self] allowed in
+      if allowed {
+        self.configureAudioSession()
+      }
+      DispatchQueue.main.async {
+        completion(allowed)
+      }
+    }
+  }
+  
+  func gotRecordingPermission() {
+    
   }
   
   func makeTempUrl() -> URL {
@@ -69,7 +96,7 @@ class VoiceRecorder: NSObject {
     var remainingTime = time
     var targetIndex = 0
     var targetSegment = composition.voiceSegments[0]
-    while remainingTime > 0 {
+    while remainingTime > 0, targetIndex < composition.voiceSegments.count {
       targetSegment = composition.voiceSegments[targetIndex]
       if targetSegment.duration.seconds > remainingTime {
         break
@@ -79,6 +106,7 @@ class VoiceRecorder: NSObject {
     }
     let remainingSegments = composition.voiceSegments[targetIndex..<composition.voiceSegments.count]
     let urls = remainingSegments.map{$0.url}
+    voicesPlayer.stop()
     voicesPlayer.enqueue(urls)
     voicesPlayer.seek(to: remainingTime)
     voicesPlayer.play()
@@ -94,5 +122,6 @@ extension VoiceRecorder: AVAudioRecorderDelegate{
     guard flag else { print("audioRecorderDidFinishRecording fail!"); return }
     guard let url = tempUrl, let delegate = delegate else { return }
     delegate.voiceRecorderDidFinishRecording(to: url)
+    print("VoiceRecorder didFinishRecording")
   }
 }

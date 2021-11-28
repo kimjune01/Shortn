@@ -12,7 +12,7 @@ class VoiceSegmentsViewController: UIViewController {
   unowned var composition: SpliceComposition
   weak var delegate: VoiceoverViewControllerDelegate?
   static let defaultHeight:CGFloat = 28
-  let expandingSegment = UIView()
+  private let expandingSegment = UIView()
   var expandingRate: CGFloat = 0
   var displayLink: CADisplayLink!
   var runningPortion: CGFloat = 0
@@ -36,7 +36,8 @@ class VoiceSegmentsViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .black.withAlphaComponent(0.2)
+    view.backgroundColor = .systemGray.withAlphaComponent(0.2)
+    view.frame = .zero
     view.layer.cornerRadius = 3
     addExpandingSegment()
   }
@@ -53,19 +54,24 @@ class VoiceSegmentsViewController: UIViewController {
   
   func addExpandingSegment() {
     view.addSubview(expandingSegment)
-    expandingSegment.backgroundColor = .systemRed.withAlphaComponent(0.7)
+    expandingSegment.backgroundColor = .systemRed.withAlphaComponent(0.6)
   }
   
   func renderFreshAssets() {
     guard composition.assets.count > 0 else { return }
-    expandingRate =  view.width / composition.totalDuration
     renderSegments()
+  }
+  
+  func adjustExpandingRate() {
+    expandingRate =  view.width / composition.totalDuration
   }
   
   func renderSegments() {
     // segments are spread out over total duration
     for eachSubview in view.subviews {
-      eachSubview.removeFromSuperview()
+      if eachSubview != expandingSegment {
+        eachSubview.removeFromSuperview()
+      }
     }
     runningPortion = 0
     for eachVoice in composition.voiceSegments {
