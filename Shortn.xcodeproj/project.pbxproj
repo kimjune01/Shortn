@@ -69,6 +69,7 @@
 		0EF5933A2751DEA200FB3960 /* VoiceoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF593392751DEA200FB3960 /* VoiceoverViewController.swift */; };
 		0EF5933C2751DF4800FB3960 /* UIStackView+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF5933B2751DF4800FB3960 /* UIStackView+.swift */; };
 		0EF5933E2752887200FB3960 /* TouchlessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF5933D2752887200FB3960 /* TouchlessView.swift */; };
+		0EF593402752F36F00FB3960 /* VoiceSegmentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF5933F2752F36F00FB3960 /* VoiceSegmentsViewController.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -137,6 +138,7 @@
 		0EF593392751DEA200FB3960 /* VoiceoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceoverViewController.swift; sourceTree = "<group>"; };
 		0EF5933B2751DF4800FB3960 /* UIStackView+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+.swift"; sourceTree = "<group>"; };
 		0EF5933D2752887200FB3960 /* TouchlessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchlessView.swift; sourceTree = "<group>"; };
+		0EF5933F2752F36F00FB3960 /* VoiceSegmentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceSegmentsViewController.swift; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -366,6 +368,7 @@
 			isa = PBXGroup;
 			children = (
 				0EF593392751DEA200FB3960 /* VoiceoverViewController.swift */,
+				0EF5933F2752F36F00FB3960 /* VoiceSegmentsViewController.swift */,
 			);
 			path = Voiceover;
 			sourceTree = "<group>";
@@ -502,6 +505,7 @@
 				0EC33912273C351E003D9E63 /* SaveButtonViewController.swift in Sources */,
 				0E7A24412731EC8400A57A40 /* WaveformImageTypes.swift in Sources */,
 				0E78026C2749C3EC005772F2 /* Thumbnail.swift in Sources */,
+				0EF593402752F36F00FB3960 /* VoiceSegmentsViewController.swift in Sources */,
 				0E2511BC2726066800E425D6 /* AppDelegate.swift in Sources */,
 				0EC339032732EF62003D9E63 /* UUID+.swift in Sources */,
 				0EF5933A2751DEA200FB3960 /* VoiceoverViewController.swift in Sources */,

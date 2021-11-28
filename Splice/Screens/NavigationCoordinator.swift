@@ -14,19 +14,19 @@ class NavigationCoordinator: NSObject {
   var topVC: UIViewController? {
     return navController.topViewController
   }
-  let composition = SpliceComposition()
+//  let composition = SpliceComposition()
+  let composition = SpliceComposition.mockComposition()
   override init() {
-//    let albumImportVC = AlbumImportViewController(composition: composition)
 //    let spliceVC = SpliceViewController(composition: composition)
-    let previewVC = PreviewViewController(composition: composition)
-//    navController = AppNavController(rootViewController: albumImportVC)
-//    navController = AppNavController(rootViewController: BpmConfigViewController())
-    //    navController = AppNavController(rootViewController: spliceVC)
-        navController = AppNavController(rootViewController: previewVC)
-    super.init()
-//    albumImportVC.delegate = self
+//    navController = AppNavController(rootViewController: spliceVC)
+//    super.init()
 //    spliceVC.delegate = self
+
+    let previewVC = PreviewViewController(composition: composition)
+    navController = AppNavController(rootViewController: previewVC)
+    super.init()
     previewVC.delegate = self
+
     navController.delegate = self
     navController.interactivePopGestureRecognizer?.isEnabled = false
     navController.isNavigationBarHidden = true

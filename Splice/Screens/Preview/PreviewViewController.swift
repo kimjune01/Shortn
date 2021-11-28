@@ -51,14 +51,12 @@ class PreviewViewController: UIViewController {
     view.backgroundColor = .systemGray
     addPlayer()
     addBottonStack()
-//    addSpinner()
-//    addWaitLabel()
+    addSpinner()
+    addWaitLabel()
     addVoiceoverVC()
     if !composition.assets.isEmpty {
       exportInBackground()
     }
-    //    makePreview()
-
   }
   
   override func viewDidAppear(_ animated: Bool) {

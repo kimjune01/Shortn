@@ -287,5 +287,17 @@ class SpliceComposition {
     })
     merge(intervals: &splices)
   }
+  
+  static func mockComposition() -> SpliceComposition {
+    let comp = SpliceComposition()
+    let tempDir = comp.makeTempDirectoryName(identifier: "0D84F6E7-9C08-4E5E-9CC4-247824C08836/L0/001")
+    if !FileManager.default.fileExists(atPath: tempDir.path) {
+      assert(false, "need fresh assets in temp dir")
+    }
+    let localAsset = AVAsset(url: tempDir)
+    comp.assets = [localAsset]
+    comp.splices = [0...localAsset.duration.seconds]
+    return comp
+  }
 }
 

@@ -19,6 +19,7 @@ enum VoiceoverState: Int, CaseIterable, CustomDebugStringConvertible {
   case playback
   case paused
   case standby // at the tip
+  case selecting // always select the last voice segment if selecting
   case complete
   
   var debugDescription: String {
@@ -29,6 +30,7 @@ enum VoiceoverState: Int, CaseIterable, CustomDebugStringConvertible {
     case .paused: return "paused"
     case .standby: return "standby"
     case .complete: return "complete"
+    case .selecting: return "selecting"
     }
   }
 }
@@ -57,9 +59,11 @@ class VoiceoverViewController: UIViewController {
   }
   let playerControlStack = UIStackView()
   let debugButton = UIButton()
+  var segmentsVC: VoiceSegmentsViewController!
 
   init(composition: SpliceComposition) {
     self.composition = composition
+    self.segmentsVC = VoiceSegmentsViewController(composition: composition)
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -74,7 +78,10 @@ class VoiceoverViewController: UIViewController {
     addStateBorder()
     addLookAheadThumbnail()
     addPlayerControlStack()
-    
+    addSegmentsVC()
+    if composition.totalDuration > 0 {
+      state = .standby
+    }
     addDebugButton()
   }
   
@@ -103,7 +110,7 @@ class VoiceoverViewController: UIViewController {
     
     var undoConfig = UIButton.Configuration.gray()
     undoConfig.baseForegroundColor = .white
-    undoConfig.cornerStyle = .large
+    undoConfig.cornerStyle = .capsule
     undoConfig.buttonSize = .large
     undoConfig.image = UIImage(systemName: "delete.left")
     undoConfig.baseForegroundColor = .white
@@ -111,7 +118,9 @@ class VoiceoverViewController: UIViewController {
       self.tappedUndoButton()
     })
     bottomStack.addArrangedSubview(undoButton)
-    
+    undoButton.set(height:47)
+    undoButton.set(width:65)
+
     var micConfig = UIButton.Configuration.filled()
     micConfig.baseForegroundColor = .white
     micConfig.baseBackgroundColor = .systemBlue
@@ -167,7 +176,8 @@ class VoiceoverViewController: UIViewController {
     rewindButton = UIButton(configuration: rewindConfig, primaryAction: UIAction(){ _ in
       self.rewind()
     })
-    playerControlStack.addArrangedSubview(rewindButton)
+//    playerControlStack.addArrangedSubview(rewindButton)
+    
 //    var forwardConfig = UIButton.Configuration.plain()
 //    forwardConfig.baseForegroundColor = .white
 //    forwardConfig.buttonSize = .medium
@@ -186,6 +196,12 @@ class VoiceoverViewController: UIViewController {
     debugButton.addTarget(self, action: #selector(tappedDebugButton), for: .touchUpInside)
   }
   
+  func addSegmentsVC() {
+    view.addSubview(segmentsVC.view)
+    addChild(segmentsVC)
+    segmentsVC.didMove(toParent: self)
+  }
+  
   func animateIn() {
     state = .initial
     stateBorder.frame = playerFrame
@@ -193,6 +209,10 @@ class VoiceoverViewController: UIViewController {
                                       y: playerFrame.maxY,
                                       width: playerFrame.width, height: 40)
     playerControlStack.alpha = 0
+    segmentsVC.view.frame = CGRect(x: view.width,
+                                   y: playerControlStack.maxY + 24,
+                                   width: view.width - UIView.defaultEdgeMargin * 2,
+                                   height: SegmentsViewController.segmentHeight)
     UIView.animate(withDuration: transitionDuration + 0.01) {
       self.bottomStack.transform = .identity
       self.lookAheadThumbnail.alpha = 1
@@ -202,6 +222,10 @@ class VoiceoverViewController: UIViewController {
                                              y: playerFrame.minY + playerFrame.height * (1 - scaleFactor) / 2,
                                              width: playerFrame.width * scaleFactor,
                                              height: playerFrame.height * scaleFactor)
+      self.segmentsVC.view.frame = CGRect(x: UIView.defaultEdgeMargin,
+                                          y: self.segmentsVC.view.minY,
+                                          width: self.segmentsVC.view.width,
+                                          height: SegmentsViewController.segmentHeight)
       
     } completion: { _ in
       UIView.animate(withDuration: 0.2) {
@@ -221,35 +245,52 @@ class VoiceoverViewController: UIViewController {
       self.lookAheadThumbnail.frame = CGRect(x: self.view.width,
                                              y: self.view.height / 2,
                                              width: .zero, height: .zero)
+      self.segmentsVC.view.frame = CGRect(x: self.view.width,
+                                          y: self.segmentsVC.view.minY,
+                                          width: self.segmentsVC.view.width,
+                                          height: SegmentsViewController.segmentHeight)
     }
   }
   
   func updateAppearance() {
+    undoButton.configuration?.image = UIImage(systemName: "delete.left")
     switch state {
     case .initial:
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
       micButton.isEnabled = false
+      undoButton.isEnabled = composition.voiceSegments.count > 0
       rewindButton.obscure()
     case .recording:
       stateBorder.layer.borderColor = UIColor.systemRed.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = true
+      undoButton.isEnabled = false
       rewindButton.obscure()
     case .playback:
       micButton.isEnabled = false
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
+      undoButton.isEnabled = false
       rewindButton.clarify()
     case .paused:
       micButton.isEnabled = false
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
+      undoButton.isEnabled = true
       rewindButton.clarify()
     case .standby:
       stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = true
+      undoButton.isEnabled = composition.voiceSegments.count > 0
       rewindButton.clarify()
     case .complete:
       stateBorder.layer.borderColor = UIColor.systemGreen.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = false
+      undoButton.isEnabled = true
       rewindButton.clarify()
+    case .selecting:
+      stateBorder.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
+      micButton.isEnabled = true
+      undoButton.isEnabled = true
+      undoButton.configuration?.image = UIImage(systemName: "delete.left.fill")
+      rewindButton.obscure()
     }
   }
   
