@@ -286,8 +286,11 @@ class PreviewViewController: UIViewController {
     guard let _ = note.object as? AVPlayerItem else {
       return
     }
-    player.seek(to: .zero)
-    player.play()
+    if voiceoverVC.shouldLoopWhenPlayerFinished() {
+      player.seek(to: .zero)
+      player.play()
+    }
+    voiceoverVC.playerDidFinish()
   }
   
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {

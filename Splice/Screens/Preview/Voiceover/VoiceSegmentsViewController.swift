@@ -112,4 +112,8 @@ class VoiceSegmentsViewController: UIViewController {
                                     width: timeSince * expandingRate,
                                     height: view.height)
   }
+  
+  func lastSegment() -> UIView? {
+    return view.subviews.last
+  }
 }

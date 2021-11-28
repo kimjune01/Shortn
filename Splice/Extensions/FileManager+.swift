@@ -77,9 +77,11 @@ extension FileManager {
     do {
       // Get the directory contents urls (including subfolders urls)
       let temporaryContents = try contentsOfDirectory(at: temporaryUrl, includingPropertiesForKeys: nil)
-      print(temporaryContents)
+      print("temporaryContents: ")
       
       for contentUrl in temporaryContents {
+        print(contentUrl.lastPathComponent)
+
         guard fileExists(atPath: contentUrl.path) else { continue }
         let attr = try attributesOfItem(atPath: contentUrl.path)
         let creationDate = attr[.creationDate] as? Date

@@ -12,7 +12,7 @@ import Photos
 
 typealias Splice = ClosedRange<Double>
 // source of truth for the assets, segments, and AV composition. Up to one perisstent composition per app (TODO)
-class SpliceComposition {
+class SpliceComposition: CustomStringConvertible {
   private var fetchResult: PHFetchResult<PHAsset>?
   var assetIdentifiers: [String] = []
   var assets: [AVAsset] = []
@@ -298,6 +298,10 @@ class SpliceComposition {
     comp.assets = [localAsset]
     comp.splices = [0...localAsset.duration.seconds]
     return comp
+  }
+  
+  var description: String {
+    return assetIdentifiers.description + splices.description + voiceSegments.description + (bpm?.description ?? "")
   }
 }
 

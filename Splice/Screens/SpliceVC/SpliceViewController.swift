@@ -267,9 +267,9 @@ class SpliceViewController: UIViewController {
   }
   
   func makePopoverVC() {
-    popoverMenuVC = PopoverMenuViewController()
+    popoverMenuVC = PopoverMenuViewController(views: [.loopButton, .trashButton])
     popoverMenuVC.delegate = self
-    popoverMenuVC.preferredContentSize = PopoverMenuViewController.preferredSize
+    popoverMenuVC.preferredContentSize = popoverMenuVC.preferredSize
     popoverMenuVC.modalPresentationStyle = .popover
     if let presentation = popoverMenuVC.presentationController {
       presentation.delegate = self

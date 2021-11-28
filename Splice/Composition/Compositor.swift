@@ -26,12 +26,15 @@ class Compositor {
   init(composition: SpliceComposition) {
     self.composition = composition
   }
-  
   // to be called only after concatAndSplice
   func export(_ asset: AVAsset, _ completion: @escaping CompositorCompletion) {
     let tempDirectory = FileManager.default.temporaryDirectory
-    let url = tempDirectory.appendingPathComponent("temp\(UUID().shortened()).mp4")
-    
+    let url = tempDirectory.appendingPathComponent("tempExport\(composition.description.md5()).mp4")
+    guard !FileManager.default.fileExists(atPath: url.path) else {
+      print("export already saved")
+      completion(url, nil)
+      return
+    }
     guard let exporter = AVAssetExportSession(
       asset: asset,
       presetName: VideoHelper.exportPreset(for: asset))

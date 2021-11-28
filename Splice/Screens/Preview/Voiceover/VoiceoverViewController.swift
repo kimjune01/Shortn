@@ -72,6 +72,9 @@ class VoiceoverViewController: UIViewController {
   var lookAheadTimer: Timer!
   let currentLabel = UILabel()
   let futureLabel = UILabel()
+  
+  let trashPopoverVC = PopoverMenuViewController(views: [.trashButton])
+  let tutorialPopoverVC = PopoverMenuViewController(views: [.tutorial("Tap & hold to record")])
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -93,6 +96,9 @@ class VoiceoverViewController: UIViewController {
     addFutureLabel()
     addPlayerControlStack()
     addSegmentsVC()
+    makeTrashPopoverVC()
+    makeTutorialPopoverVC()
+
     addDebugButton()
   }
   
@@ -164,14 +170,10 @@ class VoiceoverViewController: UIViewController {
     undoButton.set(height:47)
     undoButton.set(width:65)
 
-    var micConfig = UIButton.Configuration.filled()
-    micConfig.baseForegroundColor = .white
-    micConfig.baseBackgroundColor = .systemBlue
-    micConfig.cornerStyle = .capsule
-    micConfig.buttonSize = .large
-    micConfig.image = UIImage(systemName: "mic.fill")
-    micConfig.baseForegroundColor = .white
-    micButton = UIButton(configuration: micConfig)
+    micButton = UIButton()
+    micButton.tintColor = .white
+    micButton.backgroundColor = .systemBlue
+    micButton.setImage(UIImage(systemName: "mic.fill"), for: .normal)
     bottomStack.addArrangedSubview(micButton)
     micButton.addTarget(self, action: #selector(touchDownMicButton), for: .touchDown)
     micButton.addTarget(self, action: #selector(touchDoneMicButton), for: .touchUpInside)
@@ -179,7 +181,7 @@ class VoiceoverViewController: UIViewController {
     
     micButton.set(height:47)
     micButton.set(width:110)
-//    spliceButton.roundCorner(radius: 47 / 2, cornerCurve: .circular)
+    micButton.roundCorner(radius: 47 / 2, cornerCurve: .circular)
     
     var confirmConfig = UIButton.Configuration.filled()
     confirmConfig.baseForegroundColor = .white
@@ -252,6 +254,43 @@ class VoiceoverViewController: UIViewController {
 //    playerControlStack.addArrangedSubview(forwardButton)
   }
   
+  func makeTrashPopoverVC() {
+    trashPopoverVC.delegate = self
+    trashPopoverVC.preferredContentSize = trashPopoverVC.preferredSize
+    trashPopoverVC.modalPresentationStyle = .popover
+    if let presentation = trashPopoverVC.presentationController {
+      presentation.delegate = self
+    }
+  }
+  
+  func makeTutorialPopoverVC() {
+    tutorialPopoverVC.delegate = self
+    tutorialPopoverVC.preferredContentSize = tutorialPopoverVC.preferredSize
+    tutorialPopoverVC.modalPresentationStyle = .popover
+    if let presentation = tutorialPopoverVC.presentationController {
+      presentation.delegate = self
+    }
+  }
+  
+  func showTutorialPopoverVC() {
+    guard tutorialPopoverVC.parent == nil else { return }
+    if let popover = tutorialPopoverVC.popoverPresentationController {
+      popover.delegate = self
+      popover.sourceView = micButton
+      popover.sourceRect = micButton.bounds
+      popover.permittedArrowDirections = .down
+    }
+    guard tutorialPopoverVC.isPresentable else { return }
+    present(tutorialPopoverVC, animated: true) {
+      // auto dismiss after 2 seconds
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        if !self.tutorialPopoverVC.isPresentable {
+          self.tutorialPopoverVC.dismiss(animated: true)
+        }
+      }
+    }
+  }
+  
   func addDebugButton() {
     view.addSubview(debugButton)
     debugButton.backgroundColor = .secondarySystemFill
@@ -295,6 +334,7 @@ class VoiceoverViewController: UIViewController {
     } completion: { _ in
       self.futureLabel.center = CGPoint(x: self.lookAheadThumbnail.midX,
                                         y: self.lookAheadThumbnail.maxY + 12)
+      self.showTutorialPopoverVC()
       UIView.animate(withDuration: 0.2) {
         self.stateBorder.alpha = 1
         self.playerControlStack.alpha = 1
@@ -378,8 +418,6 @@ class VoiceoverViewController: UIViewController {
       loopingRange = nil
       state = .standby
       delegate?.seekPlayer(to: composition.voiceSegmentsDuration)
-      // TODO: handle deletion in a popover...
-//      deleteLatestSegment()
     }
   }
   
@@ -403,6 +441,23 @@ class VoiceoverViewController: UIViewController {
     composition.voiceSegments.removeLast()
   }
   
+  func seekToTip() {
+    delegate?.seekPlayer(to: min(composition.voiceSegmentsDuration, composition.totalDuration))
+  }
+  
+  func showTrashPopover() {
+    guard trashPopoverVC.parent == nil,
+    let lastSegment = segmentsVC.lastSegment() else { return }
+    if let popover = trashPopoverVC.popoverPresentationController {
+      popover.delegate = self
+      popover.sourceView = lastSegment
+      popover.sourceRect = segmentsVC.view.bounds
+      popover.permittedArrowDirections = .down
+    }
+    guard trashPopoverVC.isPresentable else { return }
+    present(trashPopoverVC, animated: true)
+  }
+  
   func startRecording() {
     // should not need starting time because the duration of the previous segments should sum up to start time.
     // may be out of sync, but that's ok for this level of precision.
@@ -414,6 +469,32 @@ class VoiceoverViewController: UIViewController {
   
   func stopRecording() {
     
+  }
+  
+  func playerDidFinish() {
+    switch state {
+    case .recording:
+      stopRecording()
+      let durationDiff = composition.totalDuration - composition.voiceSegmentsDuration
+      guard durationDiff < 0.1 else {
+        print("OOOOPS playerDidFinish when recording, but segment duration doesnt match!!")
+        break
+      }
+      state = .complete
+    default:
+      break
+    }
+  }
+  
+  func shouldLoopWhenPlayerFinished() -> Bool {
+    switch state {
+    case .recording:
+      return false
+    case .playback:
+      return true
+    default:
+      return true
+    }
   }
   
   func refreshLookaheadThumbnail() {
@@ -436,6 +517,8 @@ class VoiceoverViewController: UIViewController {
     segmentsVC.startExpanding()
     startRecording()
     delegate?.voiceoverVCDidStartRecording()
+    micButton.backgroundColor = .systemBlue.withAlphaComponent(0.9)
+    micButton.transform = .identity.scaledBy(x: 0.98, y: 0.98)
   }
   
   @objc func touchDoneMicButton() {
@@ -443,10 +526,40 @@ class VoiceoverViewController: UIViewController {
     segmentsVC.stopExpanding()
     stopRecording()
     delegate?.voiceoverVCDidStopRecording()
+    micButton.backgroundColor = .systemBlue.withAlphaComponent(1)
+    micButton.transform = .identity
   }
   
   @objc func tappedDebugButton() {
     state = VoiceoverState(rawValue: (state.rawValue + 1) % VoiceoverState.allCases.count)!
     debugButton.setTitle(state.debugDescription, for: .normal)
   }
+}
+
+extension VoiceoverViewController: UIPopoverPresentationControllerDelegate, PopoverMenuViewControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    return .none
+  }
+  
+  func popoverVCDidTapLoopButton(_ popoverVC: PopoverMenuViewController) {
+    // nop.
+  }
+  
+  func popoverVCDidTapTrashButton(_ popoverVC: PopoverMenuViewController) {
+    if popoverVC == trashPopoverVC {
+      assert(state == .selecting)
+      deleteLatestSegment()
+      state = .standby
+    }
+  }
+  
+  func popoverVCDidDisappear(_ popoverVC: PopoverMenuViewController) {
+    if popoverVC == trashPopoverVC {
+      assert(state == .selecting)
+      state = .standby
+      seekToTip()
+    }
+  }
+  
+  
 }
