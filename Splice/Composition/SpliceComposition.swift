@@ -11,7 +11,7 @@ import Combine
 import Photos
 
 typealias Splice = ClosedRange<Double>
-// source of truth for the assets, segments, and AV composition. Up to one perisstent composition per app (TODO)
+// source of truth for the assets, segments, and AV composition. Does not persist, lives in memory only (for now)
 class SpliceComposition: CustomStringConvertible {
   private var fetchResult: PHFetchResult<PHAsset>?
   var assetIdentifiers: [String] = []

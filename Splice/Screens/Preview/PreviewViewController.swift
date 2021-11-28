@@ -157,6 +157,7 @@ class PreviewViewController: UIViewController {
         .translatedBy(x: -playerView.frame.width / 2 + 8, y: -50)
     } completion: { _ in
       self.voiceoverVC.view.isUserInteractionEnabled = true
+      playerView.isUserInteractionEnabled = true
     }
     voiceoverVC.animateIn()
   }
@@ -305,6 +306,9 @@ class PreviewViewController: UIViewController {
 }
 
 extension PreviewViewController: VoiceoverViewControllerDelegate {
+  func playerFrame() -> CGRect {
+    return playerView.frame
+  }
   
   func voiceoverVCDidStartRecording() {
     player.play()
@@ -314,20 +318,17 @@ extension PreviewViewController: VoiceoverViewControllerDelegate {
     player.pause()
   }
 
-  func seekPlayer(to time: TimeInterval) {
-    player.seek(to: time.cmTime)
+  func getPlayer() -> AVPlayer {
+//    func seekPlayer(to time: TimeInterval)
+//    func currentPlaybackTime() -> TimeInterval
+//    func assetForThumbnail() -> AVAsset?
+//    func togglePlayback()
+//    func isPlayerPlaying()
+    return player
   }
-  
+
   func assetForThumbnail() -> AVAsset? {
     return previewAsset
-  }
-  
-  func currentPlaybackTime() -> TimeInterval {
-    return player.currentTime().seconds
-  }
-  
-  func playerFrame() -> CGRect {
-    return playerView.frame 
   }
   
   func voiceoverVCDidFinish() {

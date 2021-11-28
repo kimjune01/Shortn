@@ -59,6 +59,7 @@ class VoiceSegmentsViewController: UIViewController {
   func renderFreshAssets() {
     guard composition.assets.count > 0 else { return }
     expandingRate =  view.width / composition.totalDuration
+    renderSegments()
   }
   
   func renderSegments() {
