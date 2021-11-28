@@ -13,12 +13,18 @@ protocol VoiceRecorderDelegate: AnyObject {
 
 // a recorder that can also playback audio at any time.
 class VoiceRecorder: NSObject {
+  unowned var composition: SpliceComposition
   weak var delegate: VoiceRecorderDelegate?
   private var recordingSession: AVAudioSession!
   private var audioRecorder: AVAudioRecorder!
-  private let segmentsPlayer = QueuePlayer()
+  private let voicesPlayer = QueuePlayer()
   var tempUrl: URL?
 
+  init(composition: SpliceComposition) {
+    self.composition = composition
+    super.init()
+  }
+  
   func makeTempUrl() -> URL {
     return FileManager
       .default
@@ -55,6 +61,31 @@ class VoiceRecorder: NSObject {
   func stopRecording() {
     guard audioRecorder != nil else { return }
     audioRecorder.stop()
+  }
+  
+  // enqueues the remaining audio segments from time.
+  func play(at time: TimeInterval) {
+    guard composition.voiceSegments.count > 0 else { return }
+    var remainingTime = time
+    var targetIndex = 0
+    var targetSegment = composition.voiceSegments[0]
+    while remainingTime > 0 {
+      targetSegment = composition.voiceSegments[targetIndex]
+      if targetSegment.duration.seconds > remainingTime {
+        break
+      }
+      remainingTime -= targetSegment.duration.seconds
+      targetIndex += 1
+    }
+    let remainingSegments = composition.voiceSegments[targetIndex..<composition.voiceSegments.count]
+    let urls = remainingSegments.map{$0.url}
+    voicesPlayer.enqueue(urls)
+    voicesPlayer.seek(to: remainingTime)
+    voicesPlayer.play()
+  }
+  
+  func pause() {
+    voicesPlayer.pause()
   }
 }
 

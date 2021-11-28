@@ -17,7 +17,7 @@ class SpliceComposition: CustomStringConvertible {
   var assetIdentifiers: [String] = []
   var assets: [AVAsset] = []
   var splices: [Splice] = []
-  var voiceSegments: [AVAsset] = []
+  var voiceSegments: [AVURLAsset] = []
   var bpm: Int?
   
   var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)

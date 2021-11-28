@@ -49,7 +49,7 @@ class VoiceoverViewController: UIViewController {
       }
     }
   }
-  let voiceRecorder = VoiceRecorder()
+  var voiceRecorder: VoiceRecorder
   let transitionDuration: TimeInterval = 0.3
   let bottomStack = UIStackView()
   let topBar = UIView()
@@ -81,6 +81,7 @@ class VoiceoverViewController: UIViewController {
   init(composition: SpliceComposition) {
     self.composition = composition
     self.segmentsVC = VoiceSegmentsViewController(composition: composition)
+    self.voiceRecorder = VoiceRecorder(composition: composition)
     super.init(nibName: nil, bundle: nil)
     self.voiceRecorder.delegate = self
   }
@@ -544,11 +545,13 @@ class VoiceoverViewController: UIViewController {
     }
     if player.timeControlStatus == .playing {
       player.pause()
+      voiceRecorder.pause()
       state = .paused
     } else if player.status == .readyToPlay {
       player.play()
-      state = .playback
       // synchronize voiceover playback starting at current time..
+      voiceRecorder.play(at: player.currentTime().seconds)
+      state = .playback
     } else {
       assert(false, "OOPS")
     }
@@ -620,7 +623,7 @@ extension VoiceoverViewController: UIPopoverPresentationControllerDelegate, Popo
 
 extension VoiceoverViewController: VoiceRecorderDelegate {
   func voiceRecorderDidFinishRecording(to url: URL) {
-    let voiceAsset = AVAsset(url: url)
+    let voiceAsset = AVURLAsset(url: url)
     composition.voiceSegments.append(voiceAsset)
     segmentsVC.renderFreshAssets()
     // TODO

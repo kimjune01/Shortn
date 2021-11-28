@@ -55,7 +55,9 @@ class QueuePlayer: NSObject {
     audioPlayer?.pause()
   }
   
-  // TODO: Seek!
+  func seek(to time: TimeInterval) {
+    audioPlayer?.play(atTime: time)
+  }
   
   func resume() {
     audioPlayer?.play()
