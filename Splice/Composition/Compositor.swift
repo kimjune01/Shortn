@@ -14,6 +14,7 @@ enum CompositorError: Error {
   case badVoiceInput
   case badMusicInput
   case avFoundation
+  case badVoiceoverInput
 }
 
 typealias CompositorCompletion = (URL?, Error?) -> ()
@@ -160,6 +161,138 @@ class Compositor {
     spliceComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
     
     return mixComposition
+  }
+  
+  /*
+   Concatenates and splices, returns the composition for preview before exporting.
+   mixComposition           AVMutableComposition
+   | videoTrack             AVMutableCompositionTrack.video
+   | audioTrack        AVMutableCompositionTrack.audio
+   videoComposition          AVMutableVideoComposition
+   */
+  func add(voiceover segments: [AVAsset], to videoAsset: AVAsset, _ completion: @escaping CompositorCompletion) {
+    assert(segments.count > 0, "Need voiceover segments!")
+    let mixComposition = AVMutableComposition()
+    // add video track and audio track to a composition
+    guard let videoTrack = mixComposition.addMutableTrack(
+      withMediaType: .video,
+      preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
+    guard let audioTrack = mixComposition.addMutableTrack(
+      withMediaType: .audio,
+      preferredTrackID: kCMPersistentTrackID_Invalid)
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
+    guard var videoAudioTrack = mixComposition.addMutableTrack(
+      withMediaType: .audio,
+      preferredTrackID: kCMPersistentTrackID_Invalid)
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
+    
+    
+    do {
+      let wholeRange = CMTimeRange(start: .zero, duration: videoAsset.duration)
+      guard let videoAssetTrack = videoAsset.tracks(withMediaType: .video).first else {
+        throw CompositorError.badVideoInput
+      }
+      guard let videoAudioAssetTrack = videoAsset.tracks(withMediaType: .audio).first else {
+        throw CompositorError.badVideoAudio
+      }
+      try videoTrack.insertTimeRange(wholeRange, of: videoAssetTrack, at: .zero)
+      try videoAudioTrack.insertTimeRange(wholeRange, of: videoAudioAssetTrack, at: .zero)
+    } catch {
+      assert(false)
+      print(error)
+    }
+    
+    var currentTime: TimeInterval = 0
+    do {
+      for eachSegment in segments {
+        guard let voiceoverTrack = eachSegment.tracks(withMediaType: .audio).first else { // assume mono track
+          completion(nil, CompositorError.badVoiceoverInput)
+          return
+        }
+        let range = CMTimeRange(start: .zero, duration: eachSegment.duration)
+        try audioTrack.insertTimeRange(range, of: voiceoverTrack, at: currentTime.cmTime)
+        currentTime += eachSegment.duration.seconds
+      }
+    } catch {
+      assert(false)
+      print(error)
+    }
+
+    
+    let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+
+    let compositionInstruction = AVMutableVideoCompositionInstruction()
+    compositionInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: videoAsset.duration)
+    compositionInstruction.layerInstructions = [layerInstruction]
+    
+    let videoComposition = AVMutableVideoComposition()
+    videoComposition.renderSize = videoTrack.naturalSize
+    videoComposition.instructions = [compositionInstruction]
+    videoComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(videoTrack.nominalFrameRate.rounded()))
+    
+    
+    // export with passthrough
+    let tempDirectory = FileManager.default.temporaryDirectory
+    let url = tempDirectory.appendingPathComponent("voiceoverExport\(composition.description.md5()).mp4")
+    guard !FileManager.default.fileExists(atPath: url.path) else {
+      print("voiceover export already saved")
+      completion(url, nil)
+      return
+    }
+    guard let exporter = AVAssetExportSession(
+      asset: mixComposition,
+      presetName: AVAssetExportPresetPassthrough)
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
+    
+    exporter.outputURL = url
+    exporter.shouldOptimizeForNetworkUse = true
+    exporter.videoComposition = videoComposition
+    let group = DispatchGroup()
+    group.enter()
+    exporter.determineCompatibleFileTypes { types in
+      if types.isEmpty {
+        print("Voiceover export: No supported file types found!")
+      }
+      if types.contains(.m4v) {
+        exporter.outputFileType = .mp4
+      } else {
+        exporter.outputFileType = .mov
+      }
+      group.leave()
+    }
+    group.wait()
+    
+    exporter.exportAsynchronously {
+      DispatchQueue.main.async {
+        switch exporter.status {
+        case .completed:
+          print("voiceover export success")
+          completion(url, nil)
+        case .failed:
+          print("voiceover export failed \(exporter.error?.localizedDescription ?? "error nil")")
+          completion(nil, exporter.error)
+        case .cancelled:
+          print("voiceover export cancelled \(exporter.error?.localizedDescription ?? "error nil")")
+          completion(nil, exporter.error)
+        default:
+          print("voiceover export complete with error")
+          completion(nil, exporter.error)
+        }
+      }
+    }
   }
   
   func fillTracks(from sourceVideoAssets: [AVAsset],

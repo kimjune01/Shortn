@@ -21,7 +21,9 @@ class PreviewViewController: UIViewController {
   
   private var player: AVPlayer!
   let playerView = PlayerView()
-  var previewAsset: AVAsset?
+  var previewAsset: AVAsset? {
+    return composition.exportAsset
+  }
   let spinner = UIActivityIndicatorView(style: .large)
   let waitLabel = UILabel()
   var micButton: UIButton!
@@ -161,7 +163,7 @@ class PreviewViewController: UIViewController {
     }
     voiceoverVC.animateIn()
   }
-  func presentVoiceoverVCOut() {
+  func dismissVoiceoverVC() {
     voiceoverVC.view.isUserInteractionEnabled = false
     voiceoverVC.animateOut()
     let playerView = self.playerView
@@ -223,7 +225,7 @@ class PreviewViewController: UIViewController {
   }
   
   func exportInBackground() {
-    guard let asset = composition.composeForPreviewAndExport() else {
+    guard let asset = composition.compositeForPreviewAndExport() else {
       return
     }
     playerView.isUserInteractionEnabled = false
@@ -234,13 +236,13 @@ class PreviewViewController: UIViewController {
         self.alertExportFail()
         return
       }
-      self.previewAsset = asset
-      self.makePlayer(item: self.makePlayerItem(from: asset))
       self.renderFreshAssets()
     }
   }
   
   func renderFreshAssets() {
+    guard let asset = previewAsset else { return }
+    makePlayer(item: makePlayerItem(from: asset))
     voiceoverVC.renderFreshAssets()
     bottomStack.clarify()
     playerView.isUserInteractionEnabled = true
@@ -331,14 +333,13 @@ extension PreviewViewController: VoiceoverViewControllerDelegate {
     return previewAsset
   }
   
-  func voiceoverVCDidFinish() {
-    presentVoiceoverVCOut()
-    
+  func voiceoverVCDidFinish(success: Bool) {
+    dismissVoiceoverVC()
+    renderFreshAssets()
   }
   
   func voiceoverVCDidCancel() {
-    print("didCancel")
-    presentVoiceoverVCOut()
+    dismissVoiceoverVC()
   }
   
 }

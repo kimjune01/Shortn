@@ -10,7 +10,6 @@ import UIKit
 //
 class VoiceSegmentsViewController: UIViewController {
   unowned var composition: SpliceComposition
-  weak var delegate: VoiceoverViewControllerDelegate?
   static let defaultHeight:CGFloat = 28
   private let expandingSegment = UIView()
   var expandingRate: CGFloat = 0

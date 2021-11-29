@@ -287,7 +287,6 @@ class SpliceViewController: UIViewController {
       case .looping(let spliceIndex):
         guard spliceIndex < self.composition.splices.count else { return }
         let splice = self.composition.splices[spliceIndex]
-        // TODO:
         let lower = splice.lowerBound
         let upper = splice.upperBound
         if timeInterval >= upper {

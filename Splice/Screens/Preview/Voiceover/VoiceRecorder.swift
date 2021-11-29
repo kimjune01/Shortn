@@ -93,6 +93,9 @@ class VoiceRecorder: NSObject {
   // enqueues the remaining audio segments from time.
   func play(at time: TimeInterval) {
     guard composition.voiceSegments.count > 0 else { return }
+    try? recordingSession.setCategory(.playback, mode: .default)
+    try? recordingSession.setActive(true)
+
     var remainingTime = time
     var targetIndex = 0
     var targetSegment = composition.voiceSegments[0]

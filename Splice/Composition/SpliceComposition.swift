@@ -26,8 +26,12 @@ class SpliceComposition: CustomStringConvertible {
 
   let timeSubject = CurrentValueSubject<TimeInterval, Never>(0)
   var compositor: Compositor?
-  var previewAsset: AVAsset?
-  var exportAsset: AVURLAsset?
+
+  var preVoiceoverPreviewAsset: AVURLAsset?
+  var postVoiceoverPreviewAsset: AVURLAsset?
+  var exportAsset: AVURLAsset? {
+    return postVoiceoverPreviewAsset ?? preVoiceoverPreviewAsset
+  }
   
   var totalDuration: TimeInterval {
     return assets.reduce(0.0) { partialResult, asset in
@@ -171,15 +175,28 @@ class SpliceComposition: CustomStringConvertible {
     }
   }
   
-  func composeForPreviewAndExport() -> AVAsset? {
+  func compositeForPreviewAndExport() -> AVAsset? {
     compositor = Compositor(composition: self)
     return compositor!.concatAndSplice()
+  }
+  
+  func compositeWithVoiceover(_ completion: @escaping BoolCompletion) {
+    if compositor == nil {
+      compositor = Compositor(composition: self)
+    }
+    guard let preVoiceoverAsset = preVoiceoverPreviewAsset else { return }
+    compositor!.add(voiceover: voiceSegments, to: preVoiceoverAsset) { (url, error) in
+      if let url = url {
+        self.postVoiceoverPreviewAsset = AVURLAsset(url: url)
+      }
+      completion(error == nil)
+    }
   }
 
   func export(_ asset: AVAsset, _ completion: @escaping ErrorCompletion) {
     compositor!.export(asset) { url, err in
       if let url = url {
-        self.exportAsset = AVURLAsset(url: url)
+        self.preVoiceoverPreviewAsset = AVURLAsset(url: url)
         completion(nil)
       } else {
         completion(err)

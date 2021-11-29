@@ -13,7 +13,7 @@ protocol VoiceoverViewControllerDelegate: AnyObject {
   func voiceoverVCDidStartRecording()
   func voiceoverVCDidStopRecording()
   func voiceoverVCDidCancel()
-  func voiceoverVCDidFinish()
+  func voiceoverVCDidFinish(success: Bool)
   func getPlayer() -> AVPlayer
 }
 
@@ -69,8 +69,7 @@ class VoiceoverViewController: UIViewController {
   let debugButton = UIButton()
   var segmentsVC: VoiceSegmentsViewController!
   var recordingStartTime: TimeInterval = 0
-  var loopingRange: ClosedRange<TimeInterval>?
-  var displayLink: CADisplayLink!
+  var loopTimer: Timer?
   var lookAheadTimer: Timer!
   let currentLabel = UILabel()
   let futureLabel = UILabel()
@@ -109,7 +108,6 @@ class VoiceoverViewController: UIViewController {
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    subscribeToDisplayLink()
     lookAheadTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true, block: { timer in
       self.refreshLookaheadThumbnail()
     })
@@ -117,30 +115,7 @@ class VoiceoverViewController: UIViewController {
   
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
-    unsubscribeFromDisplayLink()
     lookAheadTimer?.invalidate()
-  }
-  
-  func subscribeToDisplayLink() {
-    displayLink?.invalidate()
-    displayLink = CADisplayLink(target: self, selector: #selector(displayStep))
-    displayLink.isPaused = false
-    displayLink.add(to: .main, forMode: .common)
-  }
-  
-  @objc func displayStep() {
-    guard let loop = loopingRange,
-          let delegate = delegate else { return }
-    let player = delegate.getPlayer()
-    let playTime = player.currentTime()
-    if loop.contains(playTime.seconds) { return }
-    player.seek(to: loop.lowerBound.cmTime)
-    // synchronized loop
-    voiceRecorder.play(at: loop.lowerBound)
-  }
-  
-  func unsubscribeFromDisplayLink() {
-    displayLink?.invalidate()
   }
   
   func addTopBar() {
@@ -211,7 +186,7 @@ class VoiceoverViewController: UIViewController {
     confirmConfig.buttonSize = .large
     confirmConfig.image = UIImage(systemName: "checkmark")
     confirmButton = UIButton(configuration: confirmConfig, primaryAction: UIAction(){ _ in
-      self.delegate?.voiceoverVCDidFinish()
+      self.addVoiceoverToPreviewAndFinish()
     })
     bottomStack.addArrangedSubview(confirmButton)
   }
@@ -391,6 +366,8 @@ class VoiceoverViewController: UIViewController {
                                           height: SegmentsViewController.segmentHeight)
       self.topBar.frame = CGRect(x: 0, y: -self.topBar.height,
                                  width: self.topBar.width, height: self.topBar.height)
+      self.futureLabel.center = CGPoint(x:self.lookAheadThumbnail.maxX + 50,
+                                        y: self.lookAheadThumbnail.midY)
     }
   }
 
@@ -456,14 +433,16 @@ class VoiceoverViewController: UIViewController {
   }
   
   func tappedUndoButton() {
+    loopTimer?.invalidate()
     switch state {
     case .standby, .playback, .paused:
       loopLastSegment()
       state = .selecting
+      showTrashPopover()
     case .selecting:
-      loopingRange = nil
       state = .standby
       delegate?.getPlayer().seek(to: composition.voiceSegmentsDuration.cmTime)
+      delegate?.getPlayer().pause()
     default:
       assert(false)
     }
@@ -479,13 +458,21 @@ class VoiceoverViewController: UIViewController {
       return partialResult + asset.duration.seconds
     }
     let segmentEnd = segmentStart + segment.duration.seconds
-    loopingRange = segmentStart...segmentEnd
     player.seek(to: segmentStart.cmTime)
     player.play()
     // synchronized playback
     voiceRecorder.play(at: segmentStart)
 
-    // loops back at func displayStep
+    // loop back after duration
+    let duration = segmentEnd - segmentStart
+    loopTimer?.invalidate()
+    loopTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: true, block: { timer in
+      player.seek(to: segmentStart.cmTime)
+      player.play()
+      // synchronized playback
+      self.voiceRecorder.play(at: segmentStart)
+    })
+    
   }
   
   func deleteLatestSegment() {
@@ -507,7 +494,7 @@ class VoiceoverViewController: UIViewController {
     if let popover = trashPopoverVC.popoverPresentationController {
       popover.delegate = self
       popover.sourceView = lastSegment
-      popover.sourceRect = segmentsVC.view.bounds
+      popover.sourceRect = lastSegment.bounds
       popover.permittedArrowDirections = .down
     }
     guard trashPopoverVC.isPresentable else { return }
@@ -524,6 +511,7 @@ class VoiceoverViewController: UIViewController {
         break
       }
       state = .complete
+      segmentsVC.stopExpanding()
     default:
       break
     }
@@ -578,6 +566,7 @@ class VoiceoverViewController: UIViewController {
     switch state {
     case .standby:
       seekToTip()
+      delegate?.getPlayer().play()
       state = .recording
       segmentsVC.startExpanding()
       voiceRecorder.startRecording()
@@ -610,6 +599,18 @@ class VoiceoverViewController: UIViewController {
     state = VoiceoverState(rawValue: (state.rawValue + 1) % VoiceoverState.allCases.count)!
     debugButton.setTitle(state.debugDescription, for: .normal)
   }
+  
+  func addVoiceoverToPreviewAndFinish() {
+    guard composition.voiceSegments.count > 0 else {
+      delegate?.voiceoverVCDidCancel()
+      return
+    }
+    
+    composition.compositeWithVoiceover() { success in
+      self.delegate?.voiceoverVCDidFinish(success: success)
+    }
+    
+  }
 }
 
 extension VoiceoverViewController: UIPopoverPresentationControllerDelegate, PopoverMenuViewControllerDelegate {
@@ -625,15 +626,18 @@ extension VoiceoverViewController: UIPopoverPresentationControllerDelegate, Popo
     if popoverVC == trashPopoverVC {
       assert(state == .selecting)
       deleteLatestSegment()
-      state = .standby
     }
+    popoverVC.dismiss(animated: true)
   }
   
   func popoverVCDidDisappear(_ popoverVC: PopoverMenuViewController) {
+    loopTimer?.invalidate()
     if popoverVC == trashPopoverVC {
-      assert(state == .selecting)
       state = .standby
+      renderFreshAssets()
       seekToTip()
+      delegate?.getPlayer().pause()
+      voiceRecorder.pause()
     }
   }
   
