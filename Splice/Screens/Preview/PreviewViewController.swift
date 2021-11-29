@@ -320,12 +320,7 @@ extension PreviewViewController: VoiceoverViewControllerDelegate {
     player.pause()
   }
 
-  func getPlayer() -> AVPlayer {
-//    func seekPlayer(to time: TimeInterval)
-//    func currentPlaybackTime() -> TimeInterval
-//    func assetForThumbnail() -> AVAsset?
-//    func togglePlayback()
-//    func isPlayerPlaying()
+  func getPlayer() -> AVPlayer! {
     return player
   }
 

@@ -14,7 +14,7 @@ protocol VoiceoverViewControllerDelegate: AnyObject {
   func voiceoverVCDidStopRecording()
   func voiceoverVCDidCancel()
   func voiceoverVCDidFinish(success: Bool)
-  func getPlayer() -> AVPlayer
+  func getPlayer() -> AVPlayer!
 }
 
 enum VoiceoverState: Int, CaseIterable, CustomDebugStringConvertible {
@@ -530,6 +530,7 @@ class VoiceoverViewController: UIViewController {
   
   func refreshLookaheadThumbnail() {
     guard let delegate = delegate,
+          delegate.getPlayer() != nil,
           let asset = delegate.getPlayer().currentItem?.asset else {
       return
     }
