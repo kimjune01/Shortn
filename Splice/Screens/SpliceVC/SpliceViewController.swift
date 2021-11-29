@@ -52,7 +52,6 @@ class SpliceViewController: UIViewController {
       updateAppearance()
     }
   }
-  var wasPlaying: Bool = false
   var subscriptions = Set<AnyCancellable>()
   var touchDownTimer: Timer?
   var touchDoneTimer: Timer?
@@ -547,12 +546,11 @@ extension SpliceViewController: TimelineControlDelegate {
   }
   
   func timelineVCWillBeginScrubbing() {
-    wasPlaying = playerVC.isPlaying
     playerVC.appearScrubbing(playerVC.isPlaying)
   }
 
   func timelineVCDidFinishScrubbing() {
-    playerVC.handleStoppedScrubbing(wasPlaying)
+    playerVC.handleStoppedScrubbing()
   }
   
   func timelineVCDidDeleteSegment() {

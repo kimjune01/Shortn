@@ -36,10 +36,6 @@ class SaveButtonViewController: UIViewController {
     var saveConfig = UIButton.Configuration.plain()
     saveConfig.image = UIImage(named: "photos-app-icon")
     saveButton = UIButton(configuration: saveConfig, primaryAction: UIAction() { _ in
-      guard !self.savedThisPreview else {
-        self.showAlreadySavedAlert()
-        return
-      }
       if self.shouldSaveUninterrupted {
         self.saveToPhotosAlbum()
       } else {

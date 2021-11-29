@@ -411,13 +411,8 @@ class LongPlayerViewController: UIViewController {
     }
   }
   
-  func handleStoppedScrubbing(_ wasPlaying: Bool) {
-    if wasPlaying {
-      player.play()
-      state = .playing
-    } else {
-      state = .paused
-    }
+  func handleStoppedScrubbing() {
+    state = .paused
   }
   
   @objc func handleAssetTransformDone() {

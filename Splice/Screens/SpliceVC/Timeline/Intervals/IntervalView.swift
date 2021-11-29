@@ -32,7 +32,7 @@ class IntervalView: UIView {
   var coloredArea = UIView()
   var leftHandle = UIView()
   var rightHandle = UIView()
-  let handleWidth: CGFloat = 10
+  let handleWidth: CGFloat = 12
   
   var previousColoredAreaFrame: CGRect?
   var previousLeftHandleFrame: CGRect?
