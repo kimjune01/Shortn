@@ -9,9 +9,6 @@ import UIKit
 import AVFoundation
 
 protocol VoiceoverViewControllerDelegate: AnyObject {
-  func playerFrame() -> CGRect
-  func voiceoverVCDidStartRecording()
-  func voiceoverVCDidStopRecording()
   func voiceoverVCDidCancel()
   func voiceoverVCDidFinish(success: Bool)
 }
@@ -59,13 +56,6 @@ class VoiceoverViewController: UIViewController {
   var rewindButton: UIButton!
   var confirmButton: UIButton!
   var lookAheadThumbnail = UIImageView()
-  var playerFrame: CGRect {
-    if let delegate = delegate {
-      return delegate.playerFrame()
-    }
-    return .zero
-  }
-  let playerControlStack = UIStackView()
   let debugButton = UIButton()
   var segmentsVC: VoiceSegmentsViewController!
   var recordingStartTime: TimeInterval = 0
@@ -91,7 +81,7 @@ class VoiceoverViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+    view.backgroundColor = .black
     addPlayerView()
     addBottomStack()
     addTopBar()
@@ -102,6 +92,7 @@ class VoiceoverViewController: UIViewController {
     makeTrashPopoverVC()
     makeTutorialPopoverVC()
 
+    renderFreshAssets()
     addDebugButton()
   }
   
@@ -124,6 +115,17 @@ class VoiceoverViewController: UIViewController {
     })
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    showTutorialPopoverVC()
+    voiceRecorder.requestRecordingPermissionIfNeeded() { granted in
+      if !granted {
+        self.micButton.isEnabled = false
+      }
+    }
+    segmentsVC.adjustExpandingRate()
+  }
+  
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
     lookAheadTimer?.invalidate()
@@ -132,7 +134,7 @@ class VoiceoverViewController: UIViewController {
   func addPlayerView() {
     view.addSubview(playerView)
     playerView.backgroundColor = .black
-    playerView.layer.borderWidth = 2
+    playerView.layer.borderWidth = 3
     let scaleFactor: CGFloat = 0.5
 //    playerView.transform = .identity
 //      .scaledBy(x: scaleFactor, y: scaleFactor)
@@ -173,7 +175,10 @@ class VoiceoverViewController: UIViewController {
   
   func addTopBar() {
     view.addSubview(topBar)
-    topBar.frame = CGRect(x: 0, y: -50, width: view.width, height: 50)
+    topBar.fillWidthOfParent(withDefaultMargin: true)
+    topBar.pinTopToParent(margin: 0, insideSafeArea: true)
+    topBar.set(height: 50)
+
     let titleLabel = UILabel()
     titleLabel.textColor = .white
     titleLabel.text = "Add Voiceover"
@@ -181,7 +186,8 @@ class VoiceoverViewController: UIViewController {
     titleLabel.font = .preferredFont(forTextStyle: .headline)
     titleLabel.sizeToFit()
     topBar.addSubview(titleLabel)
-    titleLabel.center = CGPoint(x: view.width / 2, y: 25)
+    titleLabel.centerXInParent()
+    titleLabel.centerYInParent()
   }
   
   func addBottomStack() {
@@ -190,8 +196,6 @@ class VoiceoverViewController: UIViewController {
     bottomStack.fillWidthOfParent(withDefaultMargin: true)
     
     bottomStack.pinBottomToParent(margin: 24, insideSafeArea: true)
-    // for animations
-    bottomStack.transform = .identity.translatedBy(x: 0, y: 150)
     bottomStack.distribution = .equalSpacing
     bottomStack.axis = .horizontal
     bottomStack.alignment = .center
@@ -247,9 +251,17 @@ class VoiceoverViewController: UIViewController {
   func addLookAheadThumbnail() {
     view.addSubview(lookAheadThumbnail)
     lookAheadThumbnail.backgroundColor = .black
-    lookAheadThumbnail.alpha = 0
-    lookAheadThumbnail.frame = CGRect(x: view.width, y: view.height / 2, width: .zero, height: .zero)
+    lookAheadThumbnail.contentMode = .scaleAspectFill
     lookAheadThumbnail.roundCorner(radius: 12, cornerCurve: .continuous)
+    let scaleFactor: CGFloat = 0.8
+
+    lookAheadThumbnail.translatesAutoresizingMaskIntoConstraints = false
+    [
+      lookAheadThumbnail.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12),
+      lookAheadThumbnail.centerYAnchor.constraint(equalTo: playerView.centerYAnchor),
+      lookAheadThumbnail.widthAnchor.constraint(equalTo: playerView.widthAnchor, multiplier: scaleFactor),
+      lookAheadThumbnail.heightAnchor.constraint(equalTo: playerView.heightAnchor, multiplier: scaleFactor)
+    ].forEach{$0.isActive = true}
   }
   
   func addFutureLabel() {
@@ -259,8 +271,8 @@ class VoiceoverViewController: UIViewController {
     futureLabel.font = .systemFont(ofSize: 12, weight: .light)
     futureLabel.sizeToFit()
     view.addSubview(futureLabel)
-    futureLabel.alpha = 0
-    futureLabel.center = CGPoint(x: 0, y: -50) // move it out of frame initially
+    futureLabel.centerXAnchor.constraint(equalTo: lookAheadThumbnail.centerXAnchor).isActive = true
+    futureLabel.pinTop(toBottomOf: lookAheadThumbnail, margin: 12)
   }
   
   func addCurrentLabel() {
@@ -269,8 +281,9 @@ class VoiceoverViewController: UIViewController {
     currentLabel.textColor = .white
     currentLabel.font = .systemFont(ofSize: 12, weight: .light)
     currentLabel.sizeToFit()
-    view.addSubview(currentLabel)
-    currentLabel.alpha = 0
+    playerView.addSubview(currentLabel)
+    currentLabel.centerXInParent()
+    currentLabel.pinTop(toBottomOf: playerView, margin: 12)
   }
   
   func makeTrashPopoverVC() {
@@ -322,72 +335,18 @@ class VoiceoverViewController: UIViewController {
     view.addSubview(segmentsVC.view)
     addChild(segmentsVC)
     segmentsVC.didMove(toParent: self)
+    segmentsVC.view.fillWidthOfParent(withDefaultMargin: true)
+    segmentsVC.view.pinBottom(toTopOf: bottomStack, margin: 24)
+    segmentsVC.view.set(height: SegmentsViewController.segmentHeight)
   }
   
-  func animateIn() {
-    segmentsVC.view.frame = CGRect(x: view.width,
-                                   y: playerView.maxY + 24,
-                                   width: view.width - UIView.defaultEdgeMargin * 2,
-                                   height: SegmentsViewController.segmentHeight)
-    segmentsVC.adjustExpandingRate()
-    currentLabel.center = CGPoint(x: playerFrame.midX, y: playerFrame.maxY + 12)
-    topBar.frame = CGRect(x: 0, y: -50, width: view.width, height: 50)
-    UIView.animate(withDuration: transitionDuration + 0.01) {
-      self.bottomStack.transform = .identity
-      self.lookAheadThumbnail.alpha = 1
-      let scaleFactor: CGFloat = 0.8
-      let playerFrame = self.playerFrame
-      self.lookAheadThumbnail.frame = CGRect(x: playerFrame.maxX + playerFrame.width * (1 - scaleFactor) / 2,
-                                             y: playerFrame.minY + playerFrame.height * (1 - scaleFactor) / 2,
-                                             width: playerFrame.width * scaleFactor,
-                                             height: playerFrame.height * scaleFactor)
-      self.segmentsVC.view.frame = CGRect(x: UIView.defaultEdgeMargin,
-                                          y: self.segmentsVC.view.minY,
-                                          width: self.segmentsVC.view.width,
-                                          height: SegmentsViewController.segmentHeight)
-      self.topBar.frame = CGRect(x: 0, y: 0, width: self.view.width, height: 50)
-      
-    } completion: { _ in
-      self.futureLabel.center = CGPoint(x: self.lookAheadThumbnail.midX,
-                                        y: self.lookAheadThumbnail.maxY + 12)
-      self.showTutorialPopoverVC()
-      UIView.animate(withDuration: 0.2) {
-        self.futureLabel.alpha = 1
-        self.currentLabel.alpha = 1
-      }
-      self.voiceRecorder.requestRecordingPermissionIfNeeded() { granted in
-        // TODO:
-      }
-    }
-  }
-  
-  func animateOut() {
-    playerControlStack.alpha = 0
-    futureLabel.alpha = 0
-    currentLabel.alpha = 0
-    UIView.animate(withDuration: transitionDuration) {
-      self.bottomStack.transform = .identity.translatedBy(x: 0, y: 150)
-      self.lookAheadThumbnail.alpha = 0
-      self.lookAheadThumbnail.frame = CGRect(x: self.view.width,
-                                             y: self.view.height / 2,
-                                             width: .zero, height: .zero)
-      self.segmentsVC.view.frame = CGRect(x: self.view.width,
-                                          y: self.segmentsVC.view.minY,
-                                          width: self.segmentsVC.view.width,
-                                          height: SegmentsViewController.segmentHeight)
-      self.topBar.frame = CGRect(x: 0, y: -self.topBar.height,
-                                 width: self.topBar.width, height: self.topBar.height)
-      self.futureLabel.center = CGPoint(x:self.lookAheadThumbnail.maxX + 50,
-                                        y: self.lookAheadThumbnail.midY)
-    }
-  }
-
   func renderFreshAssets() {
     guard composition.assets.count > 0 else { return }
     segmentsVC.renderFreshAssets()
     state = .standby
     guard let asset = composition.preVoiceoverPreviewAsset else { return }
     makePlayer(item: makePlayerItem(from: asset))
+    refreshLookaheadThumbnail()
   }
 
   func updateAppearance() {
@@ -420,7 +379,7 @@ class VoiceoverViewController: UIViewController {
       lookAheadThumbnail.alpha = 0.2
       futureLabel.alpha = 0.2
     case .standby:
-      playerView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.6).cgColor
+      playerView.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.7).cgColor
       micButton.isEnabled = true
       undoButton.isEnabled = composition.voiceSegments.count > 0
       lookAheadThumbnail.alpha = 1
@@ -541,7 +500,7 @@ class VoiceoverViewController: UIViewController {
   }
   
   func refreshLookaheadThumbnail() {
-    guard let asset = player.currentItem?.asset else {
+    guard let asset = player.currentItem?.asset, lookAheadThumbnail.alpha == 1 else {
       return
     }
     let targetTime = min(player.currentTime().seconds + 2, composition.totalDuration)
@@ -588,7 +547,6 @@ class VoiceoverViewController: UIViewController {
       state = .recording
       segmentsVC.startExpanding()
       voiceRecorder.startRecording()
-      delegate?.voiceoverVCDidStartRecording()
       micButton.backgroundColor = .systemBlue.withAlphaComponent(0.9)
       micButton.transform = .identity.scaledBy(x: 0.98, y: 0.98)
     case .playback, .paused:
@@ -608,9 +566,9 @@ class VoiceoverViewController: UIViewController {
     state = .standby
     segmentsVC.stopExpanding()
     voiceRecorder.stopRecording()
-    delegate?.voiceoverVCDidStopRecording()
     micButton.backgroundColor = .systemBlue.withAlphaComponent(1)
     micButton.transform = .identity
+    player.pause()
   }
   
   @objc func tappedDebugButton() {

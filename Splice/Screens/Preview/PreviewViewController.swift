@@ -95,10 +95,9 @@ class PreviewViewController: UIViewController {
   func addBottonStack() {
     
     view.addSubview(bottomStack)
-    bottomStack.set(height: UIStackView.bottomHeight)
     bottomStack.fillWidthOfParent(withDefaultMargin: true)
     // animating anchor
-    bottomStack.pinBottomToParent(margin: 24, insideSafeArea: true)
+    bottomStack.pinBottomToParent(margin: 8, insideSafeArea: true)
     bottomStack.distribution = .equalSpacing
     bottomStack.axis = .horizontal
     bottomStack.alignment = .center
@@ -121,7 +120,6 @@ class PreviewViewController: UIViewController {
     addChild(saveButtonVC)
     saveButtonVC.didMove(toParent: self)
     saveButtonVC.view.set(width: 110)
-    saveButtonVC.view.set(height: 47)
     bottomStack.addArrangedSubview(saveButtonVC.view)
     
     var micConfig = UIButton.Configuration.filled()
@@ -130,34 +128,19 @@ class PreviewViewController: UIViewController {
     micConfig.buttonSize = .large
     micConfig.image = UIImage(systemName: "mic.fill")
     micButton = UIButton(configuration: micConfig, primaryAction: UIAction(){ _ in
-      self.addVoiceoverVC()
-      self.presentVoiceoverVC()
+      self.pushVoiceoverVC()
     })
     bottomStack.addArrangedSubview(micButton)
   }
   
-  func addVoiceoverVC() {
-    guard voiceoverVC == nil else {
-      return
+  func pushVoiceoverVC() {
+    if voiceoverVC == nil {
+      voiceoverVC = VoiceoverViewController(composition: composition)
+      voiceoverVC.delegate = self
     }
-    voiceoverVC = VoiceoverViewController(composition: composition)
-    voiceoverVC.delegate = self
-  }
-  
-  func presentVoiceoverVC() {
+    player.pause()
     guard let navController = navigationController else { return }
-    navController.pushViewController(navController, animated: true)
-  }
-  func dismissVoiceoverVC() {
-    voiceoverVC.view.isUserInteractionEnabled = false
-    voiceoverVC.animateOut()
-    let playerView = self.playerView
-    UIView.animate(withDuration: voiceoverVC.transitionDuration) {
-      self.bottomStack.transform = .identity
-      playerView.isUserInteractionEnabled = true
-      playerView.transform = .identity
-    }
-
+    navController.pushViewController(voiceoverVC, animated: true)
   }
   
   // for reference only, when making preview without instructions.
@@ -228,7 +211,8 @@ class PreviewViewController: UIViewController {
   func renderFreshAssets() {
     guard let asset = previewAsset else { return }
     makePlayer(item: makePlayerItem(from: asset))
-    voiceoverVC.renderFreshAssets()
+    
+    voiceoverVC?.renderFreshAssets()
     bottomStack.clarify()
     playerView.isUserInteractionEnabled = true
     appearLoaded()
@@ -274,11 +258,8 @@ class PreviewViewController: UIViewController {
     guard let _ = note.object as? AVPlayerItem else {
       return
     }
-    if voiceoverVC.shouldLoopWhenPlayerFinished() {
-      player.seek(to: .zero)
-      player.play()
-    }
-    voiceoverVC.playerDidFinish()
+    player.seek(to: .zero)
+    player.play()
   }
   
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -293,33 +274,11 @@ class PreviewViewController: UIViewController {
 }
 
 extension PreviewViewController: VoiceoverViewControllerDelegate {
-  func playerFrame() -> CGRect {
-    return playerView.frame
-  }
-  
-  func voiceoverVCDidStartRecording() {
-    player.play()
-  }
-
-  func voiceoverVCDidStopRecording() {
-    player.pause()
-  }
-
-  func getPlayer() -> AVPlayer! {
-    return player
-  }
-
-  func assetForThumbnail() -> AVAsset? {
-    return previewAsset
-  }
-  
   func voiceoverVCDidFinish(success: Bool) {
-    dismissVoiceoverVC()
     renderFreshAssets()
   }
   
   func voiceoverVCDidCancel() {
-    dismissVoiceoverVC()
   }
-  
+
 }
