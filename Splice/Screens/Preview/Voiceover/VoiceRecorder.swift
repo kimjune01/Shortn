@@ -9,6 +9,7 @@ import AVFoundation
 
 protocol VoiceRecorderDelegate: AnyObject {
   func voiceRecorderDidFinishRecording(to url: URL)
+  func voiceRecorderDidReachMaxDuration()
 }
 
 // a recorder that can also playback audio at any time.
@@ -19,6 +20,7 @@ class VoiceRecorder: NSObject {
   private var audioRecorder: AVAudioRecorder!
   private let voicesPlayer = QueuePlayer()
   var tempUrl: URL?
+  var maxTimer: Timer?
 
   init(composition: SpliceComposition) {
     self.composition = composition
@@ -71,6 +73,14 @@ class VoiceRecorder: NSObject {
       audioRecorder = try AVAudioRecorder(url: tempUrl!, settings: defaultSettings())
       audioRecorder.delegate = self
       audioRecorder.record()
+      let maxDuration = composition.totalDuration - composition.voiceSegmentsDuration
+      maxTimer?.invalidate()
+      maxTimer = Timer.scheduledTimer(withTimeInterval: maxDuration, repeats: false, block: { [weak self] timer in
+        guard let self = self, let delegate = self.delegate else {
+          return
+        }
+        delegate.voiceRecorderDidReachMaxDuration()
+      })
     } catch {
       print("startRecordingWithAnimation error: ", error.localizedDescription)
     }
@@ -87,6 +97,7 @@ class VoiceRecorder: NSObject {
   
   func stopRecording() {
     guard audioRecorder != nil else { return }
+    maxTimer?.invalidate()
     audioRecorder.stop()
   }
   

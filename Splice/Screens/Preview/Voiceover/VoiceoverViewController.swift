@@ -136,9 +136,6 @@ class VoiceoverViewController: UIViewController {
     playerView.backgroundColor = .black
     playerView.layer.borderWidth = 3
     let scaleFactor: CGFloat = 0.5
-//    playerView.transform = .identity
-//      .scaledBy(x: scaleFactor, y: scaleFactor)
-//      .translatedBy(x: -playerView.frame.width / 2 + 8, y: -50)
     
     playerView.translatesAutoresizingMaskIntoConstraints = false
     [  playerView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: scaleFactor),
@@ -146,7 +143,6 @@ class VoiceoverViewController: UIViewController {
        playerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
        playerView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant:  -50)
     ].forEach{$0.isActive = true}
-    playerView.backgroundColor = .purple
     
     let singleTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapPlayerView))
     singleTapRecognizer.numberOfTapsRequired = 1
@@ -369,7 +365,7 @@ class VoiceoverViewController: UIViewController {
     case .playback:
       micButton.isEnabled = false
       playerView.layer.borderColor = UIColor.systemGray.withAlphaComponent(0.5).cgColor
-      undoButton.isEnabled = false
+      undoButton.isEnabled = composition.voiceSegments.count > 0
       lookAheadThumbnail.alpha = 0.2
       futureLabel.alpha = 0.2
     case .paused:
@@ -407,7 +403,7 @@ class VoiceoverViewController: UIViewController {
   func tappedUndoButton() {
     loopTimer?.invalidate()
     switch state {
-    case .standby, .playback, .paused:
+    case .standby, .playback, .paused, .complete:
       loopLastSegment()
       state = .selecting
       showTrashPopover()
@@ -468,6 +464,7 @@ class VoiceoverViewController: UIViewController {
       popover.sourceRect = lastSegment.bounds
       popover.permittedArrowDirections = .down
     }
+    lastSegment.doGlowAnimation(withColor: .white, withEffect: .normal)
     guard trashPopoverVC.isPresentable else { return }
     present(trashPopoverVC, animated: true)
   }
@@ -475,13 +472,8 @@ class VoiceoverViewController: UIViewController {
   func playerDidFinish() {
     switch state {
     case .recording:
+      // state determination happens in callback voiceRecorderDidFinishRecording
       voiceRecorder.stopRecording()
-      let durationDiff = composition.totalDuration - composition.voiceSegmentsDuration
-      guard durationDiff < 0.1 else {
-        print("OOOOPS playerDidFinish when recording, but segment duration doesnt match!!")
-        break
-      }
-      state = .complete
       segmentsVC.stopExpanding()
     default:
       break
@@ -517,6 +509,7 @@ class VoiceoverViewController: UIViewController {
     guard let _ = note.object as? AVPlayerItem else {
       return
     }
+    print("playerDidFinishPlaying")
     if shouldLoopWhenPlayerFinished() {
       player.seek(to: .zero)
       player.play()
@@ -563,8 +556,8 @@ class VoiceoverViewController: UIViewController {
   }
   
   @objc func touchDoneMicButton() {
-    state = .standby
     segmentsVC.stopExpanding()
+    // state mgmt happens in voice recording finished callback
     voiceRecorder.stopRecording()
     micButton.backgroundColor = .systemBlue.withAlphaComponent(1)
     micButton.transform = .identity
@@ -577,11 +570,11 @@ class VoiceoverViewController: UIViewController {
   }
   
   func addVoiceoverToPreviewAndFinish() {
+    navigationController?.popViewController(animated: true)
     guard composition.voiceSegments.count > 0 else {
       delegate?.voiceoverVCDidCancel()
       return
     }
-    
     composition.compositeWithVoiceover() { success in
       self.delegate?.voiceoverVCDidFinish(success: success)
     }
@@ -615,6 +608,9 @@ extension VoiceoverViewController: UIPopoverPresentationControllerDelegate, Popo
       player.pause()
       voiceRecorder.pause()
     }
+    if let lastSegment = segmentsVC.lastSegment() {
+      lastSegment.layer.removeAllAnimations()
+    }
   }
   
   
@@ -625,6 +621,16 @@ extension VoiceoverViewController: VoiceRecorderDelegate {
     let voiceAsset = AVURLAsset(url: url)
     composition.voiceSegments.append(voiceAsset)
     segmentsVC.renderFreshAssets()
-    state = .standby
+    if composition.voiceSegmentsDuration - 0.1 >= composition.totalDuration {
+      let durationDiff = composition.totalDuration - composition.voiceSegmentsDuration
+      if durationDiff > 0.1 { print("DurationDiff is too damn high!") }
+      state = .complete
+    } else {
+      state = .standby
+    }
+  }
+  
+  func voiceRecorderDidReachMaxDuration() {
+    touchDoneMicButton() // simulate a touch up when they're supposed to.
   }
 }

@@ -96,6 +96,7 @@ class VoiceSegmentsViewController: UIViewController {
   }
   
   func stopExpanding() {
+    print("stopExpanding")
     expanding = false
   }
   
@@ -117,6 +118,7 @@ class VoiceSegmentsViewController: UIViewController {
                                     y: 0,
                                     width: timeSince * expandingRate,
                                     height: view.height)
+    print("expandingSegment.width: ", expandingSegment.width)
   }
   
   func lastSegment() -> UIView? {
