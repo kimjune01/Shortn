@@ -307,7 +307,10 @@ class SpliceComposition: CustomStringConvertible {
   
   static func mockComposition() -> SpliceComposition {
     let comp = SpliceComposition()
-    let tempDir = comp.makeTempDirectoryName(identifier: "0D84F6E7-9C08-4E5E-9CC4-247824C08836/L0/001")
+//    FileManager.default.cleanUpOldTempFiles()
+
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("tempExport2a2b3ae273b5c1f9e18e17646790a01b.mp4")
+//    let tempDir = comp.makeTempDirectoryName(identifier: "04106a49143d98af62ae7189c57441dd.mp4")
     if !FileManager.default.fileExists(atPath: tempDir.path) {
       assert(false, "need fresh assets in temp dir")
     }

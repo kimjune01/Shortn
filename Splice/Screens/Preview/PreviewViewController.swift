@@ -39,9 +39,7 @@ class PreviewViewController: UIViewController {
   
   init(composition: SpliceComposition) {
     self.composition = composition
-    voiceoverVC = VoiceoverViewController(composition: composition)
     super.init(nibName: nil, bundle: nil)
-    voiceoverVC.delegate = self
   }
   
   required init?(coder: NSCoder) {
@@ -55,7 +53,6 @@ class PreviewViewController: UIViewController {
     addBottonStack()
     addSpinner()
     addWaitLabel()
-    addVoiceoverVC()
     if !composition.assets.isEmpty {
       exportInBackground()
     }
@@ -133,35 +130,23 @@ class PreviewViewController: UIViewController {
     micConfig.buttonSize = .large
     micConfig.image = UIImage(systemName: "mic.fill")
     micButton = UIButton(configuration: micConfig, primaryAction: UIAction(){ _ in
+      self.addVoiceoverVC()
       self.presentVoiceoverVC()
     })
     bottomStack.addArrangedSubview(micButton)
   }
   
   func addVoiceoverVC() {
-    view.addSubview(voiceoverVC.view)
-    voiceoverVC.view.fillParent()
-    addChild(voiceoverVC)
-    voiceoverVC.didMove(toParent: self)
-    voiceoverVC.view.isUserInteractionEnabled = false
+    guard voiceoverVC == nil else {
+      return
+    }
+    voiceoverVC = VoiceoverViewController(composition: composition)
+    voiceoverVC.delegate = self
   }
   
   func presentVoiceoverVC() {
-    let playerView = self.playerView
-    playerView.isUserInteractionEnabled = false
-    player.pause()
-    player.seek(to: .zero)
-    UIView.animate(withDuration: voiceoverVC.transitionDuration) {
-      self.bottomStack.transform = .identity.translatedBy(x: 0, y: 100)
-      let scaleFactor = 0.5
-      playerView.transform = .identity
-        .scaledBy(x: scaleFactor, y: scaleFactor)
-        .translatedBy(x: -playerView.frame.width / 2 + 8, y: -50)
-    } completion: { _ in
-      self.voiceoverVC.view.isUserInteractionEnabled = true
-      playerView.isUserInteractionEnabled = true
-    }
-    voiceoverVC.animateIn()
+    guard let navController = navigationController else { return }
+    navController.pushViewController(navController, animated: true)
   }
   func dismissVoiceoverVC() {
     voiceoverVC.view.isUserInteractionEnabled = false
