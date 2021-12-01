@@ -110,9 +110,7 @@ class PreviewViewController: UIViewController {
     backConfig.baseForegroundColor = .white
     let backButton = UIButton(configuration: backConfig, primaryAction: UIAction(){ _ in
       guard self.player != nil else { return }
-      NotificationCenter.default.removeObserver(self)
-      self.player.pause()
-      self.delegate?.previewVCDidCancel(self)
+      self.tappedBackButton()
     })
     bottomStack.addArrangedSubview(backButton)
     
@@ -159,6 +157,24 @@ class PreviewViewController: UIViewController {
 //    }
 //  }
   
+  func tappedBackButton() {
+    func goBack() {
+      NotificationCenter.default.removeObserver(self)
+      self.player.pause()
+      self.delegate?.previewVCDidCancel(self)
+    }
+    if composition.voiceSegments.isEmpty {
+      goBack()
+    } else {
+      let alert = UIAlertController(title: "Voiceover data", message: "If you go back, your voiceover may get lost", preferredStyle: .alert)
+      alert.addAction(UIAlertAction(title: "Go back", style: .default, handler: { action in
+        goBack()
+      }))
+      alert.addAction(UIAlertAction(title: "Stay here", style: .cancel, handler: nil))
+      present(alert, animated: true, completion: nil)
+    }
+  }
+  
   @objc func didSaveToAlbum() {
     print("didSaveToAlbum")
   }
@@ -204,6 +220,8 @@ class PreviewViewController: UIViewController {
         self.alertExportFail()
         return
       }
+      self.composition.voiceSegments = []
+      self.composition.postVoiceoverPreviewAsset = nil
       self.renderFreshAssets()
     }
   }
@@ -277,8 +295,4 @@ extension PreviewViewController: VoiceoverViewControllerDelegate {
   func voiceoverVCDidFinish(success: Bool) {
     renderFreshAssets()
   }
-  
-  func voiceoverVCDidCancel() {
-  }
-
 }

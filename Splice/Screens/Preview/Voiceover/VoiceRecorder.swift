@@ -65,7 +65,6 @@ class VoiceRecorder: NSObject {
   // should not need starting time because the duration of the previous segments should sum up to start time.
   // may be out of sync, but that's ok for this level of precision.
   func startRecording() {
-    print("VoiceRecorder startRecording")
     do {
       try recordingSession.setCategory(.playAndRecord, mode: .default)
       try recordingSession.setActive(true)
@@ -136,6 +135,5 @@ extension VoiceRecorder: AVAudioRecorderDelegate{
     guard flag else { print("audioRecorderDidFinishRecording fail!"); return }
     guard let url = tempUrl, let delegate = delegate else { return }
     delegate.voiceRecorderDidFinishRecording(to: url)
-    print("VoiceRecorder didFinishRecording")
   }
 }

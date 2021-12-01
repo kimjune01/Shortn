@@ -21,7 +21,5 @@
 	</dict>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Allowing access to the microphone lets you record voiceovers.</string>
 </dict>
 </plist>

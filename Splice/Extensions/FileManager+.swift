@@ -85,7 +85,7 @@ extension FileManager {
         guard fileExists(atPath: contentUrl.path) else { continue }
         let attr = try attributesOfItem(atPath: contentUrl.path)
         let creationDate = attr[.creationDate] as? Date
-        if let created = creationDate, abs(created.timeIntervalSinceNow / 3600) > 24  {
+        if let created = creationDate, abs(created.timeIntervalSinceNow / 3600) > 12  {
           // stale. delete!
           try removeItem(at: contentUrl)
         }

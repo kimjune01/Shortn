@@ -9,7 +9,6 @@ import UIKit
 import AVFoundation
 
 protocol VoiceoverViewControllerDelegate: AnyObject {
-  func voiceoverVCDidCancel()
   func voiceoverVCDidFinish(success: Bool)
 }
 
@@ -122,6 +121,7 @@ class VoiceoverViewController: UIViewController {
       if !granted {
         self.micButton.isEnabled = false
       }
+      self.segmentsVC.adjustExpandingRate()
     }
     segmentsVC.adjustExpandingRate()
   }
@@ -203,7 +203,7 @@ class VoiceoverViewController: UIViewController {
     backConfig.image = UIImage(systemName: "chevron.left")
     backConfig.baseForegroundColor = .white
     let backButton = UIButton(configuration: backConfig, primaryAction: UIAction(){ _ in
-      self.delegate?.voiceoverVCDidCancel()
+      self.navigationController?.popViewController(animated: true)
     })
     bottomStack.addArrangedSubview(backButton)
     
@@ -509,10 +509,10 @@ class VoiceoverViewController: UIViewController {
     guard let _ = note.object as? AVPlayerItem else {
       return
     }
-    print("playerDidFinishPlaying")
     if shouldLoopWhenPlayerFinished() {
       player.seek(to: .zero)
       player.play()
+      voiceRecorder.play(at: 0)
     }
     playerDidFinish()
   }
@@ -572,7 +572,6 @@ class VoiceoverViewController: UIViewController {
   func addVoiceoverToPreviewAndFinish() {
     navigationController?.popViewController(animated: true)
     guard composition.voiceSegments.count > 0 else {
-      delegate?.voiceoverVCDidCancel()
       return
     }
     composition.compositeWithVoiceover() { success in
