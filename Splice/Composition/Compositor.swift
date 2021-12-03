@@ -202,11 +202,13 @@ class Compositor {
       guard let videoAssetTrack = videoAsset.tracks(withMediaType: .video).first else {
         throw CompositorError.badVideoInput
       }
-      guard let videoAudioAssetTrack = videoAsset.tracks(withMediaType: .audio).first else {
-        throw CompositorError.badVideoAudio
-      }
       try videoTrack.insertTimeRange(wholeRange, of: videoAssetTrack, at: .zero)
-      try videoAudioTrack.insertTimeRange(wholeRange, of: videoAudioAssetTrack, at: .zero)
+      if composition.includeOriginalAudio {
+        guard let videoAudioAssetTrack = videoAsset.tracks(withMediaType: .audio).first else {
+          throw CompositorError.badVideoAudio
+        }
+        try videoAudioTrack.insertTimeRange(wholeRange, of: videoAudioAssetTrack, at: .zero)
+      }
     } catch {
       assert(false)
       print(error)

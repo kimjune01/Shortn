@@ -26,6 +26,7 @@ class PreviewViewController: UIViewController {
   }
   let spinner = UIActivityIndicatorView(style: .large)
   let waitLabel = UILabel()
+  let durationLabel = UILabel()
   var micButton: UIButton!
   let bottomStack = UIStackView()
   var voiceoverVC: VoiceoverViewController!
@@ -53,6 +54,7 @@ class PreviewViewController: UIViewController {
     addBottonStack()
     addSpinner()
     addWaitLabel()
+    addDurationLabel()
     if !composition.assets.isEmpty {
       exportInBackground()
     }
@@ -90,6 +92,17 @@ class PreviewViewController: UIViewController {
     waitLabel.fillWidthOfParent(withDefaultMargin: true)
     
     waitLabel.text = "Please wait for the video to finish processing.\nThis could take a while for longer videos."
+  }
+  
+  func addDurationLabel() {
+    view.addSubview(durationLabel)
+    durationLabel.timeFormat()
+    durationLabel.backgroundColor = .black.withAlphaComponent(0.3)
+    durationLabel.centerXInParent()
+    durationLabel.set(height: 40)
+    durationLabel.set(width: 70)
+    durationLabel.pinTopToParent(margin: 12, insideSafeArea: true)
+    durationLabel.roundCorner()
   }
   
   func addBottonStack() {
@@ -235,6 +248,7 @@ class PreviewViewController: UIViewController {
     playerView.isUserInteractionEnabled = true
     appearLoaded()
     player.play()
+    durationLabel.updateTime(asset.duration.seconds)
   }
   
   func alertExportFail() {

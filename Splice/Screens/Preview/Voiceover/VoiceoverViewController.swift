@@ -50,6 +50,7 @@ class VoiceoverViewController: UIViewController {
   let transitionDuration: TimeInterval = 0.3
   let bottomStack = UIStackView()
   let topBar = UIView()
+  var audioButton: UIButton!
   var micButton: UIButton!
   var undoButton: UIButton!
   var rewindButton: UIButton!
@@ -80,10 +81,11 @@ class VoiceoverViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .black
+    view.backgroundColor = .darkGray
     addPlayerView()
     addBottomStack()
     addTopBar()
+    addAudioButton()
     addLookAheadThumbnail()
     addCurrentLabel()
     addFutureLabel()
@@ -126,6 +128,12 @@ class VoiceoverViewController: UIViewController {
     segmentsVC.adjustExpandingRate()
   }
   
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    player.pause()
+    voiceRecorder.pause()
+  }
+  
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
     lookAheadTimer?.invalidate()
@@ -151,6 +159,7 @@ class VoiceoverViewController: UIViewController {
     
   func makePlayer(item: AVPlayerItem) {
     player = AVPlayer(playerItem: item)
+    player.volume = composition.includeOriginalAudio ? 1 : 0
     playerView.player = player
     if item.asset.isPortrait {
       playerView.videoGravity = .resizeAspectFill
@@ -186,6 +195,18 @@ class VoiceoverViewController: UIViewController {
     titleLabel.centerYInParent()
   }
   
+  func addAudioButton() {
+    var audioConfig = UIButton.Configuration.gray()
+    audioConfig.baseForegroundColor = .white
+    audioConfig.image = UIImage(systemName: "speaker.wave.2.fill")
+    audioButton = UIButton(configuration: audioConfig, primaryAction: UIAction(handler: { action in
+      self.toggleOriginalAudio()
+    }))
+    view.addSubview(audioButton)
+    audioButton.pinTrailingToParent(margin: 12)
+    audioButton.pinTop(toBottomOf: topBar, margin: 12)
+  }
+  
   func addBottomStack() {
     view.addSubview(bottomStack)
     bottomStack.set(height: UIStackView.bottomHeight)
@@ -203,7 +224,15 @@ class VoiceoverViewController: UIViewController {
     backConfig.image = UIImage(systemName: "chevron.left")
     backConfig.baseForegroundColor = .white
     let backButton = UIButton(configuration: backConfig, primaryAction: UIAction(){ _ in
-      self.navigationController?.popViewController(animated: true)
+      if self.composition.voiceSegments.isEmpty {
+        self.navigationController?.popViewController(animated: true)
+      } else {
+        let alert = UIAlertController(title: "Delete voiceover?", message: "This will remove the voiceover you just recorded", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { action in
+          self.navigationController?.popViewController(animated: true)
+        }))
+        alert.addAction(UIAlertAction(title: "Stay here", style: .cancel, handler: nil))
+      }
     })
     bottomStack.addArrangedSubview(backButton)
     
@@ -398,6 +427,20 @@ class VoiceoverViewController: UIViewController {
       futureLabel.alpha = 0.2
     }
     debugButton.setTitle(state.debugDescription, for: .normal)
+    if composition.includeOriginalAudio {
+      audioButton.setImage(UIImage(systemName: "speaker.wave.2.fill"), for: .normal)
+    } else {
+      audioButton.setImage(UIImage(systemName: "speaker.slash.fill"), for: .normal)
+    }
+    if player != nil {
+      player.volume = composition.includeOriginalAudio ? 1 : 0
+    }
+
+  }
+  
+  func toggleOriginalAudio() {
+    composition.includeOriginalAudio = !composition.includeOriginalAudio
+    updateAppearance()
   }
   
   func tappedUndoButton() {

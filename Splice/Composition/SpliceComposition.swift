@@ -19,6 +19,7 @@ class SpliceComposition: CustomStringConvertible {
   var splices: [Splice] = []
   var voiceSegments: [AVURLAsset] = []
   var bpm: Int?
+  var includeOriginalAudio = true
   
   var assetTransformQueue = DispatchQueue(label: "june.kim.AlbumImportVC.assetRequestQueue", qos: .userInitiated)
   let group = DispatchGroup()
@@ -282,7 +283,9 @@ class SpliceComposition: CustomStringConvertible {
   
   func replaceSplice(at index: Int, with newSplice: Splice) {
     guard index < splices.count else { return }
-    splices[index] = newSplice
+    let lower = max(0, min(newSplice.lowerBound, newSplice.upperBound))
+    let upper = max(0, max(newSplice.lowerBound, newSplice.upperBound))
+    splices[index] = lower...upper
     merge(intervals: &splices)
   }
   

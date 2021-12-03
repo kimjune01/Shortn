@@ -72,6 +72,7 @@
 		0EF593422753FE5700FB3960 /* VoiceRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF593412753FE5700FB3960 /* VoiceRecorder.swift */; };
 		0EF593442753FEA700FB3960 /* QueuePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF593432753FEA700FB3960 /* QueuePlayer.swift */; };
 		0EF593462753FEC900FB3960 /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF593452753FEC900FB3960 /* Queue.swift */; };
+		0EF593482759B22100FB3960 /* UILabel+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF593472759B22100FB3960 /* UILabel+.swift */; };
 		401659576E2E09F4A3F1449B /* Pods_Shortn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */; };
 /* End PBXBuildFile section */
 
@@ -143,6 +144,7 @@
 		0EF593412753FE5700FB3960 /* VoiceRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorder.swift; sourceTree = "<group>"; };
 		0EF593432753FEA700FB3960 /* QueuePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuePlayer.swift; sourceTree = "<group>"; };
 		0EF593452753FEC900FB3960 /* Queue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
+		0EF593472759B22100FB3960 /* UILabel+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+.swift"; sourceTree = "<group>"; };
 		B5470B0DD6DAC21C72E97128 /* Pods-Shortn.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.debug.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.debug.xcconfig"; sourceTree = "<group>"; };
 		C88BF21D7806597A7FBFA57D /* Pods-Shortn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shortn.release.xcconfig"; path = "Target Support Files/Pods-Shortn/Pods-Shortn.release.xcconfig"; sourceTree = "<group>"; };
 		D73CF489528F53F9C17D1FE8 /* Pods_Shortn.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Shortn.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -250,6 +252,7 @@
 				0E2511D927260C3E00E425D6 /* FileManager+.swift */,
 				0E2511DB27260C5400E425D6 /* Duration+.swift */,
 				0E2511DD27260CC900E425D6 /* AVAsset+.swift */,
+				0EF593472759B22100FB3960 /* UILabel+.swift */,
 				0E2511DF27260CED00E425D6 /* Date+.swift */,
 				0E2511EC272CA87D00E425D6 /* UIImage+.swift */,
 				0E2511EB272CA87D00E425D6 /* UIView+.swift */,
@@ -542,6 +545,7 @@
 				0E2511D827260C2700E425D6 /* MediaAsset.swift in Sources */,
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */,
+				0EF593482759B22100FB3960 /* UILabel+.swift in Sources */,
 				0EC339012732EC72003D9E63 /* String+.swift in Sources */,
 				0E7802682748EB8D005772F2 /* ThumbnailsViewController.swift in Sources */,
 				0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */,
@@ -705,7 +709,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
@@ -738,7 +742,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 31;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;

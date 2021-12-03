@@ -156,10 +156,7 @@ class SpliceViewController: UIViewController {
     // timer
     stackView.addArrangedSubview(timerLabel)
     timerLabel.set(height: 50)
-    timerLabel.textAlignment = .center
-    timerLabel.text = "0:00"
-    timerLabel.font = .monospacedDigitSystemFont(ofSize: 14, weight: .medium)
-    timerLabel.textColor = .white
+    timerLabel.timeFormat()
     timerLabel.isUserInteractionEnabled = true
     timerLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTimerLabel)))
     
@@ -282,7 +279,7 @@ class SpliceViewController: UIViewController {
         let lower = max(0, min(self.spliceStartTime, timeInterval))
         let upper = max(0, max(self.spliceStartTime, timeInterval))
         let cumulative = self.composition.cumulativeDuration(currentRange: lower...upper)
-        self.updateTimerLabel(cumulative)
+        self.timerLabel.updateTime(cumulative)
       case .looping(let spliceIndex):
         guard spliceIndex < self.composition.splices.count else { return }
         let splice = self.composition.splices[spliceIndex]
@@ -326,15 +323,8 @@ class SpliceViewController: UIViewController {
       playerVC.view.isUserInteractionEnabled = true
       timelineVC.appearLooping(at: spliceIndex)
     }
-    self.updateTimerLabel(self.composition.splicesDuration)
+    self.timerLabel.updateTime(self.composition.splicesDuration)
     navigationItem.rightBarButtonItem?.isEnabled = composition.splices.count > 0
-  }
-  
-  func updateTimerLabel(_ seconds: TimeInterval) {
-    let intSeconds = Int(seconds.rounded())
-    let minutes = (intSeconds % 3600) / 60
-    let seconds = intSeconds % 60
-    timerLabel.text = String(format: "%01d:%02d", minutes, seconds)
   }
   
   func renderFreshAssets() {
