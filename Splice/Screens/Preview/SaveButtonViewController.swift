@@ -15,6 +15,8 @@ class SaveButtonViewController: UIViewController {
 
   var savedThisPreview = false
   var shouldSaveUninterrupted: Bool {
+    return true
+    // disable paywall until there's at least one happy user...
     return composition.assets.count == 1 ||
     ShortnAppProduct.hasFullFeatureAccess() ||
     !ShortnAppProduct.hasReachedFreeUsageLimit()

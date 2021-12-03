@@ -147,6 +147,9 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     guard composition.assetIdentifiers != identifiers else {
       return
     }
+    handleFullFeatureFlow(identifiers)
+    // Turn off paywall until there's at least one happy user!
+    return;
     // full featured access
     if ShortnAppProduct.hasFullFeatureAccess() {
       handleFullFeatureFlow(identifiers)
