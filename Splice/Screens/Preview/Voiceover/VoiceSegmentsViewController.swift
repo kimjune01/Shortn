@@ -62,7 +62,9 @@ class VoiceSegmentsViewController: UIViewController {
   }
   
   func adjustExpandingRate() {
-    expandingRate =  view.width / composition.totalDuration
+    expandingRate =  view.width / composition.splicesDuration
+    print("expanding rate adjusted to: ", expandingRate)
+    print("composition.splicesDuration: ", composition.splicesDuration)
   }
   
   func renderSegments() {
@@ -74,7 +76,7 @@ class VoiceSegmentsViewController: UIViewController {
     }
     runningPortion = 0
     for eachVoice in composition.voiceSegments {
-      let thisPortion: CGFloat = eachVoice.duration.seconds / composition.totalDuration
+      let thisPortion: CGFloat = eachVoice.duration.seconds / composition.splicesDuration
       let newSegment = makeNewSegment(start: runningPortion, portion: thisPortion)
       view.addSubview(newSegment)
       runningPortion += thisPortion
@@ -96,7 +98,6 @@ class VoiceSegmentsViewController: UIViewController {
   }
   
   func stopExpanding() {
-    print("stopExpanding")
     expanding = false
   }
   
@@ -118,7 +119,7 @@ class VoiceSegmentsViewController: UIViewController {
                                     y: 0,
                                     width: timeSince * expandingRate,
                                     height: view.height)
-//    print("expandingSegment.width: ", expandingSegment.width)
+    print("expandingSegment.width: ", expandingSegment.width)
   }
   
   func lastSegment() -> UIView? {

@@ -435,12 +435,14 @@ class VoiceoverViewController: UIViewController {
     if player != nil {
       player.volume = composition.includeOriginalAudio ? 1 : 0
     }
-
   }
   
   func toggleOriginalAudio() {
     composition.includeOriginalAudio = !composition.includeOriginalAudio
     updateAppearance()
+    let toastMessage = composition.includeOriginalAudio ?
+    "Including Original Audio" : "Excluding Original Audio"
+    showToast(message: toastMessage, seconds: 1.2)
   }
   
   func tappedUndoButton() {
@@ -494,7 +496,7 @@ class VoiceoverViewController: UIViewController {
   }
   
   func seekToTip() {
-    let seekTo = min(composition.voiceSegmentsDuration, composition.totalDuration)
+    let seekTo = min(composition.voiceSegmentsDuration, composition.splicesDuration)
     player.seek(to: seekTo.cmTime)
   }
   
@@ -538,7 +540,7 @@ class VoiceoverViewController: UIViewController {
     guard let asset = player.currentItem?.asset, lookAheadThumbnail.alpha == 1 else {
       return
     }
-    let targetTime = min(player.currentTime().seconds + 2, composition.totalDuration)
+    let targetTime = min(player.currentTime().seconds + 2, composition.splicesDuration)
     let thumbnail = asset.makethumbnail(at: targetTime, size: lookAheadThumbnail.size)
     UIView.transition(with: lookAheadThumbnail, duration: 1.3, options: .transitionCrossDissolve) {
       self.lookAheadThumbnail.image = thumbnail
@@ -588,6 +590,7 @@ class VoiceoverViewController: UIViewController {
     case .playback, .paused:
       player.pause()
       seekToTip()
+      state = .standby
     case .selecting:
       player.pause()
       seekToTip()
@@ -663,8 +666,8 @@ extension VoiceoverViewController: VoiceRecorderDelegate {
     let voiceAsset = AVURLAsset(url: url)
     composition.voiceSegments.append(voiceAsset)
     segmentsVC.renderFreshAssets()
-    if composition.voiceSegmentsDuration - 0.1 >= composition.totalDuration {
-      let durationDiff = composition.totalDuration - composition.voiceSegmentsDuration
+    if composition.voiceSegmentsDuration - 0.1 >= composition.splicesDuration {
+      let durationDiff = composition.splicesDuration - composition.voiceSegmentsDuration
       if durationDiff > 0.1 { print("DurationDiff is too damn high!") }
       state = .complete
     } else {
