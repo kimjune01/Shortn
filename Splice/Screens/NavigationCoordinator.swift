@@ -180,7 +180,7 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     let presenter = topVC as? Spinnable
     presenter?.spin()
     composition.saveAssetsToTempDirectory(from: fetchResult) { success in
-      guard success else {
+      guard success, fetchResult.count == identifiers.count else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
           self.handleFullFeatureFlow(identifiers)
         }
