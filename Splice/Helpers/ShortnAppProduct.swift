@@ -64,6 +64,8 @@ public struct ShortnAppProduct {
   }
   
   static func shouldShowFreeForNowReminder() -> Bool {
+    // turn off paywall for now
+    return false;
     return !hasFullFeatureAccess() && !hasReachedFreeUsageLimit()
   }
   

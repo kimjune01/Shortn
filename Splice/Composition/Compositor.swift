@@ -347,6 +347,7 @@ class Compositor {
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
+            sourceVideoTrack.preferredTransform
             let transform = transform(for: sourceVideoTrack,
                                          isPortraitFrame: isPortraitFrame,
                                          renderSize: renderSize)
@@ -401,6 +402,7 @@ class Compositor {
           .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
       }
     }
+    return assetTrack.preferredTransform
     if !isPortraitFrame {
       if isPortraitAsset {
         let scaleFactor = renderSize.height / absoluteSize.height

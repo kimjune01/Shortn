@@ -207,7 +207,25 @@ class SpliceComposition: CustomStringConvertible {
   
   func makeTempDirectoryName(identifier: String) -> URL {
     let tempDirectory = FileManager.default.temporaryDirectory
-    return tempDirectory.appendingPathComponent("\(identifier.md5()).mp4")
+    let unslashed = identifier.replacingOccurrences(of: "/", with: "_")
+    return tempDirectory.appendingPathComponent("\(unslashed).mp4")
+  }
+  
+  func copy(phAsset: PHAsset, to directory: URL, _ completion: @escaping BoolCompletion) {
+    PHImageManager
+      .default()
+      .requestAVAsset(forVideo: phAsset,
+                      options: nil) { asset, mix, info in
+        guard let urlAsset = asset as? AVURLAsset,
+              let videoData = NSData(contentsOf: urlAsset.url) else {
+                assert(false, "could not save to temp dir")
+                self.group.leave()
+                return
+              }
+        print("source URL: \(urlAsset.url)")
+        print("destination URL: \(directory)")
+        completion(videoData.write(to: directory, atomically: true))
+      }
   }
   
   func saveAssetsToTempDirectory(from fetchResult: PHFetchResult<PHAsset>, _ completion: @escaping BoolCompletion) {
@@ -221,40 +239,31 @@ class SpliceComposition: CustomStringConvertible {
     assetTransformQueue.async {
       var tempAssets: [AVAsset?] = Array(repeating: nil, count: fetchCount)
       for i in 0..<fetchCount {
-        self.group.enter()
         let eachVideoAsset = fetchResult.object(at: i)
-        let identifier = self.assetIdentifiers[i]
+        let identifier = eachVideoAsset.localIdentifier
+        self.group.enter()
         let tempDir = self.makeTempDirectoryName(identifier: identifier)
+        guard let pickedIndex = identifiersToIndex[identifier] else {
+          // something went wrong!
+          assert(false)
+          return
+        }
         guard !FileManager.default.fileExists(atPath: tempDir.path) else {
           // file exists, get it from file instead of exporting.
-          tempAssets[i] = AVURLAsset(url: tempDir)
+          print("\(pickedIndex): \(tempDir.lastPathComponent)")
+          tempAssets[pickedIndex] = AVURLAsset(url: tempDir)
           self.group.leave()
           continue
         }
-        PHImageManager
-          .default()
-          .requestExportSession(forVideo: eachVideoAsset,
-                                options: options,
-                                exportPreset: AVAssetExportPresetPassthrough) { exportSession, info in
-            guard let session = exportSession else { return }
-            session.outputURL = tempDir
-            session.outputFileType = AVFileType.mov
-            session.shouldOptimizeForNetworkUse = true
-            session.exportAsynchronously {
-              switch session.status {
-              case .completed:
-                print("asset export completed!")
-                tempAssets[i] = AVURLAsset(url: tempDir)
-              case .failed:
-                print("export failed \(session.error?.localizedDescription ?? "error nil")")
-              case .cancelled:
-                print("export cancelled \(session.error?.localizedDescription ?? "error nil")")
-              default:
-                print("fail..")
-              }
-              self.group.leave()
-            }
+        self.copy(phAsset: eachVideoAsset, to:tempDir) { success in
+          guard success else {
+            self.group.leave()
+            return
           }
+          print("\(pickedIndex): \(tempDir.lastPathComponent)")
+          tempAssets[pickedIndex] = AVURLAsset(url: tempDir)
+          self.group.leave()
+        }
       }
       self.group.notify(queue: .main) {
         self.assets = tempAssets.compactMap{$0}

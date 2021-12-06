@@ -77,17 +77,15 @@ extension FileManager {
     do {
       // Get the directory contents urls (including subfolders urls)
       let temporaryContents = try contentsOfDirectory(at: temporaryUrl, includingPropertiesForKeys: nil)
-      print("temporaryContents: ")
-      
+      print("\(temporaryContents.count) files in temp directory")
       for contentUrl in temporaryContents {
-        print(contentUrl.lastPathComponent)
-
         guard fileExists(atPath: contentUrl.path) else { continue }
         let attr = try attributesOfItem(atPath: contentUrl.path)
         let creationDate = attr[.creationDate] as? Date
-        // set stale clock to 5 minutes
-        if let created = creationDate, abs(created.timeIntervalSinceNow / 60) > 1  {
+        // set stale clock to 24 hours
+        if let created = creationDate, abs(created.timeIntervalSinceNow / 3600) > 24  {
           // stale. delete!
+          print("deleting file at \(contentUrl.lastPathComponent)")
           try removeItem(at: contentUrl)
         }
       }

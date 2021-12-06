@@ -179,14 +179,14 @@ extension NavigationCoordinator: PHPickerViewControllerDelegate {
     let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
     let presenter = topVC as? Spinnable
     presenter?.spin()
-    guard fetchResult.count == identifiers.count else {
+    guard PHPhotoLibrary.authorizationStatus() == .authorized else {
       DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
         self.handleFullFeatureFlow(identifiers)
       }
       return
     }
     composition.saveAssetsToTempDirectory(from: fetchResult) { success in
-      guard success else {
+      guard PHPhotoLibrary.authorizationStatus() == .authorized else {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
           self.handleFullFeatureFlow(identifiers)
         }
