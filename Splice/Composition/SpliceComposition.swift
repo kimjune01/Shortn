@@ -212,10 +212,12 @@ class SpliceComposition: CustomStringConvertible {
   }
   
   func copy(phAsset: PHAsset, to directory: URL, _ completion: @escaping BoolCompletion) {
+    let options = PHVideoRequestOptions()
+    options.isNetworkAccessAllowed = true
     PHImageManager
       .default()
       .requestAVAsset(forVideo: phAsset,
-                      options: nil) { asset, mix, info in
+                      options: options) { asset, mix, info in
         guard let urlAsset = asset as? AVURLAsset,
               let videoData = NSData(contentsOf: urlAsset.url) else {
                 assert(false, "could not save to temp dir")
