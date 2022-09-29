@@ -31,17 +31,20 @@ enum VideoHelper {
 
   static func orientation(for track: AVAssetTrack) -> UIInterfaceOrientation {
     let t = track.preferredTransform
-    if(t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0) {
+    if (t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0) {
       if track.naturalSize.width > track.naturalSize.height {
         return .landscapeRight
       } else {
         return .portrait
       }
     }
-    if(t.a == 0 && t.b == -1.0 && t.c == 1.0 && t.d == 0) {
+    if (t.a == 0 && t.b == 1 && t.c == -1 && t.d == 0 && t.tx > 0) {
+      return .portrait
+    }
+    if (t.a == 0 && t.b == -1.0 && t.c == 1.0 && t.d == 0) {
       return .portraitUpsideDown
     }
-    if(t.a == -1.0 && t.b == 0 && t.c == 0 && t.d == -1.0) {
+    if (t.a == -1.0 && t.b == 0 && t.c == 0 && t.d == -1.0) {
       return .landscapeLeft
     }
     return .unknown
@@ -88,15 +91,40 @@ enum VideoHelper {
         .scaledBy(x: 1/2, y: 1/2)
         .translatedBy(x: horizontalPadding, y: verticalPadding)
     case .landscapeRight:
-      let verticalPadding = abs(naturalSize.width - naturalSize.height) * 1.3
+      let verticalPadding = abs(naturalSize.width - naturalSize.height) * 1.77
       return CGAffineTransform(a: 1,b: 0,c: 0,d: 1,tx: 0,ty: 0)
-        .scaledBy(x: 1/2, y: 1/2)
+        .scaledBy(x: 1/1.9, y: 1/1.9)
         .translatedBy(x: 0, y: verticalPadding)
     @unknown default:
       return transform
     }
   }
-
+  
+  // fit the asset track into a landscape frame
+  static func transformLandscape(basedOn assetTrack: AVAssetTrack) -> CGAffineTransform {
+    let transform = assetTrack.preferredTransform
+    let orientation = orientation(for: assetTrack)
+    let naturalSize = assetTrack.naturalSize.applying(transform)
+    let aspect = abs(naturalSize.height / naturalSize.width)
+    switch orientation {
+    case .unknown:
+      return transform
+    case .portrait:
+      let horizontalPadding = (naturalSize.width + naturalSize.height) / 2
+      return transform.scaledBy(x: 1/aspect, y: 1/aspect).translatedBy(x: 0, y: -horizontalPadding)
+    case .portraitUpsideDown:
+      let horizontalPadding = (naturalSize.width + naturalSize.height) * 1.5
+      let verticalPadding = (naturalSize.width + naturalSize.height) * 1.35
+      return transform.scaledBy(x: 1/1.7, y: 1/1.7).translatedBy(x: -horizontalPadding, y: -verticalPadding)
+    case .landscapeLeft:
+      return transform
+    case .landscapeRight:
+      return transform
+    @unknown default:
+      return transform
+    }
+  }
+  
   static func exportPreset(for asset: AVAsset) -> String {
     let presets = AVAssetExportSession.exportPresets(compatibleWith: asset)
     var preference: [String] = [

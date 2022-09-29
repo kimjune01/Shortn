@@ -121,10 +121,13 @@ class Compositor {
     let firstTransform = firstClipVideoTrack.preferredTransform
     let natural = firstClipVideoTrack.naturalSize
     if (firstTransform.a == 1.0 && firstTransform.d == 1.0 &&
-        natural.width < natural.height
-    ) {
+        natural.width < natural.height) {
+      isPortraitFrame = true
+    } else if (firstTransform.b == 1.0 && firstTransform.c == -1.0 &&
+               natural.width > natural.height && firstTransform.tx > 0) {
       isPortraitFrame = true
     }
+    
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
     videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
     let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
@@ -378,29 +381,9 @@ class Compositor {
     // 4 cases total, potrait frame * asset orientation
     if isPortraitFrame {
       return VideoHelper.transformPortrait(basedOn: assetTrack)
+    } else {
+      return VideoHelper.transformLandscape(basedOn: assetTrack)
     }
-    return assetTrack.preferredTransform
-    if !isPortraitFrame {
-      if isPortraitAsset {
-        let scaleFactor = renderSize.height / absoluteSize.height
-        let boxPortionX = (renderSize.width - absoluteSize.width * scaleFactor) / renderSize.width
-        return transform
-          .scaledBy(x: scaleFactor, y: scaleFactor)
-          .translatedBy(x: 0, y: boxPortionX * renderSize.height * 1.5)
-      } else {
-        let scaleFactor = absoluteSize.width / renderSize.width
-        let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-        let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
-        if frameAspect >= assetAspect {
-          return transform.scaledBy(x: scaleFactor, y: scaleFactor)
-            .translatedBy(x: boxPortionX * renderSize.width, y: 0)
-        } else {
-          return transform.scaledBy(x: 1/scaleFactor, y: 1/scaleFactor)
-            .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
-        }
-      }
-    }
-    return .identity
   }
   
   func debugPrint(_ str: String) {
