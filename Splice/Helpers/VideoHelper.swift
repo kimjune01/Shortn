@@ -31,14 +31,15 @@ enum VideoHelper {
 
   static func orientation(for track: AVAssetTrack) -> UIInterfaceOrientation {
     let t = track.preferredTransform
-    if(t.a == 0 && t.b == 1.0 && t.c == -1.0 && t.d == 0) {
-      return .portrait
+    if(t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0) {
+      if track.naturalSize.width > track.naturalSize.height {
+        return .landscapeRight
+      } else {
+        return .portrait
+      }
     }
     if(t.a == 0 && t.b == -1.0 && t.c == 1.0 && t.d == 0) {
       return .portraitUpsideDown
-    }
-    if(t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0) {
-      return .landscapeRight
     }
     if(t.a == -1.0 && t.b == 0 && t.c == 0 && t.d == -1.0) {
       return .landscapeLeft
@@ -68,7 +69,8 @@ enum VideoHelper {
     }
   }
   
-  static func transform(basedOn assetTrack: AVAssetTrack) -> CGAffineTransform {
+  // fit the asset track into a portrait frame
+  static func transformPortrait(basedOn assetTrack: AVAssetTrack) -> CGAffineTransform {
     let transform = assetTrack.preferredTransform
     let orientation = orientation(for: assetTrack)
     let naturalSize = assetTrack.naturalSize.applying(transform)
@@ -76,13 +78,20 @@ enum VideoHelper {
     case .unknown:
       return transform
     case .portrait:
-      return CGAffineTransform(a: 0,b: 1,c: -1,d: 0,tx: naturalSize.height,ty: 0);
+      return transform
     case .portraitUpsideDown:
-      return CGAffineTransform(a: 0,b: -1,c: 1,d: 0,tx: 0,ty: naturalSize.width);
+      return CGAffineTransform(a: 0,b: -1,c: 1,d: 0,tx: 0,ty: naturalSize.width * 1.77)
     case .landscapeLeft:
-      return CGAffineTransform(a: -1,b: 0,c: 0,d: -1,tx: naturalSize.width,ty: naturalSize.height);
+      let horizontalPadding = abs(naturalSize.width - naturalSize.height) * 2
+      let verticalPadding = -abs(naturalSize.width - naturalSize.height) * 0.3
+      return CGAffineTransform(a: -1,b: 0,c: 0,d: -1,tx: -naturalSize.width,ty: -naturalSize.height)
+        .scaledBy(x: 1/2, y: 1/2)
+        .translatedBy(x: horizontalPadding, y: verticalPadding)
     case .landscapeRight:
-      return CGAffineTransform(a: 1,b: 0,c: 0,d: 1,tx: 0,ty: 0);
+      let verticalPadding = abs(naturalSize.width - naturalSize.height) * 1.3
+      return CGAffineTransform(a: 1,b: 0,c: 0,d: 1,tx: 0,ty: 0)
+        .scaledBy(x: 1/2, y: 1/2)
+        .translatedBy(x: 0, y: verticalPadding)
     @unknown default:
       return transform
     }

@@ -61,7 +61,7 @@ class Compositor {
       group.leave()
     }
     group.wait()
-
+    
     exporter.exportAsynchronously {
       DispatchQueue.main.async {
         switch exporter.status {
@@ -101,27 +101,28 @@ class Compositor {
       withMediaType: .video,
       preferredTrackID: Int32(kCMPersistentTrackID_Invalid))
     else {
-//      completion(nil, CompositionExporterError.avFoundation)
+      //      completion(nil, CompositionExporterError.avFoundation)
       return nil
     }
     guard var audioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
       preferredTrackID: kCMPersistentTrackID_Invalid)
     else {
-//      completion(nil, CompositionExporterError.avFoundation)
+      //      completion(nil, CompositionExporterError.avFoundation)
       return nil
     }
     
     guard let firstAsset = videoAssets.first,
           let firstClipVideoTrack = firstAsset.tracks(withMediaType: .video).first else {
-//      completion(nil, CompositionExporterError.badVideoInput)
+      //      completion(nil, CompositionExporterError.badVideoInput)
       return nil
     }
     var isPortraitFrame = false
     let firstTransform = firstClipVideoTrack.preferredTransform
-    if (firstTransform.a == 0 && firstTransform.d == 0 &&
-        (firstTransform.b == 1.0 || firstTransform.b == -1.0) &&
-        (firstTransform.c == 1.0 || firstTransform.c == -1.0)) {
+    let natural = firstClipVideoTrack.naturalSize
+    if (firstTransform.a == 1.0 && firstTransform.d == 1.0 &&
+        natural.width < natural.height
+    ) {
       isPortraitFrame = true
     }
     let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
@@ -142,7 +143,7 @@ class Compositor {
                                             instructionOutput: &layerInstruction)
     if error != nil {
       return nil
-//      completion(nil, error)
+      //      completion(nil, error)
     }
     
     // for when there is no audio, remove the audio track. For downloaded videos!
@@ -150,7 +151,7 @@ class Compositor {
        audioTrack.segments.isEmpty {
       mixComposition.removeTrack(audioTrack)
     }
-
+    
     spliceInstruction = AVMutableVideoCompositionInstruction()
     spliceInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: totalDuration)
     spliceInstruction.layerInstructions = [layerInstruction]
@@ -229,10 +230,10 @@ class Compositor {
       assert(false)
       print(error)
     }
-
+    
     
     let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-
+    
     let compositionInstruction = AVMutableVideoCompositionInstruction()
     compositionInstruction.timeRange = CMTimeRangeMake(start: .zero, duration: videoAsset.duration)
     compositionInstruction.layerInstructions = [layerInstruction]
@@ -306,10 +307,10 @@ class Compositor {
                   instructionOutput: inout AVMutableVideoCompositionLayerInstruction)
   -> (CMTime, CompositorError?) {
     guard sourceVideoAssets.count > 0 else { return (.zero, .badVideoInput) }
-//    print("splices: ", splices)
-//    print("sum of splices: ", splices.reduce(0.0, { partialResult, sp in
-//      partialResult - sp.lowerBound + sp.upperBound
-//    }))
+    //    print("splices: ", splices)
+    //    print("sum of splices: ", splices.reduce(0.0, { partialResult, sp in
+    //      partialResult - sp.lowerBound + sp.upperBound
+    //    }))
     
     func cuts(for sourceAsset: AVAsset, at index: Int) -> [CMTimeRange]{
       let assetStartTime: Double = sourceVideoAssets[0..<index].reduce(CMTime.zero) { partialResult, prefixAsset in
@@ -339,18 +340,18 @@ class Compositor {
       }
       return ranges
     }
-
+    
     var currentDuration = 0.0.cmTime
     do {
       for i in 0..<sourceVideoAssets.count {
         let sourceAsset = sourceVideoAssets[i]
+        
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
-            sourceVideoTrack.preferredTransform
             let transform = transform(for: sourceVideoTrack,
-                                         isPortraitFrame: isPortraitFrame,
-                                         renderSize: renderSize)
+                                      isPortraitFrame: isPortraitFrame,
+                                      renderSize: renderSize)
             instructionOutput.setTransform(transform, at: currentDuration)
           }
           if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
@@ -367,7 +368,7 @@ class Compositor {
   
   
   func transform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
-    let transform = VideoHelper.transform(basedOn: assetTrack)
+    let transform = VideoHelper.transformPortrait(basedOn: assetTrack)
     let naturalSize = assetTrack.naturalSize.applying(transform)
     let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
     let isPortraitAsset = absoluteSize.width < absoluteSize.height
@@ -376,31 +377,7 @@ class Compositor {
     let assetAspect = absoluteSize.width / absoluteSize.height
     // 4 cases total, potrait frame * asset orientation
     if isPortraitFrame {
-      if isPortraitAsset {
-        if absoluteSize == renderSize {
-          return transform.translatedBy(x: 0, y: absoluteSize.height - absoluteSize.width)
-        }
-        if frameAspect >= assetAspect {
-          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-          return transform
-            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
-            .translatedBy(x: 0, y: -renderSize.width * boxPortionX / 2)
-        } else {
-          let boxPortionX = (renderSize.width - absoluteSize.width) / renderSize.width
-          let boxPortionY = (renderSize.height - absoluteSize.height) / renderSize.height
-          return transform
-            .scaledBy(x: 1-boxPortionY, y: 1-boxPortionY)
-            .translatedBy(x: 0, y: (absoluteSize.height - absoluteSize.width))
-            .translatedBy(x: 0, y: -renderSize.width * boxPortionX)
-            .translatedBy(x: boxPortionY * renderSize.height, y: 0)
-        }
-      } else {
-        let scaleFactor = absoluteSize.height / renderSize.height
-        let boxPortionY = (renderSize.height - absoluteSize.height * scaleFactor) / renderSize.height
-        // HAX
-        return transform.scaledBy(x: scaleFactor, y: scaleFactor)
-          .translatedBy(x: 0, y: boxPortionY * renderSize.height * 0.72)
-      }
+      return VideoHelper.transformPortrait(basedOn: assetTrack)
     }
     return assetTrack.preferredTransform
     if !isPortraitFrame {
@@ -431,5 +408,5 @@ class Compositor {
       print(str)
     }
   }
-
+  
 }
