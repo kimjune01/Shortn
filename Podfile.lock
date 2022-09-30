@@ -1,16 +1,20 @@
 PODS:
+  - Crisp (1.6.4)
   - SwiftKeychainWrapper (4.0.1)
 
 DEPENDENCIES:
+  - Crisp
   - SwiftKeychainWrapper
 
 SPEC REPOS:
   trunk:
+    - Crisp
     - SwiftKeychainWrapper
 
 SPEC CHECKSUMS:
+  Crisp: 551142bfba689e45b76bcbf13e929888fc5cf402
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 5270ccbbae37e1a086712701f58eba19407b4c40
+PODFILE CHECKSUM: eb21463576ad3a07e1c07307823d1ecfa9b0e33f
 
 COCOAPODS: 1.11.3

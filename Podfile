@@ -7,4 +7,6 @@ target 'Shortn' do
 
   # Pods for Splice
 pod 'SwiftKeychainWrapper'
+pod 'Crisp'
+
 end

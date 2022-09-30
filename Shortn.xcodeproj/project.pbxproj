@@ -718,7 +718,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow access to camera for talking to the developer";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allowing access to the microphone lets you record voiceovers.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow access to library for talking to the developer";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -751,7 +753,9 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow access to camera for talking to the developer";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allowing access to the microphone lets you record voiceovers.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow access to library for talking to the developer";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow access to photos & video to shorten them.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
