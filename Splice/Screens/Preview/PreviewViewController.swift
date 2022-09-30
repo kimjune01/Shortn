@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import PhotosUI
+import Crisp
 
 protocol PreviewViewControllerDelegate: AnyObject {
   func previewVCDidFailExport(_ previewVC: PreviewViewController, err: Error?)
@@ -55,6 +56,7 @@ class PreviewViewController: UIViewController {
     addSpinner()
     addWaitLabel()
     addDurationLabel()
+    addChatButton()
     if !composition.assets.isEmpty {
       exportInBackground()
     }
@@ -103,6 +105,32 @@ class PreviewViewController: UIViewController {
     durationLabel.set(width: 70)
     durationLabel.pinTopToParent(margin: 12, insideSafeArea: true)
     durationLabel.roundCorner()
+  }
+  
+  func addChatButton() {
+    var config = UIButton.Configuration.filled()
+    config.baseForegroundColor = .white
+    config.baseBackgroundColor = .black.withAlphaComponent(0.3)
+    config.cornerStyle = .large
+    config.buttonSize = .large
+    config.image = UIImage(systemName: "ellipsis.bubble.fill")!
+
+    let button = UIButton(configuration: config, primaryAction: UIAction() { _ in
+      self.showChatVCWithDialog()
+    })
+    view.addSubview(button)
+    button.pinTrailingToParent(margin: 8)
+    button.pinTopToParent(margin: 10, insideSafeArea: true)
+    
+  }
+  
+  func showChatVCWithDialog() {
+    let alertController = UIAlertController(title: "Chat with the developer", message: "I would love to know about your experience with Shortn. Please help make this app better with feedback. I get notifications straight to my iPhone!", preferredStyle: .alert)
+    alertController.addAction(UIAlertAction(title: "Chat", style: .default, handler: { _ in
+      self.present(ChatViewController(), animated: true)
+    }))
+    alertController.addAction(UIAlertAction(title: "Not now", style: .cancel))
+    present(alertController, animated: true)
   }
   
   func addBottonStack() {
