@@ -713,11 +713,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Video Trimmer";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Allow access to camera for talking to the developer";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allowing access to the microphone lets you record voiceovers.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow access to library for talking to the developer";
@@ -732,7 +732,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -748,11 +748,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 39;
 				DEVELOPMENT_TEAM = 59SVXWFZ98;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Splice/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Shortn;
+				INFOPLIST_KEY_CFBundleDisplayName = "Simple Video Trimmer";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Allow access to camera for talking to the developer";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Allowing access to the microphone lets you record voiceovers.";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Allow access to library for talking to the developer";
@@ -767,7 +767,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.0;
+				MARKETING_VERSION = 1.6.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kim.june.shortn;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

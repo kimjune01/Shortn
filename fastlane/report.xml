@@ -5,34 +5,32 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.00022">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000204">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: get_certificates" time="3.786492">
+      <testcase classname="fastlane.lanes" name="1: get_certificates" time="1.411134">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: get_provisioning_profile" time="2.17994">
+      <testcase classname="fastlane.lanes" name="2: get_provisioning_profile" time="1.004043">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="3: increment_build_number" time="1.087482">
+      <testcase classname="fastlane.lanes" name="3: increment_build_number" time="0.741565">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="4: build_app" time="33.408345">
+      <testcase classname="fastlane.lanes" name="4: build_app" time="27.092832">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="5: upload_to_app_store" time="4.597652">
-        
-          <failure message="/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/actions/actions_helper.rb:67:in `execute_action'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:255:in `block in execute_action'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:229:in `chdir'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:229:in `execute_action'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:157:in `trigger_action_by_name'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/fast_file.rb:159:in `method_missing'&#10;Fastfile:25:in `block (2 levels) in parsing_binding'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/lane.rb:33:in `call'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:49:in `block in execute'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:45:in `chdir'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/runner.rb:45:in `execute'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/lane_manager.rb:47:in `cruise_lane'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/command_line_handler.rb:36:in `handle'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/commands_generator.rb:110:in `block (2 levels) in run'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/commander-4.6.0/lib/commander/command.rb:187:in `call'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/commander-4.6.0/lib/commander/command.rb:157:in `run'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/commander-4.6.0/lib/commander/runner.rb:444:in `run_active_command'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane_core/lib/fastlane_core/ui/fastlane_runner.rb:124:in `run!'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/commander-4.6.0/lib/commander/delegates.rb:18:in `run!'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/commands_generator.rb:354:in `run'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/commands_generator.rb:43:in `start'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/fastlane/lib/fastlane/cli_tools_distributor.rb:123:in `take_off'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/gems/fastlane-2.210.1/bin/fastlane:23:in `&lt;top (required)&gt;'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/bin/fastlane:23:in `load'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/bin/fastlane:23:in `&lt;main&gt;'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/bin/ruby_executable_hooks:22:in `eval'&#10;/Users/junekim/.rvm/gems/ruby-2.7.2/bin/ruby_executable_hooks:22:in `&lt;main&gt;'&#10;&#10;The provided entity includes an attribute with a value that has already been used - The version number has been previously used. - /data/attributes/versionString" />
+      <testcase classname="fastlane.lanes" name="5: upload_to_app_store" time="3173.206448">
         
       </testcase>
     
