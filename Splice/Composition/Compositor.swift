@@ -117,6 +117,9 @@ class Compositor {
       //      completion(nil, CompositionExporterError.badVideoInput)
       return nil
     }
+    
+    let maxLandscapeSize = VideoHelper.maxLandscapeSize(videoAssets)
+    let maxPortraitSize = VideoHelper.maxPortraitSize(videoAssets)
     var isPortraitFrame = false
     let firstTransform = firstClipVideoTrack.preferredTransform
     let natural = firstClipVideoTrack.naturalSize
@@ -128,10 +131,13 @@ class Compositor {
       isPortraitFrame = true
     }
     
-    let naturalSize = firstClipVideoTrack.naturalSize.applying(firstClipVideoTrack.preferredTransform)
-    videoTrack.preferredTransform = firstClipVideoTrack.preferredTransform
-    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    mixComposition.naturalSize = absoluteSize
+    videoTrack.preferredTransform = .identity
+    
+    if isPortraitFrame {
+      mixComposition.naturalSize = maxPortraitSize
+    } else {
+      mixComposition.naturalSize = maxLandscapeSize
+    }
     // 1 instruction per layer!
     // use videoTrack instead of firstClipVideoTrack
     // https://www.ostack.cn/?qa=908888/
@@ -160,7 +166,7 @@ class Compositor {
     spliceInstruction.layerInstructions = [layerInstruction]
     
     spliceComposition = AVMutableVideoComposition()
-    spliceComposition.renderSize = absoluteSize
+    spliceComposition.renderSize = mixComposition.naturalSize
     spliceComposition.instructions = [spliceInstruction]
     spliceComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(firstClipVideoTrack.nominalFrameRate.rounded()))
     
@@ -352,9 +358,8 @@ class Compositor {
         for eachRange in cuts(for: sourceAsset, at: i) {
           if let sourceVideoTrack = sourceAsset.tracks(withMediaType: .video).first {
             try videoTrackOutput.insertTimeRange(eachRange, of: sourceVideoTrack, at: currentDuration)
-            let transform = transform(for: sourceVideoTrack,
-                                      isPortraitFrame: isPortraitFrame,
-                                      renderSize: renderSize)
+            let transform = VideoHelper.scaleAspectFitTransform(for: sourceVideoTrack,
+                                                                into: renderSize)
             instructionOutput.setTransform(transform, at: currentDuration)
           }
           if let sourceAudioTrack = sourceAsset.tracks(withMediaType: .audio).first {
@@ -367,23 +372,6 @@ class Compositor {
       return (.zero, .badVideoInput)
     }
     return (currentDuration, nil)
-  }
-  
-  
-  func transform(for assetTrack: AVAssetTrack, isPortraitFrame: Bool, renderSize: CGSize) -> CGAffineTransform {
-    let transform = VideoHelper.transformPortrait(basedOn: assetTrack)
-    let naturalSize = assetTrack.naturalSize.applying(transform)
-    let absoluteSize = CGSize(width: abs(naturalSize.width), height: abs(naturalSize.height))
-    let isPortraitAsset = absoluteSize.width < absoluteSize.height
-    
-    let frameAspect = renderSize.width / renderSize.height
-    let assetAspect = absoluteSize.width / absoluteSize.height
-    // 4 cases total, potrait frame * asset orientation
-    if isPortraitFrame {
-      return VideoHelper.transformPortrait(basedOn: assetTrack)
-    } else {
-      return VideoHelper.transformLandscape(basedOn: assetTrack)
-    }
   }
   
   func debugPrint(_ str: String) {

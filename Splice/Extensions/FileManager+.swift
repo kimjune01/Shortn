@@ -83,7 +83,7 @@ extension FileManager {
         let attr = try attributesOfItem(atPath: contentUrl.path)
         let creationDate = attr[.creationDate] as? Date
         // set stale clock to 24 hours
-        if let created = creationDate, abs(created.timeIntervalSinceNow / 3600) > 24  {
+        if let created = creationDate, abs(created.timeIntervalSinceNow) > 24 * 3600  {
           // stale. delete!
           print("deleting file at \(contentUrl.lastPathComponent)")
           try removeItem(at: contentUrl)
