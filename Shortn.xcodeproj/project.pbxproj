@@ -33,6 +33,8 @@
 		0E2511FA272E582A00E425D6 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511F9272E582A00E425D6 /* PreviewViewController.swift */; };
 		0E2511FC272E592A00E425D6 /* Compositor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FB272E592A00E425D6 /* Compositor.swift */; };
 		0E2511FE272E59A800E425D6 /* VideoHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E2511FD272E59A800E425D6 /* VideoHelper.swift */; };
+		0E679DB729693B0F00DDD85A /* DebugVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E679DB629693B0F00DDD85A /* DebugVC.swift */; };
+		0E679DB929693C1F00DDD85A /* DebugCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E679DB829693C1F00DDD85A /* DebugCoordinator.swift */; };
 		0E7802642748E5BD005772F2 /* TimelineControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802632748E5BD005772F2 /* TimelineControl.swift */; };
 		0E7802662748E945005772F2 /* TimelineScrollViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802652748E945005772F2 /* TimelineScrollViewController.swift */; };
 		0E7802682748EB8D005772F2 /* ThumbnailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */; };
@@ -106,6 +108,8 @@
 		0E2511F9272E582A00E425D6 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
 		0E2511FB272E592A00E425D6 /* Compositor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compositor.swift; sourceTree = "<group>"; };
 		0E2511FD272E59A800E425D6 /* VideoHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoHelper.swift; sourceTree = "<group>"; };
+		0E679DB629693B0F00DDD85A /* DebugVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugVC.swift; sourceTree = "<group>"; };
+		0E679DB829693C1F00DDD85A /* DebugCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugCoordinator.swift; sourceTree = "<group>"; };
 		0E7802632748E5BD005772F2 /* TimelineControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineControl.swift; sourceTree = "<group>"; };
 		0E7802652748E945005772F2 /* TimelineScrollViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineScrollViewController.swift; sourceTree = "<group>"; };
 		0E7802672748EB8D005772F2 /* ThumbnailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailsViewController.swift; sourceTree = "<group>"; };
@@ -195,6 +199,7 @@
 			children = (
 				0E2511BB2726066800E425D6 /* AppDelegate.swift */,
 				0E2511BD2726066800E425D6 /* SceneDelegate.swift */,
+				0E679DB529693B0200DDD85A /* Debug */,
 				0E2EC9C6272F348900AE84A1 /* Composition */,
 				0E2EC9C4272F340000AE84A1 /* Screens */,
 				0E2EC9C7272F34AA00AE84A1 /* Extensions */,
@@ -269,6 +274,15 @@
 				0EE01086274B3DD60079A592 /* UIScrollView+.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		0E679DB529693B0200DDD85A /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				0E679DB829693C1F00DDD85A /* DebugCoordinator.swift */,
+				0E679DB629693B0F00DDD85A /* DebugVC.swift */,
+			);
+			path = Debug;
 			sourceTree = "<group>";
 		};
 		0E78026F274AEB26005772F2 /* Thumbnails */ = {
@@ -524,6 +538,7 @@
 				0EF5933A2751DEA200FB3960 /* VoiceoverViewController.swift in Sources */,
 				0E78026E274AB62D005772F2 /* IntervalsViewController.swift in Sources */,
 				0E7A24422731EC8400A57A40 /* WaveformLiveView.swift in Sources */,
+				0E679DB929693C1F00DDD85A /* DebugCoordinator.swift in Sources */,
 				0EF5934A275AD0E200FB3960 /* UIViewController+.swift in Sources */,
 				0E2511E027260CED00E425D6 /* Date+.swift in Sources */,
 				0E2511F6272E0DB600E425D6 /* TimeInterval+.swift in Sources */,
@@ -550,6 +565,7 @@
 				0E2511DC27260C5400E425D6 /* Duration+.swift in Sources */,
 				0E7A24452731EC8400A57A40 /* WaveformAnalyzer.swift in Sources */,
 				0EF593482759B22100FB3960 /* UILabel+.swift in Sources */,
+				0E679DB729693B0F00DDD85A /* DebugVC.swift in Sources */,
 				0EC339012732EC72003D9E63 /* String+.swift in Sources */,
 				0E7802682748EB8D005772F2 /* ThumbnailsViewController.swift in Sources */,
 				0EC3390F273AA90A003D9E63 /* ShortnAppProduct.swift in Sources */,
