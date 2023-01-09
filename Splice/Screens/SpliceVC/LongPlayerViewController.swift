@@ -51,6 +51,7 @@ class LongPlayerViewController: UIViewController {
     return player.timeControlStatus
   }
   var isPlaying: Bool {
+    if player == nil { return false }
     return playbackState == .playing
   }
   
@@ -232,6 +233,7 @@ class LongPlayerViewController: UIViewController {
   }
   
   func togglePlayback() {
+    guard let player = player else { return }
     if player.timeControlStatus == .playing {
       player.pause()
       state = .paused

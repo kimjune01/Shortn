@@ -317,7 +317,8 @@ class SpliceViewController: UIViewController {
       UIView.animate(withDuration: 0.2) {
         self.spliceButton.transform = CGAffineTransform(scaleX: 1, y: 1)
       }
-      playButton.isEnabled = timelineVC.scrubbingState == .notScrubbing
+      spliceButton.isEnabled = composition.assets.count > 0
+      playButton.isEnabled = composition.assets.count > 0 && timelineVC.scrubbingState == .notScrubbing
       previewButton.isEnabled = composition.splices.count > 0
     case .looping(let spliceIndex):
       playerVC.view.isUserInteractionEnabled = true

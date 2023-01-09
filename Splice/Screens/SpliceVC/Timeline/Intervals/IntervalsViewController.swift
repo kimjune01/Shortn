@@ -148,7 +148,9 @@ extension IntervalsViewController: IntervalViewDelegate {
     let leftTimeDiff = leftPan / pixelsPerSecond
     if let oldSplice = intervalView.assignedSplice,
     let index = currentlySelectedIndex {
-      let newSplice = (oldSplice.lowerBound + leftTimeDiff)...oldSplice.upperBound
+      let left = oldSplice.lowerBound + leftTimeDiff
+      let right = oldSplice.upperBound
+      let newSplice = min(left, right)...max(left, right)
       delegate?.intervalsVCDidModifyInterval(at: index, newSplice: newSplice)
     }
   }
@@ -157,7 +159,9 @@ extension IntervalsViewController: IntervalViewDelegate {
     print("rightTimeDiff: ", rightTimeDiff)
     if let oldSplice = intervalView.assignedSplice,
         let index = currentlySelectedIndex {
-      let newSplice = oldSplice.lowerBound...(oldSplice.upperBound + rightTimeDiff)
+      let left = oldSplice.lowerBound
+      let right = oldSplice.upperBound + rightTimeDiff
+      let newSplice = min(left, right)...max(left, right)
       delegate?.intervalsVCDidModifyInterval(at: index, newSplice: newSplice)
     }
   }

@@ -241,6 +241,10 @@ class SpliceComposition: CustomStringConvertible {
     assetTransformQueue.async {
       var tempAssets: [AVAsset?] = Array(repeating: nil, count: fetchCount)
       for i in 0..<fetchCount {
+        guard i < fetchResult.count else {
+          continue
+        }
+            
         let eachVideoAsset = fetchResult.object(at: i)
         let identifier = eachVideoAsset.localIdentifier
         self.group.enter()
