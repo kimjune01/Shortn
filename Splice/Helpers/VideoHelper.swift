@@ -28,7 +28,7 @@ enum VideoHelper {
   
   // cropFactor 0 means it's scale aspect fit, everything fits inside with black bars.
   // cropFactor 1 means it's scale aspect fill, there's no black bars left.
-  static func scaleAspectFitTransform(for assetTrack: AVAssetTrack, into renderSize: CGSize, cropFactor: CGFloat = 0.5) -> CGAffineTransform {
+  static func scaleAspectFitTransform(for assetTrack: AVAssetTrack, into renderSize: CGSize, cropFactor: CGFloat = 0.25) -> CGAffineTransform {
     guard renderSize.width > 0, renderSize.height > 0 else { return .identity }
     let naturalSize = assetTrack.naturalSize.applying(assetTrack.preferredTransform)
     let absoluteSize = CGSize(width: abs(naturalSize.width),
