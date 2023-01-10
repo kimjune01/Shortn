@@ -198,7 +198,7 @@ class Compositor {
       completion(nil, CompositorError.avFoundation)
       return
     }
-    guard var videoAudioTrack = mixComposition.addMutableTrack(
+    guard let videoAudioTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
       preferredTrackID: kCMPersistentTrackID_Invalid)
     else {

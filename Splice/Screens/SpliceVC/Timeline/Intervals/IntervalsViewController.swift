@@ -70,7 +70,6 @@ class IntervalsViewController: UIViewController {
       interval.removeFromSuperview()
     }
     intervals = []
-    let totalDuration = composition.totalDuration
     composition.splices.forEach { splice in
       let minX = splice.lowerBound * self.pixelsPerSecond
       let maxX = splice.upperBound * self.pixelsPerSecond
