@@ -26,7 +26,10 @@ enum VideoHelper {
     return AVAssetExportPresetPassthrough
   }
   
-  static func scaleAspectFitTransform(for assetTrack: AVAssetTrack, into renderSize: CGSize) -> CGAffineTransform {
+  // cropFactor 0 means it's scale aspect fit, everything fits inside with black bars.
+  // cropFactor 1 means it's scale aspect fill, there's no black bars left.
+  static func scaleAspectFitTransform(for assetTrack: AVAssetTrack, into renderSize: CGSize, cropFactor: CGFloat = 0.5) -> CGAffineTransform {
+    guard renderSize.width > 0, renderSize.height > 0 else { return .identity }
     let naturalSize = assetTrack.naturalSize.applying(assetTrack.preferredTransform)
     let absoluteSize = CGSize(width: abs(naturalSize.width),
                               height: abs(naturalSize.height))
@@ -48,7 +51,18 @@ enum VideoHelper {
     let plainTranslation = CGAffineTransform.identity.translatedBy(x: widthDiff / 2,
                                                                    y: heightDiff / 2)
     
-    return output.concatenating(plainTranslation)
+    let widthBlackPortion = abs(renderSize.width - compressedSize.width) / renderSize.width
+    let heightBlackPortion = abs(renderSize.height - compressedSize.height) / renderSize.height
+    let blackBarPortion = max(widthBlackPortion, heightBlackPortion)
+    let zoomFactor =  (1 - cropFactor) + cropFactor / (1 - blackBarPortion)
+    
+    var zoom = CGAffineTransform.identity
+    zoom.tx = (1-zoomFactor) * renderSize.width / 2
+    zoom.ty = (1-zoomFactor) * renderSize.height / 2
+    zoom.a = zoomFactor
+    zoom.d = zoomFactor
+    
+    return output.concatenating(plainTranslation).concatenating(zoom)
   }
   
   static func isMixedSize(_ assets: [AVAsset]) -> Bool {
