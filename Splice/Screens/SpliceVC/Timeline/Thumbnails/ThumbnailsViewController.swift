@@ -23,6 +23,8 @@ class ThumbnailsViewController: UIViewController {
   weak var delegate: ThumbnailsViewControllerDelegate?
   var scrollView: UIScrollView!
   let imageViewsContainer = UIView()
+  let beatMeterView = UIView()
+
   weak var scrollDelegate: UIScrollViewDelegate?
   unowned var composition: SpliceComposition
   var clipsThumbnails: [[Thumbnail]] = []
@@ -56,6 +58,14 @@ class ThumbnailsViewController: UIViewController {
     addScrollView()
     placeholdImageViews()
     generateThumbnails()
+    addBeatMeter()
+    subscribeToBpmConfigNotification()
+  }
+  
+  func subscribeToBpmConfigNotification() {
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(bpmConfigChanged),
+                                           name: Notification.Name(BpmConfig.changedNotificationName), object: nil)
   }
   
   func addScrollView() {
@@ -112,6 +122,37 @@ class ThumbnailsViewController: UIViewController {
     scrollView.alpha = 0
     UIView.animate(withDuration: 0.3) {
       self.scrollView.alpha = 1
+    }
+  }
+  
+  func addBeatMeter() {
+    beatMeterView.isUserInteractionEnabled = false
+    scrollView.addSubview(beatMeterView)
+  }
+  
+  func layoutBeatMeter() {
+    for subview in beatMeterView.subviews {
+      subview.removeFromSuperview()
+    }
+    guard (BpmConfig.userDefault().isEnabled) else {
+      return
+    }
+    beatMeterView.frame = imageViewsContainer.frame
+    
+    let duration = composition.totalDuration
+    let pixelsCount = imageViewsContainer.width
+    let pixelsPerSecond = pixelsCount / duration
+    let pixelsPerBeat = pixelsPerSecond * 60 / Double(composition.bpm ?? 60)
+    
+    var cursor: CGFloat = 0
+    while cursor < pixelsCount {
+      let beatBar = UIView(frame: CGRect(
+        x: cursor, y: 0,
+        width: 1, height: beatMeterView.height))
+      beatBar.backgroundColor = .white.withAlphaComponent(0.3)
+      beatBar.isUserInteractionEnabled = false
+      beatMeterView.addSubview(beatBar)
+      cursor += pixelsPerBeat
     }
   }
   
@@ -187,6 +228,7 @@ class ThumbnailsViewController: UIViewController {
   func renderFreshAssets() {
     placeholdImageViews()
     generateThumbnails()
+    layoutBeatMeter()
   }
   
   func estimatedContentWidth() -> CGFloat {
@@ -217,6 +259,14 @@ class ThumbnailsViewController: UIViewController {
         }
       }
     }
+  }
+  
+  @objc func bpmConfigChanged() {
+    layoutBeatMeter()
+  }
+  
+  deinit {
+    NotificationCenter.default.removeObserver(self)
   }
 }
 

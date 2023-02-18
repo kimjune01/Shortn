@@ -64,6 +64,7 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
   override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
     unsubscribeFromDisplayLink()
+    
   }
   
   func addThumbnailsVC() {
@@ -128,6 +129,10 @@ class TimelineScrollViewController: UIViewController, TimelineControl {
   
   func unsubscribeFromDisplayLink() {
     displayLink.invalidate()
+  }
+  
+  @objc func bpmConfigChanged() {
+    
   }
   
   @objc func displayStep(_ displaylink: CADisplayLink) {

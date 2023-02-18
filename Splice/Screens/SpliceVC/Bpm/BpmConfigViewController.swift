@@ -55,7 +55,7 @@ class BpmConfigViewController: UIViewController {
   func addToggle() {
     let horizontal = makeHorizontalStack()
     let label = UILabel()
-    label.text = "Turn on Visual Metronome"
+    label.text = "Turn on Cut to the Beat"
     horizontal.addArrangedSubview(label)
     horizontal.addArrangedSubview(toggle)
     toggle.addTarget(self, action: #selector(switchedToggle), for: .valueChanged)

@@ -109,8 +109,7 @@ class BpmBadgeViewController: UIViewController {
   
   @objc func tappedView() {
     if state == .ticking {
-      config.isEnabled = false
-      config.setAsDefault()
+      state = .stopped
     } else {
       let bpmConfigVC = BpmConfigViewController()
       bpmConfigVC.delegate = self
@@ -119,7 +118,7 @@ class BpmBadgeViewController: UIViewController {
   }
   
   func tick() {
-    tickTockView.alpha = 1
+    tickTockView.alpha = 0.85
     UIView.animate(withDuration: 60 / Double(config.bpm), delay: 0, options: [.curveEaseOut]) {
       self.tickTockView.alpha = 0.25
     }
@@ -149,5 +148,6 @@ extension BpmBadgeViewController: BPMTimerDelegate {
 extension BpmBadgeViewController: BpmConfigViewControllerDelegate {
   func didUpdate(config: BpmConfig) {
     self.config = config
+    NotificationCenter.default.post(Notification(name: Notification.Name(rawValue: BpmConfig.changedNotificationName)))
   }
 }

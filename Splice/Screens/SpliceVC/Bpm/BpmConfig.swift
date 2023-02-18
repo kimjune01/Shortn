@@ -16,9 +16,11 @@ struct BpmConfig {
   private static let bpmKey = "BpmConfig.bpm"
   private static let measureKey = "BpmConfig.measure"
   
+  static let changedNotificationName = "BpmConfig.changed"
+  
   static func userDefault() -> BpmConfig {
     let enable = UserDefaults.standard.bool(forKey: BpmConfig.enabledKey)
-    var bpm = 108
+    var bpm = 100
     let standardBpm = UserDefaults.standard.integer(forKey: bpmKey)
     if standardBpm > 0 {
       bpm = standardBpm
@@ -39,7 +41,7 @@ struct BpmConfig {
   
   static var bpmOptions: [Int] {
     let min =  50
-    let max = 300
+    let max = 200
     return Array(stride(from: min, to: max, by: 2))
   }
   

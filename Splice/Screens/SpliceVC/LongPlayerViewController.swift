@@ -67,7 +67,7 @@ class LongPlayerViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     addPlayerView()
-    addFastPanels()
+//    addFastPanels()
     addDoubleTapTutorial()
   }
   

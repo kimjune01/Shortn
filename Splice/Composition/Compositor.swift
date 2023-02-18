@@ -93,7 +93,7 @@ class Compositor {
    */
   func concatAndSplice() -> AVAsset? {
     assert(composition.assets.count > 0, "empty clips cannot be exported")
-    //    composition.cutToTheBeatIfNeeded()
+    composition.cutToTheBeatIfNeeded()
     let videoAssets: [AVAsset] = composition.assets
     
     let mixComposition = AVMutableComposition()
@@ -130,7 +130,7 @@ class Compositor {
                natural.width > natural.height && firstTransform.tx > 0) {
       isPortraitFrame = true
     }
-    
+     
     videoTrack.preferredTransform = .identity
     
     if isPortraitFrame {
@@ -191,21 +191,16 @@ class Compositor {
       completion(nil, CompositorError.avFoundation)
       return
     }
-    guard let audioTrack = mixComposition.addMutableTrack(
+    guard let originalAudioTrack: AVMutableCompositionTrack = mixComposition.addMutableTrack(
       withMediaType: .audio,
       preferredTrackID: kCMPersistentTrackID_Invalid)
     else {
       completion(nil, CompositorError.avFoundation)
       return
     }
-    guard let videoAudioTrack = mixComposition.addMutableTrack(
-      withMediaType: .audio,
-      preferredTrackID: kCMPersistentTrackID_Invalid)
-    else {
-      completion(nil, CompositorError.avFoundation)
-      return
-    }
-    
+    let audioMix = AVMutableAudioMix()
+    var audioMixParam: [AVMutableAudioMixInputParameters] = []
+
     
     do {
       let wholeRange = CMTimeRange(start: .zero, duration: videoAsset.duration)
@@ -213,17 +208,31 @@ class Compositor {
         throw CompositorError.badVideoInput
       }
       try videoTrack.insertTimeRange(wholeRange, of: videoAssetTrack, at: .zero)
-      if composition.includeOriginalAudio {
-        guard let videoAudioAssetTrack = videoAsset.tracks(withMediaType: .audio).first else {
-          throw CompositorError.badVideoAudio
+      if composition.includeOriginalAudio,
+         let sourceOriginalAudioTrack = videoAsset.tracks(withMediaType: .audio).first {
+        
+        let originalAudioParam: AVMutableAudioMixInputParameters = AVMutableAudioMixInputParameters(track: sourceOriginalAudioTrack)
+        originalAudioParam.trackID = sourceOriginalAudioTrack.trackID
+        audioMixParam.append(originalAudioParam)
+        
+        try originalAudioTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: wholeRange.duration),
+                                       of: sourceOriginalAudioTrack,
+                                       at: .zero)
         }
-        try videoAudioTrack.insertTimeRange(wholeRange, of: videoAudioAssetTrack, at: .zero)
-      }
+      
     } catch {
       assert(false)
       print(error)
     }
     
+    guard let voAudioTrack: AVMutableCompositionTrack = mixComposition.addMutableTrack(
+      withMediaType: .audio,
+      preferredTrackID: kCMPersistentTrackID_Invalid)
+    else {
+      completion(nil, CompositorError.avFoundation)
+      return
+    }
+
     var currentTime: TimeInterval = 0
     do {
       for eachSegment in segments {
@@ -231,8 +240,14 @@ class Compositor {
           completion(nil, CompositorError.badVoiceoverInput)
           return
         }
-        let range = CMTimeRange(start: .zero, duration: eachSegment.duration)
-        try audioTrack.insertTimeRange(range, of: voiceoverTrack, at: currentTime.cmTime)
+        let capDuration: CMTime = videoAsset.duration - currentTime.cmTime
+        let range = CMTimeRange(start: .zero, duration: min(eachSegment.duration, capDuration))
+        try voAudioTrack.insertTimeRange(range, of: voiceoverTrack, at: currentTime.cmTime)
+
+        let voiceoverAudioParam: AVMutableAudioMixInputParameters = AVMutableAudioMixInputParameters(track: voiceoverTrack)
+        voiceoverAudioParam.trackID = voiceoverTrack.trackID
+        audioMixParam.append(voiceoverAudioParam)
+
         currentTime += eachSegment.duration.seconds
       }
     } catch {
@@ -240,6 +255,8 @@ class Compositor {
       print(error)
     }
     
+    audioMix.inputParameters = audioMixParam
+
     
     let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
     
@@ -272,6 +289,7 @@ class Compositor {
     exporter.outputURL = url
     exporter.shouldOptimizeForNetworkUse = true
     exporter.videoComposition = videoComposition
+    exporter.audioMix = audioMix
     let group = DispatchGroup()
     group.enter()
     exporter.determineCompatibleFileTypes { types in
